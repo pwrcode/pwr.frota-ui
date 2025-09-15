@@ -79,7 +79,6 @@ export type postListagemPessoaType = {
   isMotorista: boolean | null,
   isSeguradora: boolean | null,
   ativo: boolean | null,
-  idPais: number | null,
   idUF: number | null,
   idMunicipio: number | null
 }

@@ -11,6 +11,9 @@ const UsuarioForm = lazy(() => import("@/pages/Usuario/UsuarioForm"));
 const PerfilAcesso = lazy(() => import("@/pages/PerfilAcesso/Index"));
 const PerfilAcessoPermissoes = lazy(() => import("@/pages/PerfilAcesso/PerfilAcessoPermissoes"));
 const Dashboard = lazy(() => import("@/pages/Dashboard/Index"));
+const Uf = lazy(() => import("@/pages/Uf/Index"));
+const Municipio = lazy(() => import("@/pages/Municipio/Index"));
+const Bairro = lazy(() => import("@/pages/Bairro/Index"));
 
 const PublicRoute = () => (
   <Suspense fallback={
@@ -38,6 +41,9 @@ const routeList = [
   { path: "/perfil-acesso", element: <PerfilAcesso />, label: "Perfil Acesso" },
   { path: "/perfil-acesso/permissoes/:id?", element: <PerfilAcessoPermissoes />, label: "invisible" },
   { path: "/dashboard", element: <Dashboard />, label: "Dashboard" },
+  { path: "/uf", element: <Uf />, label: "Uf" },
+  { path: "/municipio", element: <Municipio />, label: "Munícipio" },
+  { path: "/bairro", element: <Bairro />, label: "Bairro" },
 ]
 
 const routeObjects: RouteObject[] = routeList.map(({ label, ...route }) => ({

@@ -10,13 +10,38 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border-transparent bg-neutral-900 text-neutral-50 hover:bg-neutral-900/80 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/80",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border-transparent bg-red-500 text-neutral-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/80",
+        outline: "text-neutral-950 dark:text-neutral-50 dark:border-neutral-100",
+        success:
+          "border-transparent bg-green-500 text-white hover:bg-green-500/80",
+        warning:
+          "border-transparent bg-orange-500 text-white hover:bg-orange-500/80",
+        blue:
+          "border-transparent bg-blue-500 text-white",
+        green:
+          "border-transparent bg-green-500 text-white",
+        yellow:
+          "border-transparent bg-yellow-500 text-white",
+        red:
+          "border-transparent bg-red-500 text-white",
+        lightGreen:
+          "border-transparent bg-green-200 text-green-900 hover:bg-green-200/80",
+        darkGreen:
+          "border-transparent bg-green-600 text-white hover:bg-green-600/80",
+        lightRed:
+          "border-transparent bg-red-200 text-red-700 hover:bg-red-200/80",
+        lightOrange:
+          "border-transparent bg-orange-200 text-orange-700 hover:bg-orange-200/80",
+        lightYellow:
+          "border-transparent bg-yellow-200 text-white hover:bg-yellow-200/80",
+        lightBlue:
+          "border-transparent bg-blue-200 text-white hover:bg-blue-200/80",
+        lightPurple:
+          "border-transparent bg-purple-200 text-purple-800 hover:bg-purple-200/80",
       },
     },
     defaultVariants: {
