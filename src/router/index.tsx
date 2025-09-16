@@ -14,6 +14,7 @@ const Dashboard = lazy(() => import("@/pages/Dashboard/Index"));
 const Uf = lazy(() => import("@/pages/Uf/Index"));
 const Municipio = lazy(() => import("@/pages/Municipio/Index"));
 const Bairro = lazy(() => import("@/pages/Bairro/Index"));
+const VeiculoMarca = lazy(() => import("@/pages/VeiculoMarca"));
 
 const PublicRoute = () => (
   <Suspense fallback={
@@ -44,6 +45,7 @@ const routeList = [
   { path: "/uf", element: <Uf />, label: "Uf" },
   { path: "/municipio", element: <Municipio />, label: "Munícipio" },
   { path: "/bairro", element: <Bairro />, label: "Bairro" },
+  { path: "/veiculo-marca", element: <VeiculoMarca />, label: "Veículo Marca" },
 ]
 
 const routeObjects: RouteObject[] = routeList.map(({ label, ...route }) => ({
