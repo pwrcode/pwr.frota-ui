@@ -3,14 +3,16 @@ import { errorMsg } from "@/services/api";
 import { getAuthLogado } from "@/services/auth";
 import { menu, type menusType, type menuType } from "@/services/menu";
 import CardLink from "@/ui/components/CardLink";
+import { ImageSrc, TypesImg } from "@/ui/components/ImageSrc";
 import { renderIcon } from "@/ui/components/RenderIcon";
-import { ChartColumnBig, CircleUser } from "lucide-react";
+import { ChartColumnBig } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Home() {
 
   const [nome, setNome] = useState<string>("");
+  const [idArquivoFoto, setIdArquivoFoto] = useState<number | null>();
   const [menuItems, setMenuItems] = useState<menusType[]>([]);
 
   useEffect(() => {
@@ -33,34 +35,34 @@ export default function Home() {
   const renderAllMenuItems = () => {
     const allItems: menusType[] = [];
     const excludedItems = ['inicio', 'home', 'usuario', 'usuarios', 'perfil-acesso', 'perfil de acesso'];
-    
+
     menuItems.forEach(menu => {
       // Verifica se o item principal deve ser excluído
-      const shouldExcludeMain = excludedItems.some(excluded => 
+      const shouldExcludeMain = excludedItems.some(excluded =>
         menu.descricao?.toLowerCase().includes(excluded.toLowerCase()) ||
         menu.link?.toLowerCase().includes(excluded.toLowerCase())
       );
-      
+
       // Adiciona o item principal se ele tem link e não está na lista de exclusão
       if (menu.link && !shouldExcludeMain) {
         allItems.push(menu);
       }
-      
+
       // Adiciona todos os submenus (excluindo os da lista)
       if (menu.submenus) {
         menu.submenus.forEach((submenu: any) => {
-          const shouldExcludeSubmenu = excludedItems.some(excluded => 
+          const shouldExcludeSubmenu = excludedItems.some(excluded =>
             submenu.descricao?.toLowerCase().includes(excluded.toLowerCase()) ||
             submenu.link?.toLowerCase().includes(excluded.toLowerCase())
           );
-          
+
           if (submenu.link && !shouldExcludeSubmenu) {
             allItems.push(submenu);
           }
         });
       }
     });
-    
+
     return allItems;
   };
 
@@ -69,6 +71,7 @@ export default function Home() {
     try {
       const data = await getAuthLogado();
       setNome(data.nome);
+      setIdArquivoFoto(data.idArquivoFoto);
       toast.dismiss(process);
     }
     catch (error: Error | any) {
@@ -78,14 +81,14 @@ export default function Home() {
 
   return (
     <div className="w-full">
-      
+
       {/* Hero Section */}
       <div className="pt-20 pb-12 px-4">
         <Card className="w-full shadow-xl border-0 bg-white dark:bg-slate-800">
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="flex-shrink-0">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center ring-4 ring-blue-100 dark:ring-blue-900">
-                <CircleUser size={40} className="text-white" />
+                <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="h-full rounded-full max-w-max" typeImg={TypesImg.user} />
               </div>
             </div>
             <div className="flex flex-col items-center md:items-start text-center md:text-left">

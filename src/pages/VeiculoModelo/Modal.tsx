@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { errorMsg } from '@/services/api';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
-import { addBairro, getBairroPorId, updateBairro, type dadosAddEdicaoBairroType } from '@/services/bairro';
+import { addVeiculoModelo, getVeiculoModeloPorId, updateVeiculoModelo, type dadosAddEdicaoVeiculoModeloType } from '@/services/veiculoModelo';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getMunicipioList } from '@/services/municipio';
+import { getVeiculoMarcaList } from '@/services/veiculoMarca';
+import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 
 type modalPropsType = {
     open: boolean,
@@ -23,10 +23,10 @@ type modalPropsType = {
 
 const schema = z.object({
     descricao: z.string().min(1, { message: "Informe a descrição" }),
-    idMunicipio: z.object({
+    idVeiculoMarca: z.object({
         label: z.string().optional(),
         value: z.number().optional()
-    }, { message: "Selecione o munícipio" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
+    }, { message: "Selecione o veículo marca" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o veículo marca" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
@@ -39,9 +39,9 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
-            const item = await getBairroPorId(Number(id));
+            const item = await getVeiculoModeloPorId(Number(id));
             setValue("descricao", item.descricao);
-            if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
+            if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -66,26 +66,26 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         });
     }, [errors]);
 
-    const getMunicipios = async (pesquisa?: string) => {
-        const data = await getMunicipioList(pesquisa, undefined);
+    const getVeiculoMarcas = async (pesquisa?: string) => {
+        const data = await getVeiculoMarcaList(pesquisa);
         return data;
     }
 
-    const submit = async (dados: dadosAddEdicaoBairroType) => {
+    const submit = async (dados: dadosAddEdicaoVeiculoModeloType) => {
         if (loading) return
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoBairroType = {
+            const postPut: dadosAddEdicaoVeiculoModeloType = {
                 descricao: dados.descricao,
-                idMunicipio: dados.idMunicipio ?? null
+                idVeiculoMarca: dados.idVeiculoMarca,
             };
             if (id === 0) {
-                const response = await addBairro(postPut);
+                const response = await addVeiculoModelo(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const response = await updateBairro(id, postPut);
+                const response = await updateVeiculoModelo(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
             if (updateList) updateList(true);
@@ -103,14 +103,14 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
-                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoBairroType))} className='flex flex-col h-full'>
+                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoVeiculoModeloType))} className='flex flex-col h-full'>
                     <SheetHeader className='p-6 rounded-t-lg border-b'>
-                        <SheetTitle>{id ? `Editar Bairro #${id}` : "Cadastrar Bairro"}</SheetTitle>
+                        <SheetTitle>{id ? `Editar Veículo Modelo #${id}` : "Cadastrar Veículo Modelo"}</SheetTitle>
                     </SheetHeader>
 
                     <ModalFormBody>
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
-                        <AsyncReactSelect name="idMunicipio" title="Munícipio" control={control} asyncFunction={getMunicipios} options={[]} isClearable />
+                        <AsyncReactSelect name="idVeiculoMarca" title="Veículo Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
                     </ModalFormBody>
 
                     <ModalFormFooter>

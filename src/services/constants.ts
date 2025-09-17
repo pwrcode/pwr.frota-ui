@@ -43,6 +43,14 @@ export const SimNaoOptions = [
     {value: false, label: "Não"},
 ];
 
+export const categoriasVeiculos = [
+    { value: "A" , label: "Motos"},
+    { value: "B" , label: "Carros de Passeio"},
+    { value: "C" , label: "Caminhões"},
+    { value: "D" , label: "Ônibus"},
+    { value: "E" , label: "Veículos com uniddade acoplada"},
+]
+
 export const tiposRegime = [
     {value: 1, label: "Simples Nacional", valueString: "SimplesNacional"},
     {value: 2, label: "Lucro Presumido", valueString: "LucroPresumido"},

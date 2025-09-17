@@ -160,8 +160,8 @@ export default function Usuario() {
           <Table>
             <TableHeader>
               <TableRow className="hidden sm:table-row">
-                <TableHead>Usuário</TableHead>
-                <TableHead>Perfil</TableHead>
+                <TableHead className='w-100'>Usuário</TableHead>
+                <TableHead className='w-100'>Perfil</TableHead>
                 <TableHead></TableHead>
                 <TableHead></TableHead>
               </TableRow>

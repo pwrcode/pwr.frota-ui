@@ -106,7 +106,7 @@ export default function Uf() {
               <TableRow className="hidden sm:table-row">
                 <TableHead className="w-16 text-center">Id</TableHead>
                 <TableHead>UF</TableHead>
-                <TableHead>País</TableHead>
+                {/* <TableHead>País</TableHead> */}
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -127,9 +127,9 @@ export default function Uf() {
                       {c.descricao}
                     </TableCell>
 
-                    <TableCell className={cellStyle + " sm:text-left"}>
+                    {/* <TableCell className={cellStyle + " sm:text-left"}>
                       {isMobile && "País: "}{c.descricaoPais}
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell className={hiddenMobile + "text-right w-[100px]"}>
                       <DropDownMenuItem id={c.id} handleClickVisualizar={handleClickVisualizar} />

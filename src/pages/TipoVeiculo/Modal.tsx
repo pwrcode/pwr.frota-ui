@@ -6,7 +6,8 @@ import { errorMsg } from '@/services/api';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 import InputLabelValue from '@/ui/components/forms/InputLabelValue';
-import { getUfPorId } from '@/services/uf';
+import { getTipoVeiculoPorId } from '@/services/tipoVeiculo';
+import { categoriasVeiculos } from '@/services/constants';
 
 type modalPropsType = {
   open: boolean,
@@ -17,14 +18,14 @@ type modalPropsType = {
 export default function Modal({ open, setOpen, id }: modalPropsType) {
 
   const [descricao, setDescricao] = useState<string>("");
-  // const [descricaoPais, setDescricaoPais] = useState<string>("");
+  const [categoria, setCategoria] = useState<string>("");
 
   const setValuesPerId = async () => {
     const process = toast.loading("Buscando item...");
     try {
-      const item = await getUfPorId(Number(id));
+      const item = await getTipoVeiculoPorId(Number(id));
       setDescricao(item.descricao);
-      // setDescricaoPais(item.descricaoPais);
+      setCategoria(categoriasVeiculos.find(c => c.value == item.categoria)?.label ?? "");
       toast.dismiss(process);
     }
     catch (error: Error | any) {
@@ -46,10 +47,10 @@ export default function Modal({ open, setOpen, id }: modalPropsType) {
           <SheetHeader className='p-6 rounded-t-lg border-b'>
             <SheetTitle>UF #{id}</SheetTitle>
           </SheetHeader>
-          
+
           <ModalFormBody>
-            {/* <InputLabelValue name="descricaoPais" title="País" value={descricaoPais} readOnly /> */}
             <InputLabelValue name="descricao" title="Descrição" value={descricao} readOnly />
+            <InputLabelValue name="categoria" title="Categoria" value={categoria} readOnly />
           </ModalFormBody>
 
           <ModalFormFooter>

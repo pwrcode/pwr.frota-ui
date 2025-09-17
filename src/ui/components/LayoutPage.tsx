@@ -26,6 +26,7 @@ export default function LayoutPage() {
 
   const navigate = useNavigate();
   const [nome, setNome] = useState<string>("");
+  const [idArquivoFoto, setIdArquivoFoto] = useState<number | null>();
   const [openModalSenha, setOpenModalSenha] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
@@ -38,6 +39,7 @@ export default function LayoutPage() {
     try {
       const data = await getAuthLogado();
       setNome(data.nome);
+      setIdArquivoFoto(data.idArquivoFoto);
       toast.dismiss(process);
     }
     catch (error: Error | any) {
@@ -107,7 +109,7 @@ export default function LayoutPage() {
                       <div className="flex justify-center items-center gap-3 px-3 rounded-md cursor-pointer hover:bg-gray-100 dark:bg-slate-800 hover:dark:bg-slate-700">
                         <p className="text-blue-800 dark:text-white text-sm font-semibold" translate="no">{nome}</p>
                         <div className="size-8 rounded-full flex justify-center items-center overflow-hidden">
-                          <ImageSrc idArquivo={null} alt="Foto do usuário" style="h-full max-w-max" typeImg={TypesImg.user} />
+                          <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="h-full max-w-max" typeImg={TypesImg.user} />
                         </div>
                       </div>
                     </DropdownMenuTrigger>

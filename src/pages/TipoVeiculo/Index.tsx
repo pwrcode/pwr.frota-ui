@@ -13,15 +13,14 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
-import { getMunicipios, type municipioType, type postListagemMunicipioType } from '@/services/municipio';
-import { todosOption } from '@/services/constants';
+import { getTipoVeiculos, type postListagemTipoVeiculoType, type tipoVeiculoType } from '@/services/tipoVeiculo';
+import { categoriasVeiculos, type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getUfList } from '@/services/uf';
 
-export default function Municipio() {
+export default function TipoVeiculo() {
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [municipios, setMunicipios] = useState<municipioType[]>([]);
+  const [tipoVeiculos, setTipoVeiculos] = useState<tipoVeiculoType[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalRegisters, setTotalRegisters] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -30,33 +29,28 @@ export default function Municipio() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [uf, setUf] = useState(todosOption);
+  const [categoria, setCategoria] = useState<optionType>();
 
-  const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa, undefined);
-    return [todosOption, ...data];
-  }
-
-  const initialPostListagem: postListagemMunicipioType = {
+  const initialPostListagem: postListagemTipoVeiculoType = {
     pageSize: pageSize,
     currentPage: currentPage,
     pesquisa: "",
-    idUf: null
+    categoria: "",
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   useEffect(() => {
-    if(currentPage > 0 || filtersOn) changeListFilters(currentPage);
+    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
   }, [currentPage]);
 
   useEffect(() => {
-    if(pesquisa.length > 0 || filtersOn) changeListFilters();
+    if (pesquisa.length > 0 || filtersOn) changeListFilters();
   }, [pesquisa]);
 
   useEffect(() => {
-    if(uf.value !== undefined || filtersOn) changeListFilters();
-  }, [uf.value]);
+    changeListFilters();
+  }, [categoria]);
 
   const changeListFilters = (page?: number) => {
     setFiltersOn(true);
@@ -64,7 +58,7 @@ export default function Municipio() {
       pageSize: pageSize,
       currentPage: page ?? 0,
       pesquisa: pesquisa,
-      idUf: uf && uf.value ? uf.value : null
+      categoria: categoria && categoria.value ? categoria.value : "",
     });
   }
 
@@ -76,8 +70,8 @@ export default function Municipio() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getMunicipios(postListagem);
-      setMunicipios(data.dados);
+      const data = await getTipoVeiculos(postListagem);
+      setTipoVeiculos(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
       setTotalRegisters(data.totalRegisters);
@@ -91,9 +85,9 @@ export default function Municipio() {
       setLoading(false);
     }
   }
-  
+
   useEffect(() => {
-    if(postListagem !== initialPostListagem) debounceUpdate();
+    if (postListagem !== initialPostListagem) debounceUpdate();
   }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
@@ -102,39 +96,32 @@ export default function Municipio() {
     setIdVisualizar(id);
     setModalOpen(true);
   }
-  
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
-      <PageTitle title="Municípios" />
+      <PageTitle title="Tipos Veículo" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect
-          name="idUf"
-          title="UF"
-          options={[]}
-          asyncFunction={getUfs}
-          value={uf}
-          setValue={setUf}
-        />
+        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
+        <AsyncReactSelect name="categoria" title='Categoria' options={categoriasVeiculos} value={categoria} setValue={setCategoria} isClearable />
       </Filters>
 
-      {(municipios.length > 0) && (
+      {(tipoVeiculos.length > 0) && (
         <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
           <Table>
             <TableHeader>
               <TableRow className="hidden sm:table-row">
                 <TableHead className="w-16 text-center">Id</TableHead>
-                <TableHead className='w-70'>Município</TableHead>
-                <TableHead>UF</TableHead>
+                <TableHead>Tipo Veículo</TableHead>
+                <TableHead>Categoria</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {municipios.map(c => {
+              {tipoVeiculos.map(c => {
                 return (
                   <TableRow key={c.id} className={rowStyle}>
 
@@ -151,7 +138,7 @@ export default function Municipio() {
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "UF: "}{c.descricaoUf}
+                      {isMobile && "Categoria: "}{c.categoria}
                     </TableCell>
 
                     <TableCell className={hiddenMobile + "text-right w-[100px]"}>
@@ -169,17 +156,17 @@ export default function Municipio() {
             totalPages={totalPages}
             pageSize={pageSize}
             totalRegisters={totalRegisters}
-            lengthCurrentPage={municipios.length}
+            lengthCurrentPage={tipoVeiculos.length}
             setCurrentPage={setCurrentPage}
           />
         </div>
       )}
 
-      {municipios.length === 0 && <>
+      {tipoVeiculos.length === 0 && <>
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="map-pin" />
+          <TableEmpty icon="map" />
         )}
       </>}
 

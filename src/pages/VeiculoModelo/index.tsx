@@ -13,19 +13,18 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
-import { deleteBairro, getBairros, type bairroType, type postListagemBairroType } from '@/services/bairro';
-import { todosOption } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getUfList } from '@/services/uf';
-import { getMunicipioList } from '@/services/municipio';
+import { deleteVeiculoModelo, getVeiculoModelos, type veiculoModeloType, type postListagemVeiculoModeloType } from '@/services/veiculoModelo';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import { todosOption } from '@/services/constants';
+import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 
-export default function Bairro() {
+export default function VeiculoModelo() {
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [bairros, setBairros] = useState<bairroType[]>([]);
+    const [veiculoModelos, setVeiculoModelos] = useState<veiculoModeloType[]>([]);
     const [totalPages, setTotalPages] = useState<number>(0);
     const [totalRegisters, setTotalRegisters] = useState<number>(0);
     const [idEditar, setIdEditar] = useState<number>(0);
@@ -36,30 +35,13 @@ export default function Bairro() {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [pesquisa, setPesquisa] = useState<string>("");
-    const [municipio, setMunicipio] = useState(todosOption);
-    const [uf, setUf] = useState(todosOption);
+    const [veiculoMarca, setVeiculoMarca] = useState(todosOption);
 
-    useEffect(() => {
-        if (uf.value) getMunicipios();
-    }, [uf.value])
-
-
-    const getMunicipios = async (pesquisa?: string) => {
-        const data = await getMunicipioList(pesquisa, uf.value ?? undefined);
-        return [todosOption, ...data];
-    }
-
-    const getUfs = async (pesquisa?: string) => {
-        const data = await getUfList(pesquisa, undefined);
-        return [todosOption, ...data];
-    }
-
-    const initialPostListagem: postListagemBairroType = {
+    const initialPostListagem: postListagemVeiculoModeloType = {
         pageSize: pageSize,
         currentPage: currentPage,
         pesquisa: "",
-        idMunicipio: null,
-        idUf: null
+        idVeiculoMarca: null,
     };
     const [postListagem, setPostListagem] = useState(initialPostListagem);
     const [filtersOn, setFiltersOn] = useState<boolean>(false);
@@ -73,12 +55,8 @@ export default function Bairro() {
     }, [pesquisa]);
 
     useEffect(() => {
-        if (municipio.value !== undefined || filtersOn) changeListFilters();
-    }, [municipio.value]);
-
-    useEffect(() => {
-        if (uf.value !== undefined || filtersOn) changeListFilters();
-    }, [uf.value]);
+        if (veiculoMarca.value !== undefined || filtersOn) changeListFilters();
+    }, [veiculoMarca.value]);
 
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
@@ -86,8 +64,7 @@ export default function Bairro() {
             pageSize: pageSize,
             currentPage: page ?? 0,
             pesquisa: pesquisa,
-            idMunicipio: municipio && municipio.value ? municipio.value : null,
-            idUf: uf && uf.value ? uf.value : null
+            idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
         });
     }
 
@@ -95,12 +72,17 @@ export default function Bairro() {
         updateList();
     }, []);
 
+    const getVeiculoMarcas = async (pesquisa?: string) => {
+        const data = await getVeiculoMarcaList(pesquisa);
+        return [todosOption, ...data];
+    }
+
     const updateList = async () => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getBairros(postListagem);
-            setBairros(data.dados);
+            const data = await getVeiculoModelos(postListagem);
+            setVeiculoModelos(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
             setTotalRegisters(data.totalRegisters);
@@ -142,10 +124,10 @@ export default function Bairro() {
     const deletar = async () => {
         const process = toast.loading("Excluindo item...");
         try {
-            const response = await deleteBairro(idExcluir);
+            const response = await deleteVeiculoModelo(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (bairros.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (veiculoModelos.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -157,29 +139,15 @@ export default function Bairro() {
     return (
         <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
-            <PageTitle title="Bairros" />
+            <PageTitle title="Veículo Modelo" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
                 <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect
-                    name="idMunicipio"
-                    title="Munícipio"
-                    options={[]}
-                    asyncFunction={getMunicipios}
-                    value={municipio}
-                    setValue={setMunicipio}
-                />
-                <AsyncReactSelect
-                    name="idUf"
-                    title="UF"
-                    options={[]}
-                    asyncFunction={getUfs}
-                    value={uf}
-                    setValue={setUf}
+                <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca}
                 />
             </Filters>
 
-            {(bairros.length > 0) && (
+            {(veiculoModelos.length > 0) && (
                 <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
                     <TableTop>
                         <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
@@ -189,14 +157,13 @@ export default function Bairro() {
                         <TableHeader>
                             <TableRow className="hidden sm:table-row">
                                 <TableHead className="w-16 text-center">Id</TableHead>
-                                <TableHead className='w-70'>Bairro</TableHead>
-                                <TableHead className='w-70'>Munícipio</TableHead>
-                                <TableHead>UF</TableHead>
+                                <TableHead className="w-70">Veículo Modelo</TableHead>
+                                <TableHead>Veículo Marca</TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {bairros.map(c => {
+                            {veiculoModelos.map(c => {
                                 return (
                                     <TableRow key={c.id} className={rowStyle}>
 
@@ -216,12 +183,8 @@ export default function Bairro() {
                                             {c.descricao}
                                         </TableCell>
 
-                                        <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "Munícipio: "}{c.descricaoMunicipio}
-                                        </TableCell>
-
-                                        <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "UF: "}{c.siglaUf}
+                                        <TableCell className={hiddenMobile + "sm:text-left font-medium"}>
+                                            {isMobile && "Veículo Marca: "}{c.descricaoVeiculoMarca}
                                         </TableCell>
 
                                         <TableCell className={hiddenMobile + "text-right w-[100px]"}>
@@ -243,13 +206,13 @@ export default function Bairro() {
                         totalPages={totalPages}
                         pageSize={pageSize}
                         totalRegisters={totalRegisters}
-                        lengthCurrentPage={bairros.length}
+                        lengthCurrentPage={veiculoModelos.length}
                         setCurrentPage={setCurrentPage}
                     />
                 </div>
             )}
 
-            {bairros.length === 0 && <>
+            {veiculoModelos.length === 0 && <>
                 {loading ? (
                     <TableLoading />
                 ) : (

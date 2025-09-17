@@ -146,7 +146,7 @@ export default function PerfilAcesso() {
             <TableHeader>
               <TableRow className="hidden sm:table-row">
                 <TableHead className="w-14 text-center">Id</TableHead>
-                <TableHead>Descrição</TableHead>
+                <TableHead className='w-80'>Descrição</TableHead>
                 <TableHead>Qtd. Usuários Vinculados</TableHead>
                 <TableHead></TableHead>
               </TableRow>
