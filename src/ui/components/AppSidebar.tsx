@@ -105,7 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <img src="/assets/logo-erp.png" alt="Logo" />
           </div>
           <span className="font-normal text-white ml-4" translate="no">
-            Compys ERP
+            PWR Frota
           </span>
         </div>
       </SidebarHeader>
