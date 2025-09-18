@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label"
 
 export default function InputDataAno({ size, title, id, register }: any) {
     return (
-        <div className={`${size ? size : "w-full"} space-y-1`}>
+        <div className={`${size ? size : "w-full"} space-y-2`}>
             <Label htmlFor={id}>
                 {title}
             </Label>
@@ -10,7 +10,7 @@ export default function InputDataAno({ size, title, id, register }: any) {
                 {...register}
                 id={id}
                 type="date"
-                className="h-10 peer mt-1 block w-full border-gray-200 dark:border-neutral-800 bg-white dark:bg-slate-800 rounded-md shadown-sm py-2 px-3 focus:outline-none sm:text-sm dark:[&::-webkit-calendar-picker-indicator]:invert"
+                className="h-10 peer mt-1 block w-full border border-gray-200 dark:border-neutral-800 bg-white dark:bg-slate-800 dark:hover:border dark:hover:border-gray-400 rounded-md shadown-sm py-2 px-3 focus:outline-none sm:text-sm dark:[&::-webkit-calendar-picker-indicator]:invert"
                 // className={cn(`
                 //     flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-base file:border-0 
                 //     file:bg-transparent file:text-sm file:font-medium file:text-gray-200 placeholder:text-neutral-500 

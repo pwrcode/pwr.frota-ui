@@ -50,7 +50,7 @@ export default function InputDataMes({ title, name, date, setDate, setValue, isD
   }
 
   return (
-    <div className="space-y-1 w-full">
+    <div className="space-y-2 w-full">
       {title && (
         <Label htmlFor={name} className="text-right">
           {title}

@@ -11,7 +11,7 @@ export const customSelectStyle = (isDarkMode: boolean, width: string) => ({
         width: width,
         minWidth: "100%",
         minHeight: "40px",
-        borderRadius: "7px",
+        borderRadius: "6px",
         outline: "none",
         boxShadow: "none",
         textAlign: "left",
@@ -161,7 +161,7 @@ export default function AsyncReactSelect({
     };
 
     return (
-        <div className={`space-y-1 ${size || "w-full"}`}>
+        <div className={`space-y-2 ${size || "w-full"}`}>
             {title && (
                 <Label htmlFor={name}>{title}</Label>
             )}

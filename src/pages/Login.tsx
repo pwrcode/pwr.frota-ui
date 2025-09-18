@@ -74,7 +74,7 @@ export default function Login() {
 
           {/* LOGO NO MOBILE */}
           <div className="flex justify-center mb-4 lg:hidden">
-            <img src="/assets/logo-erp.png" alt="logo" className="w-24 h-auto" />
+            <img src="/assets/logo.png" alt="logo" className="w-24 h-auto" />
           </div>
 
           {/* Login Card Unificado */}
@@ -116,7 +116,7 @@ export default function Login() {
       {/* LOGO NO DESKTOP */}
       <div className="hidden bg-orange-700 lg:flex items-center justify-center">
         <div className="w-2/5">
-          <img src="/assets/logo-erp.png" alt="logo" />
+          <img src="/logo.png" alt="logo" className='h-[30%]' />
         </div>
       </div>
     </div>

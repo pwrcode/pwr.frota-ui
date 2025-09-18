@@ -75,13 +75,11 @@ export default function VeiculoForm() {
     if (id) return
     getTipoVeiculos();
     getVeiculoMarcas();
-    getVeiculoModelos();
   }, []);
 
   useEffect(() => {
-    getVeiculoMarcas();
+    getVeiculoModelos();
   }, [idVeiculoMarca])
-
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
@@ -224,24 +222,24 @@ export default function VeiculoForm() {
     <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
       <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoVeiculoType))}>
         <FormContainer>
-          <FormContainerHeader title="Usuário" />
+          <FormContainerHeader title="Veículo" />
           <FormContainerBody>
-            <div className='flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-2'>
+            <div className='flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4'>
               <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
               <InputLabel name="placa" title="Placa" register={{ ...register("placa") }} />
               <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
               <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
               <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
               <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
-              <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={[]} isClearable />
+              <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} filter isClearable />
               <InputLabel name="versao" title="Icone" register={{ ...register("icone") }} />
               <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
               <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
               <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
               <InputLabel name="icone" title="Icone" register={{ ...register("icone") }} />
               <InputMaskLabel name='quilometragemInicial' title='Quilometragem Inicial' mask={Masks.numerico} value={watch("quilometragemInicial")} setValue={setValue} />
-              <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga Kg' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
-              <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume m³' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
+              <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
+              <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
               <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
               <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao")}} />
               <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />

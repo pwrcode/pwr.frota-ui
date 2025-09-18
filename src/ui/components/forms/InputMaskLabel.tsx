@@ -83,7 +83,7 @@ export const InputMaskLabel = ({name, title, type, size, disabled, register, mas
   const sizeDiv = size && size !== "" ? size : 'w-full';
 
   return (
-    <div className={`space-y-1 ${sizeDiv}`}>
+    <div className={`space-y-2 ${sizeDiv}`}>
       {title && (
         <Label htmlFor={name}>
           {title}

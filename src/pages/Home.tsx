@@ -5,7 +5,7 @@ import { menu, type menusType, type menuType } from "@/services/menu";
 import CardLink from "@/ui/components/CardLink";
 import { ImageSrc, TypesImg } from "@/ui/components/ImageSrc";
 import { renderIcon } from "@/ui/components/RenderIcon";
-import { ChartColumnBig } from "lucide-react";
+import { ChartColumnBig, CircleUser } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -88,7 +88,11 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="flex-shrink-0">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center ring-4 ring-blue-100 dark:ring-blue-900">
-                <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="h-full rounded-full max-w-max" typeImg={TypesImg.user} />
+                {idArquivoFoto ?
+                  <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="h-full rounded-full max-w-max" typeImg={TypesImg.user} />
+                  :
+                  <CircleUser size={40} className="text-white" />
+                }
               </div>
             </div>
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
