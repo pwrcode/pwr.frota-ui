@@ -300,7 +300,7 @@ export default function Veiculo() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty icon="truck" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 
