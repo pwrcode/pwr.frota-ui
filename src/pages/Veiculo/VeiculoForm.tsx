@@ -230,7 +230,7 @@ export default function VeiculoForm() {
               <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
               <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
               <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
-              <AsyncReactSelect name="idViículoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
+              <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
               <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={[]} isClearable />
               <InputLabel name="versao" title="Icone" register={{ ...register("icone") }} />
               <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} setValue={setValue} />
