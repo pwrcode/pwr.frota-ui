@@ -34,6 +34,7 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
         <PopoverTrigger asChild className='border dark:bg-slate-800 dark:hover:bg-slate-800 dark:text-white border-gray-300 data-[state=open]:border-blue-400 focus-visible:border-blue-400 active:border-blue-400 outline-none rounded-md px-3 py-2 transition'>
           <Button
             variant="data"
+            size="lg"
             id={name}
             name={name}
             className="w-full justify-between font-normal dark:text-white text-neutral-500 col-span-3"

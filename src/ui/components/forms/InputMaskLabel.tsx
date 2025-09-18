@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { formatMaskCelular, formatMaskCep, formatMaskCnpj, formatMaskCpf, formatMaskDinheiro, formatMaskNumerico, formatMaskPorcetagem, formatMaskTelefone } from "@/services/mask";
 
 export enum Masks {
@@ -19,7 +18,7 @@ interface InputInterface {
   name: string,
   mask: Masks,
   value?: string | number,
-  setValue: UseFormSetValue<FieldValues> | ((field: string, value: string | number) => void) // setValue do useForm // funcao criada
+  setValue: any,
   title?: string,
   disabled?: boolean,
   register?: any,

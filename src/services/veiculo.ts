@@ -7,6 +7,7 @@ import { type itemSelectType } from "./constants";
 const api = import.meta.env.VITE_API_URL + "/veiculo";
 
 export type veiculoType = {
+  id: number,
   descricao: string,
   placa: string,
   renavam: string,
@@ -41,9 +42,13 @@ export type postListagemVeiculoType = {
   pageSize: number,
   currentPage: number,
   pesquisa: string,
+  tipoData: string | null,
+  dataInicio: string | undefined,
+  dataFim: string | undefined,
   idTipoVeiculo: number | null,
   idVeiculoMarca: number | null,
   idVeiculoModelo: number | null,
+  ativo: boolean,
 }
 
 export type dadosAddEdicaoVeiculoType = {

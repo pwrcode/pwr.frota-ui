@@ -32,7 +32,6 @@ export const todosOption = {
 };
 
 export const ativoOptions = [
-    {value: undefined, label: "Todos"},
     {value: true, label: "Ativo"},
     {value: false, label: "Inativo"}
 ];
@@ -49,6 +48,11 @@ export const categoriasVeiculos = [
     { value: "C" , label: "Caminhões"},
     { value: "D" , label: "Ônibus"},
     { value: "E" , label: "Veículos com uniddade acoplada"},
+]
+
+export const tiposDataVeiculo = [
+    { value: "AQUISICAO" , label: "Aquisição"},
+    { value: "VENDA" , label: "Venda"},
 ]
 
 export const tiposRegime = [

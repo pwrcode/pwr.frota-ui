@@ -194,7 +194,7 @@ export default function VeiculoMarca() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" />
+                    <TableEmpty icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 
