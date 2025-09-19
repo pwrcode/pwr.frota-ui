@@ -64,10 +64,11 @@ export const customSelectStyle = (isDarkMode: boolean, width: string) => ({
         ...provided,
         margin: "2px",
         maxWidth: "calc(100% - 8px)",
+        background: isDarkMode ? "#1E293B" : "#FFFFFF",
     }),
     multiValueLabel: (provided: any) => ({
         ...provided,
-        color: isDarkMode ? "#D4D4D8" : "black",
+        color: isDarkMode ? "#D4D4D8" : "#000000",
         fontSize: "14px",
         whiteSpace: "nowrap",
         overflow: "hidden",
@@ -76,7 +77,7 @@ export const customSelectStyle = (isDarkMode: boolean, width: string) => ({
     }),
     multiValueRemove: (provided: any) => ({
         ...provided,
-        color: isDarkMode ? "#D4D4D8" : "black",
+        color: isDarkMode ? "#D4D4D8" : "#000000",
         "&:hover": {
             backgroundColor: isDarkMode ? "#374151" : "#E5E7EB",
             color: isDarkMode ? "white" : "black",

@@ -14,7 +14,7 @@ import { toast } from 'react-toastify';
 import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { ativoOptions, type listType, tiposPessoa, todosOption } from '@/services/constants';
+import { ativoOptions, type listType, type optionType, tiposPessoa, todosOption } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
@@ -23,15 +23,15 @@ import { deletePessoa, getPessoas, type pessoaType, type postListagemPessoaType 
 import { getUfList } from '@/services/uf';
 import { getMunicipioList } from '@/services/municipio';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
+import { getBairroList } from '@/services/bairro';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 
 export const tiposPessoasOptions = [todosOption, ...tiposPessoa];
 
 const options = [
-  { value: "isCliente", label: "Cliente" },
-  { value: "isFornecedor", label: "Fornecedor" },
-  { value: "isTransportadora", label: "Transportadora" },
+  { value: "isAjudante", label: "Ajudante" },
   { value: "isMotorista", label: "Motorista" },
-  { value: "isSeguradora", label: "Seguradora" }
+  { value: "isOficina", label: "Oficina" },
 ];
 
 export default function Pessoa() {
@@ -44,60 +44,71 @@ export default function Pessoa() {
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-  const [ufs, setUfs] = useState<listType>([]);
+  // const [ufs, setUfs] = useState<listType>([]);
   const [municipios, setMunicipios] = useState<listType>([]);
+  const [bairros, setBairros] = useState<listType>([]);
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoPessoa, setTipoPessoa] = useState(todosOption);
-  // const [isCliente, setIsCliente] = useState(todosOption);
-  // const [isFornecedor, setIsFornecedor] = useState(todosOption);
-  // const [isTransportadora, setIsTransportadora] = useState(todosOption);
-  // const [isMotorista, setIsMotorista] = useState(todosOption);
-  // const [isSeguradora, setIsSeguradora] = useState(todosOption);
+  const [tipoPessoa, setTipoPessoa] = useState<optionType>();
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   const [optionsSelected, setOptionsSelected] = useState<listType>([]);
-  const [ativo, setAtivo] = useState(todosOption);
-  const [idUF, setIdUF] = useState(todosOption);
-  const [idMunicipio, setIdMunicipio] = useState(todosOption);
+  const [status, setStatus] = useState<optionType>(ativoOptions[0]);
+  const [uf, setUf] = useState<optionType>();
+  const [municipio, setMunicipio] = useState<optionType>();
+  const [bairro, setBairro] = useState<optionType>();
 
   const initialPostListagem: postListagemPessoaType = {
     pageSize: pageSize,
     currentPage: currentPage,
     pesquisa: "",
-    ativo: null,
+    dataInicio: dataInicio.slice(0, 11).concat("00:00:00"),
+    dataFim: dataFim.slice(0, 11).concat("23:59:59"),
+    ativo: true,
     tipoPessoa: null,
-    isCliente: null,
-    isFornecedor: null,
-    isTransportadora: null,
-    isMotorista: null,
-    isSeguradora: null,
-    idUF: null,
-    idMunicipio: null
+    isAjudante: false,
+    isMotorista: false,
+    isOficina: false,
+    idUf: null,
+    idMunicipio: null,
+    idBairro: null,
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   const getUfs = async (pesquisa?: string) => {
     const data = await getUfList(pesquisa, undefined);
-    setUfs([todosOption, ...data]);
-    return [todosOption, ...data];
+    // setUfs([...data]);
+    return [...data];
   }
 
   useEffect(() => {
     getMunicipios();
-    setIdMunicipio(todosOption);
-  }, [idUF]);
+  }, [uf]);
 
   const getMunicipios = async (pesquisa?: string) => {
-    if (!idUF || !Number(idUF.value)) {
+    if (!uf) {
       setMunicipios([]);
+      setMunicipio(undefined);
       return [];
     };
-    const data = await getMunicipioList(pesquisa, idUF.value ?? undefined);
-    setMunicipios([todosOption, ...data]);
-    return [todosOption, ...data];
+    const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
+    setMunicipios([...data]);
+    return [...data];
+  }
+
+  const getBairros = async (pesquisa?: string) => {
+    if (!uf) {
+      setBairros([]);
+      setBairro(undefined);
+      return [];
+    };
+    const data = await getBairroList(pesquisa, municipio ? municipio.value : undefined);
+    setBairros([...data]);
+    return [...data];
   }
 
   useEffect(() => {
@@ -109,20 +120,20 @@ export default function Pessoa() {
   }, [pesquisa]);
 
   useEffect(() => {
-    if (ativo.value != undefined || filtersOn) changeListFilters(0);
-  }, [ativo]);
+    changeListFilters(0);
+  }, [status]);
 
   useEffect(() => {
-    if (tipoPessoa.value != undefined || filtersOn) changeListFilters(0);
+    changeListFilters(0);
   }, [tipoPessoa]);
 
   useEffect(() => {
-    if (idUF.value != undefined || filtersOn) changeListFilters(0);
-  }, [idUF]);
+    changeListFilters(0);
+  }, [uf]);
 
   useEffect(() => {
-    if (idMunicipio.value != undefined || filtersOn) changeListFilters(0);
-  }, [idMunicipio]);
+    changeListFilters(0);
+  }, [municipio]);
 
   useEffect(() => {
     if ((Array.isArray(optionsSelected) && optionsSelected.length > 0) || filtersOn) {
@@ -136,15 +147,16 @@ export default function Pessoa() {
       pageSize: pageSize,
       currentPage: page ?? 0,
       pesquisa: pesquisa,
-      ativo: ativo.value == undefined ? null : ativo.value,
-      tipoPessoa: tipoPessoa.value == undefined ? null : tipoPessoa.value,
-      isCliente: list?.find(l => l.value === "isCliente") ? true : null,
-      isFornecedor: list?.find(l => l.value === "isFornecedor") ? true : null,
-      isTransportadora: list?.find(l => l.value === "isTransportadora") ? true : null,
+      dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
+      dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
+      ativo: status.value,
+      tipoPessoa: tipoPessoa && tipoPessoa.value ? tipoPessoa.value : null,
+      isAjudante: list?.find(l => l.value === "isAjudante") ? true : null,
       isMotorista: list?.find(l => l.value === "isMotorista") ? true : null,
-      isSeguradora: list?.find(l => l.value === "isSeguradora") ? true : null,
-      idUF: idUF.value == undefined ? null : idUF.value,
-      idMunicipio: idMunicipio.value == undefined ? null : idMunicipio.value
+      isOficina: list?.find(l => l.value === "isOficina") ? true : null,
+      idUf: uf && uf.value ? uf.value : null,
+      idMunicipio: municipio && municipio.value ? municipio.value : null,
+      idBairro: bairro && bairro.value ? bairro.value : null,
     });
   }
 
@@ -214,13 +226,16 @@ export default function Pessoa() {
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect name="tipoPessoa" title="Classificação Pessoa" options={tiposPessoasOptions} value={tipoPessoa} setValue={setTipoPessoa} />
-        <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={ativo} setValue={setAtivo} />
-        <AsyncReactSelect name="idUF" title="UF" options={ufs} value={idUF} setValue={setIdUF} asyncFunction={getUfs} filter={true} />
-        <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={idMunicipio} setValue={setIdMunicipio} asyncFunction={getMunicipios} filter={true} />
+        <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoasOptions} value={tipoPessoa} setValue={setTipoPessoa} />
         <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
           <AsyncReactSelect name="optionsSelected" title="Filtragem" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
         </div>
+        <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} />
+        <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter />
+        <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter />
+        <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
+        <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
+        <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} />
       </Filters>
 
       {(pessoas.length > 0) && (
@@ -232,9 +247,11 @@ export default function Pessoa() {
           <Table>
             <TableHeader>
               <TableRow className="hidden sm:table-row">
-                <TableHead>Pessoa</TableHead>
-                <TableHead>Tipo Pessoa</TableHead>
-                <TableHead>CPF / CNPJ</TableHead>
+                <TableHead className='w-5 text-center'>Id</TableHead>
+                <TableHead className='w-40  '>Pessoa</TableHead>
+                <TableHead className='w-40'>Tipo Pessoa</TableHead>
+                <TableHead className='w-40'>CPF / CNPJ</TableHead>
+                <TableHead></TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -250,9 +267,13 @@ export default function Pessoa() {
                       </div>
                     </TableCardHeader>
 
+                    <TableCell className={hiddenMobile + " text-center"}>
+                      {c.id}
+                    </TableCell>
+
                     <TableCell className={hiddenMobile}>
                       <div className="flex flex-col justify-start min-w-[100px]">
-                        <span className="font-semibold">#{c.id}</span>
+                        {/* <span className="font-semibold">#{c.id}</span> */}
                         <span className="text-nowrap">
                           <span className="text-gray-700">Razão Social:</span> {c.razaoSocial}
                         </span>
@@ -278,7 +299,7 @@ export default function Pessoa() {
                       {isMobile && "CPF / CNPJ: "}{formatarCpfCnpj(c.documento)}
                     </TableCell>
 
-                    <TableCell className={hiddenMobile + " sm:text-center w-[100px]"}>
+                    <TableCell className={hiddenMobile + " sm:text-start w-[100px]"}>
                       <BadgeAtivo ativo={c.ativo} />
                     </TableCell>
 

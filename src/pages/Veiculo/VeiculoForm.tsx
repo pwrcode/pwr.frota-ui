@@ -24,6 +24,7 @@ import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { formatMaskDinheiro } from '@/services/mask';
+import type { listType } from '@/services/constants';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -66,6 +67,7 @@ export default function VeiculoForm() {
 
   const { id } = useParams();
   const idVeiculoMarca = watch("idVeiculoMarca");
+  const [veiculoModelos, setVeiculoModelos] = useState<listType>([])
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
@@ -92,7 +94,13 @@ export default function VeiculoForm() {
   }
 
   const getVeiculoModelos = async (pesquisa?: string) => {
+    if (!idVeiculoMarca) {
+      setVeiculoModelos([]);
+      reset({ idTipoVeiculo: undefined });
+      return [];
+    }
     const data = await getVeiculoModeloList(pesquisa, idVeiculoMarca ? idVeiculoMarca.value : undefined);
+    setVeiculoModelos([...data]);
     return data;
   }
 
@@ -134,9 +142,9 @@ export default function VeiculoForm() {
       setValue("capacidadeCargaKg", item.capacidadeCargaKg?.toString());
       setValue("capacidadeVolumeM3", item.capacidadeVolumeM3?.toString());
       setValue("capacidadePassageiros", item.capacidadePassageiros?.toString());
-      setValue("dataAquisicao", formatarData(item.dataAquisicao ?? "", "yyyy-mm-dd" ));
+      setValue("dataAquisicao", formatarData(item.dataAquisicao ?? "", "yyyy-mm-dd"));
       setValue("valorCompra", formatMaskDinheiro(item.valorCompra?.toString()));
-      setValue("dataVenda", formatarData(item.dataVenda?? "", "yyyy-mm-dd"));
+      setValue("dataVenda", formatarData(item.dataVenda ?? "", "yyyy-mm-dd"));
       setValue("valorVenda", formatMaskDinheiro(item.valorVenda?.toString()));
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
@@ -231,7 +239,7 @@ export default function VeiculoForm() {
               <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
               <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
               <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
-              <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} filter isClearable />
+              <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={veiculoModelos} filter isClearable />
               <InputLabel name="versao" title="Icone" register={{ ...register("icone") }} />
               <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
               <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
@@ -241,9 +249,9 @@ export default function VeiculoForm() {
               <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
               <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
               <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
-              <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao")}} />
+              <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao") }} />
               <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />
-              <InputDataAno title="Data venda" id="dataVenda" register={{ ...register("dataVenda")}} />
+              <InputDataAno title="Data venda" id="dataVenda" register={{ ...register("dataVenda") }} />
               <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} />
             </div>
             {(!id) && (

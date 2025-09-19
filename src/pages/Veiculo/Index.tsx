@@ -109,8 +109,8 @@ export default function Veiculo() {
       dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
       dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
       idTipoVeiculo: tipoVeiculo && tipoVeiculo.value ? tipoVeiculo.value : null,
-      idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : "",
-      idVeiculoModelo: veiculoModelo && veiculoModelo.value ? veiculoModelo.value : "",
+      idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
+      idVeiculoModelo: veiculoModelo && veiculoModelo.value ? veiculoModelo.value : null,
       ativo: status.value,
     });
   }
