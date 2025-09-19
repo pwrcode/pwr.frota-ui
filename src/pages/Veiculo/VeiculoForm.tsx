@@ -230,37 +230,61 @@ export default function VeiculoForm() {
     <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
       <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoVeiculoType))}>
         <FormContainer>
-          <FormContainerHeader title="Veículo" />
+          <FormContainerHeader title="Informações Básicas" />
           <FormContainerBody>
-            <div className='flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
               <InputLabel name="placa" title="Placa" register={{ ...register("placa") }} />
               <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
               <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
+              <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
+              <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
+            </div>
+            {(!id) && (
+              <div className="mt-6">
+                <DivCheckBox style="line">
+                  <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
+                </DivCheckBox>
+              </div>
+            )}
+          </FormContainerBody>
+        </FormContainer>
+
+        <FormContainer>
+          <FormContainerHeader title="Tipo e Modelo" />
+          <FormContainerBody>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
               <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
               <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={veiculoModelos} filter isClearable />
-              <InputLabel name="versao" title="Icone" register={{ ...register("icone") }} />
               <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
               <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
-              <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
-              <InputLabel name="icone" title="Icone" register={{ ...register("icone") }} />
+              <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
+            </div>
+          </FormContainerBody>
+        </FormContainer>
+
+        <FormContainer>
+          <FormContainerHeader title="Capacidades e Especificações" />
+          <FormContainerBody>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <InputMaskLabel name='quilometragemInicial' title='Quilometragem Inicial' mask={Masks.numerico} value={watch("quilometragemInicial")} setValue={setValue} />
               <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
               <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
               <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
+            </div>
+          </FormContainerBody>
+        </FormContainer>
+
+        <FormContainer>
+          <FormContainerHeader title="Informações Comerciais" />
+          <FormContainerBody>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
               <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao") }} />
               <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />
-              <InputDataAno title="Data venda" id="dataVenda" register={{ ...register("dataVenda") }} />
+              <InputDataAno title="Data Venda" id="dataVenda" register={{ ...register("dataVenda") }} />
               <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} />
             </div>
-            {(!id) && (
-              <FormLine>
-                <DivCheckBox style="line">
-                  <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
-                </DivCheckBox>
-              </FormLine>
-            )}
           </FormContainerBody>
         </FormContainer>
 

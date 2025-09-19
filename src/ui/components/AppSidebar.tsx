@@ -104,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="bg-slate-800 h-16 flex justify-center items-start text-md">
         <div className="flex items-center ml-1">
           <div className="flex aspect-square size-7 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <img src="/assets/logo-erp.png" alt="Logo" />
+            <img src="/logo.png" alt="Logo" />
           </div>
           <span className="font-normal text-white ml-4" translate="no">
             PWR Frota
@@ -214,7 +214,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="bg-slate-800 p-0">
         <div className="flex items-center gap-2 h-16 w-full px-2">
           <div className="h-[60%] w-full flex items-center justify-center rounded-lg bg-sidebar-primary">
-            <img src="/assets/logo.png" alt="Logo" className="h-full" />
+            <img src="/logo.png" alt="Logo" className="h-full" />
           </div>
         </div>
       </SidebarFooter>
