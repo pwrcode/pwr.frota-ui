@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { formatMaskCelular, formatMaskCep, formatMaskCnpj, formatMaskCpf, formatMaskDinheiro, formatMaskNumerico, formatMaskPorcetagem, formatMaskTelefone } from "@/services/mask";
+import { formatMaskCelular, formatMaskCep, formatMaskCnpj, formatMaskCpf, formatMaskDinheiro, formatMaskNumerico, formatMaskPorcetagem, formatMaskTelefone, formatMaskPlaca } from "@/services/mask";
 
 export enum Masks {
   dinheiro = "R$",
@@ -11,7 +11,8 @@ export enum Masks {
   telefone = "____-____",
   celular = "(__) _____-____",
   porcentagem = "%",
-  numerico = ""
+  numerico = "",
+  placa = "___-____"
 }
 
 interface InputInterface {
@@ -77,6 +78,10 @@ export const InputMaskLabel = ({name, title, type, size, disabled, register, mas
     if(mask === Masks.numerico) {
       setValue(name, formatMaskNumerico(limpo));
       setValueInput(formatMaskNumerico(limpo));
+    }
+    if(mask === Masks.placa) {
+      setValue(name, formatMaskPlaca(e));
+      setValueInput(formatMaskPlaca(e));
     }
   }
 

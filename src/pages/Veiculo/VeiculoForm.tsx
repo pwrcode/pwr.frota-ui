@@ -23,7 +23,7 @@ import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
-import { formatMaskDinheiro } from '@/services/mask';
+import { formatMaskDinheiro, formatMaskPlaca } from '@/services/mask';
 import type { listType } from '@/services/constants';
 
 export const schema = z.object({
@@ -126,7 +126,7 @@ export default function VeiculoForm() {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getVeiculoPorId(Number(id));
       setValue("descricao", item.descricao);
-      setValue("placa", item.placa);
+      setValue("placa", formatMaskPlaca(item.placa));
       setValue("renavam", item.renavam);
       setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
@@ -164,7 +164,7 @@ export default function VeiculoForm() {
       if (!id) {
         const post: dadosAddEdicaoVeiculoType = {
           descricao: data.descricao,
-          placa: data.placa,
+          placa: data.placa?.replace('-', ""),
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
@@ -191,7 +191,7 @@ export default function VeiculoForm() {
       else {
         const put: dadosAddEdicaoVeiculoType = {
           descricao: data.descricao,
-          placa: data.placa,
+          placa: data.placa?.replace('-', ""),
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
@@ -234,7 +234,7 @@ export default function VeiculoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
-              <InputLabel name="placa" title="Placa" register={{ ...register("placa") }} />
+              <InputMaskLabel name='placa' title='Placa' mask={Masks.placa} value={watch("placa")} setValue={setValue} />
               <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
               <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
               <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
