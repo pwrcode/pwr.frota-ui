@@ -180,9 +180,9 @@ export default function VeiculoForm() {
           capacidadeCargaKg: data.capacidadeCargaKg,
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
-          dataAquisicao: data.dataAquisicao.slice(0, 11).concat("T00:00:00"),
+          dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: data.valorCompra,
-          dataVenda: data.dataVenda.slice(0, 11).concat("T00:00:00"),
+          dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
           valorVenda: data.valorVenda,
         }
         const res = await addVeiculo(post);
@@ -207,9 +207,9 @@ export default function VeiculoForm() {
           capacidadeCargaKg: data.capacidadeCargaKg,
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
-          dataAquisicao: data.dataAquisicao.slice(0, 11).concat("T00:00:00"),
+          dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: data.valorCompra,
-          dataVenda: data.dataVenda.slice(0, 11).concat("T00:00:00"),
+          dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
           valorVenda: data.valorVenda,
         }
         const res = await updateVeiculo(Number(id), put);

@@ -31,7 +31,6 @@ interface SubmenuType {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const [acessos, setAcessos] = useState<menusType[]>();
-  const [menuPesquisa, setMenuPesquisa] = useState<menusType[]>();
   const location = useLocation();
   const [primeiraReq, setPrimeiraReq] = useState(true);
 
@@ -46,19 +45,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         acc[menu.descricao] = isMenuActive(menu, location.pathname);
         return acc;
       }, {} as Record<string, boolean>);
-
+  
       setMenuActiveStates(newMenuActiveStates);
-
+  
       const activeMenu = acessos.find((menu) =>
         isMenuActive(menu, location.pathname)
       );
-
+  
       if (activeMenu) {
-        setCurrentAccordion(activeMenu.descricao);
+        setCurrentAccordion(activeMenu.descricao); 
       }
     }
   }, [acessos, location.pathname]);
-
+  
 
   useEffect(() => {
     checkAcessos();
@@ -71,7 +70,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     try {
       const response: menuType = await menu(dados);
       setAcessos(response.dados.menu[0].menus);
-      setMenuPesquisa(response.dados.menuPesquisa[0].menus);
     }
     catch (error: Error | any) {
       toast.error(errorMsg(error, null), { autoClose: 4000 });
@@ -82,14 +80,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   function normalizePath(path: string): string {
-    return path.split("/")[1] || "";
+    return path.split("/")[1] || ""; 
   }
-
+  
   function isActive(item: SubmenuType | menusType, currentPath: string): boolean {
     if (!item.link) return false;
     return normalizePath(currentPath) === normalizePath(item.link);
   }
-
+  
   function isMenuActive(menu: menusType, currentPath: string): boolean {
     return (
       isActive(menu, currentPath) ||
@@ -104,7 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="bg-slate-800 h-16 flex justify-center items-start text-md">
         <div className="flex items-center ml-1">
           <div className="flex aspect-square size-7 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <img src="/assets/logo-erp.png" alt="Logo" />
+            <img src="/logo.png" alt="Logo" />
           </div>
           <span className="font-normal text-white ml-4" translate="no">
             PWR Frota
@@ -187,35 +185,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Menus quando pesquisa */}
         {search.length > 0 && (
           <SidebarMenu className="mb-3 scrollbar-hide text-white gap-0">
-            {menuPesquisa?.map(menu => {
-              console.log(menuPesquisa)
-              const hasSearch = menu.descricao.toLowerCase().includes(search.toLowerCase());
-              const isSubmenuActive = isActive(menu, location.pathname);
+            {acessos?.map(menu =>
+              <div key={menu.descricao}>
+                {Array.isArray(menu.submenus) && menu.submenus.map(submenu => {
 
-              if (hasSearch) return (
-                <SidebarMenuButton
-                  key={menu.link}
-                  asChild
-                  className={`pl-5 py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
-                  onClick={() => setOpenMobile(false)}
-                >
-                  <Link to={menu.link}>
-                    {renderIcon(menu.icone, "size-5 mr-2")}
-                    {menu.descricao}
-                  </Link>
-                </SidebarMenuButton>
-              )
-            }
+                  const hasSearch = submenu.descricao.toLowerCase().includes(search.toLowerCase());
+                  const isSubmenuActive = isActive(submenu, location.pathname);
+
+                  if (hasSearch) return (
+                    <SidebarMenuButton
+                      key={submenu.link}
+                      asChild
+                      className={`pl-5 py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                      onClick={() => setOpenMobile(false)}
+                    >
+                      <Link to={submenu.link}>
+                        {renderIcon(submenu.icone, "size-5 mr-2")}
+                        {submenu.descricao}
+                      </Link>
+                    </SidebarMenuButton>
+                  )
+                })}
+              </div>
             )}
           </SidebarMenu>
         )}
       </SidebarContent>
 
-      <SidebarFooter className="bg-slate-800 p-0">
-        <div className="flex items-center gap-2 h-16 w-full px-2">
-          <div className="h-[60%] w-full flex items-center justify-center rounded-lg bg-sidebar-primary">
-            <img src="/assets/logo.png" alt="Logo" className="h-full" />
+      <SidebarFooter className="bg-slate-800 p-2">
+        <div className="flex items-center gap-2 pb-2 mt-1">
+          <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
+            <img src="/logo.png" alt="Logo" className="rounded-md p-1" />
           </div>
+          <span className="font-normal text-white ml-2">Cliente</span>
         </div>
       </SidebarFooter>
     </Sidebar>

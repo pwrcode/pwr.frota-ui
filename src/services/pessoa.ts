@@ -73,7 +73,7 @@ export type dadosAddEdicaoPessoaType = {
   isOficina: boolean,
   cnhNumero: string,
   cnhCategoria: string,
-  cnhValidade: string,
+  cnhValidade: string | null | undefined,
   ativo: boolean,
 }
 

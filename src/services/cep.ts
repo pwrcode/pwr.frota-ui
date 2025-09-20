@@ -1,47 +1,15 @@
 import getAxios from "@/axios/configAxios";
-import { paisType } from "./pais";
+import type { ufType } from "./uf";
+import type { municipioType } from "./municipio";
+import type { bairroType } from "./bairro";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/cep";
 
-type ufCepType = {
-  dataCadastro: string,
-  usuarioCadastro: string,
-  dataEdicao: string,
-  usuarioEdicao: string,
-  id: number,
-  descricao: string,
-  sigla: string,
-  idPais: number,
-  pais: paisType
-}
-
-type municipioCepType = {
-  dataCadastro: string,
-  usuarioCadastro: string,
-  dataEdicao: string,
-  usuarioEdicao: string,
-  id: number,
-  descricao: string,
-  idUf: number,
-  uf: ufCepType
-}
-
-type bairroCepType = {
-  dataCadastro: string,
-  usuarioCadastro: string,
-  dataEdicao: string,
-  usuarioEdicao: string,
-  id: number,
-  descricao: string,
-  idMunicipio: number,
-  municipio: municipioCepType
-}
-
 export type cepType = {
-  uf: ufCepType,
-  municipio: municipioCepType,
-  bairro: bairroCepType,
+  uf: ufType,
+  municipio: municipioType,
+  bairro: bairroType,
   rua: string
 }
 

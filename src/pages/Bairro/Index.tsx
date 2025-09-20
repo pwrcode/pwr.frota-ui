@@ -50,7 +50,7 @@ export default function Bairro() {
     }
 
     const getUfs = async (pesquisa?: string) => {
-        const data = await getUfList(pesquisa, undefined);
+        const data = await getUfList(pesquisa);
         return [todosOption, ...data];
     }
 

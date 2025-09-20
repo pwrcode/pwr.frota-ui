@@ -10,6 +10,7 @@ export type municipioType = {
   descricao: string,
   descricaoUf: string,
   id: number,
+  idUf: number,
   siglaUf: string,
   usuarioCadastro: string,
   dataCadastro: string,

@@ -50,6 +50,18 @@ export const categoriasVeiculos = [
     { value: "E" , label: "Veículos com uniddade acoplada"},
 ]
 
+export const categoriasCnh = [
+    { value: "A" , label: "A"},
+    { value: "B" , label: "B"},
+    { value: "C" , label: "C"},
+    { value: "D" , label: "D"},
+    { value: "E" , label: "E"},
+    { value: "AB" , label: "AB"},
+    { value: "AC" , label: "AC"},
+    { value: "AD" , label: "AD"},
+    { value: "AE" , label: "AE"},
+]
+
 export const tiposDataVeiculo = [
     { value: "AQUISICAO" , label: "Aquisição"},
     { value: "VENDA" , label: "Venda"},

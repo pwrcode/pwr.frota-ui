@@ -69,9 +69,9 @@ export type dadosAddEdicaoVeiculoType = {
   capacidadeCargaKg: number,
   capacidadeVolumeM3: number,
   capacidadePassageiros: number,
-  dataAquisicao: string,
+  dataAquisicao: string | null | undefined,
   valorCompra: number,
-  dataVenda: string,
+  dataVenda: string | null | undefined,
   valorVenda: number
 }
 

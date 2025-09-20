@@ -80,7 +80,7 @@ export default function Pessoa() {
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa, undefined);
+    const data = await getUfList(pesquisa);
     // setUfs([...data]);
     return [...data];
   }
@@ -275,10 +275,10 @@ export default function Pessoa() {
                       <div className="flex flex-col justify-start min-w-[100px]">
                         {/* <span className="font-semibold">#{c.id}</span> */}
                         <span className="text-nowrap">
-                          <span className="text-gray-700">Razão Social:</span> {c.razaoSocial}
+                          <span className="text-gray-700 dark:text-white/80">Razão Social:</span> {c.razaoSocial}
                         </span>
                         <span className="text-nowrap">
-                          <span className="text-gray-700">Nome Fantasia:</span> {c.nomeFantasia}
+                          <span className="text-gray-700 dark:text-white/80">Nome Fantasia:</span> {c.nomeFantasia}
                         </span>
                       </div>
                     </TableCell>

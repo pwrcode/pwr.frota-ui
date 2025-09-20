@@ -8,9 +8,7 @@ const api = import.meta.env.VITE_API_URL + "/uf";
 
 export type ufType = {
   descricao: string,
-  descricaoPais: string,
   id: number,
-  idPais: number,
   sigla: string,
   usuarioCadastro: string,
   dataCadastro: string,
@@ -46,10 +44,10 @@ export const getUfPorId = async (id: number) => {
   throw new Error(response.data.mensagem);
 }
 
-export const getUfList = async (pesquisa: string | undefined, idPais: number | undefined) => {
+export const getUfList = async (pesquisa: string | undefined) => {
   try {
     const axiosInstance = await getAxios();
-    const response = await axiosInstance.get(`${api}/select`, {params: { pesquisa: pesquisa, idPais: idPais }});
+    const response = await axiosInstance.get(`${api}/select`, {params: { pesquisa }});
     if (response.data.sucesso) {
       if (response.data.dados.length == 0) return [];
       return response.data.dados.map((l: itemSelectType) => ({ value: l.id, label: l.descricao })) as listType;
