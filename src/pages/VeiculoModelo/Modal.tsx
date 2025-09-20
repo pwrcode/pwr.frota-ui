@@ -11,14 +11,17 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getVeiculoMarcaList } from '@/services/veiculoMarca';
+import { getVeiculoMarcaList, getVeiculoMarcaPorId } from '@/services/veiculoMarca';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import type { optionType } from '@/services/constants';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void
+    updateList?: (filter: boolean) => void,
+    selecionarModelo?: (modelo: optionType) => void,
+    idMarca?: number,
 }
 
 const schema = z.object({
@@ -29,7 +32,7 @@ const schema = z.object({
     }, { message: "Selecione o veículo marca" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o veículo marca" }),
 });
 
-export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
+export default function Modal({ open, setOpen, id, updateList, selecionarModelo, idMarca }: modalPropsType) {
 
     const { register, handleSubmit, setValue, reset, setFocus, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
@@ -53,6 +56,13 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
+        if (idMarca) {
+            const setMarca = async () => {
+                const mar = await getVeiculoMarcaPorId(idMarca);
+                setValue("idVeiculoMarca", { value: mar.id, label: mar.descricao });
+            }
+            setMarca();
+        }
     }, [id, open]);
 
     useEffect(() => {
@@ -83,10 +93,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
             if (id === 0) {
                 const response = await addVeiculoModelo(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
+                if(selecionarModelo) selecionarModelo({ value: response.id, label: dados.descricao.toUpperCase()})
             }
             else {
                 const response = await updateVeiculoModelo(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
+                if(selecionarModelo) selecionarModelo({ value: id, label: dados.descricao.toUpperCase()})
             }
             if (updateList) updateList(true);
             reset();

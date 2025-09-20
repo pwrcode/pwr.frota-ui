@@ -11,19 +11,21 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
+import type { optionType } from '@/services/constants';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void
+    updateList?: (filter: boolean) => void,
+    selecionarMarca?: (marca: optionType) => void,
 }
 
 const schema = z.object({
     descricao: z.string().min(1, { message: "Informe a descrição" }),
 });
 
-export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
+export default function Modal({ open, setOpen, id, updateList, selecionarMarca }: modalPropsType) {
 
     const { register, handleSubmit, setValue, reset, setFocus, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
@@ -70,10 +72,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
             if (id === 0) {
                 const response = await addVeiculoMarca(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
+                if (selecionarMarca) selecionarMarca({ label: dados.descricao.toUpperCase(), value: response.id });
             }
             else {
                 const response = await updateVeiculoMarca(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
+                if (selecionarMarca) selecionarMarca({ label: dados.descricao.toUpperCase(), value: id });
             }
             if (updateList) updateList(true);
             reset();

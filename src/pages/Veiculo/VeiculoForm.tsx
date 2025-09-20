@@ -24,9 +24,12 @@ import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { formatMaskPlaca } from '@/services/mask';
-import type { listType } from '@/services/constants';
+import type { listType, optionType } from '@/services/constants';
 import { currency } from '@/services/currency';
 import { toNumber } from '@/services/utils';
+import { PlusButton } from '@/ui/components/buttons/PlusButton';
+import ModalMarca from '../VeiculoMarca/Modal';
+import ModalModelo from '../VeiculoModelo/Modal';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -50,6 +53,7 @@ export const schema = z.object({
   anoModelo: z.string().optional()/*.min(1, {message: "Informe o ano do modelo"})*/,
   cor: z.string().optional()/*.min(1, {message: "Informe a cor"})*/,
   ativo: z.boolean().optional(),
+  isVendido: z.boolean().optional(),
   icone: z.string().optional()/*.min(1, {message: "Informe o icone"})*/,
   quilometragemInicial: z.string().optional()/*.min(1, {message: "Informe a quilometragemInicial"})*/,
   capacidadeCargaKg: z.string().optional()/*.min(1, {message: "Informe a capacidadeCargaKg"})*/,
@@ -63,17 +67,22 @@ export const schema = z.object({
 
 export default function VeiculoForm() {
 
-  const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, resetField, setValue, watch, control, setFocus, formState: { errors } } = useForm({
     resolver: zodResolver(schema)
   });
 
   const { id } = useParams();
   const idVeiculoMarca = watch("idVeiculoMarca");
+  const idVeiculoModelo = watch("idVeiculoModelo.value");
+  const isVendido = watch("isVendido");
+  const [veiculosMarca, setVeiculosMarca] = useState<listType>([])
   const [veiculoModelos, setVeiculoModelos] = useState<listType>([])
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
+  const [openModalFormMarca, setOpenModalFormMarca] = useState(false);
+  const [openModalFormModelo, setOpenModalFormModelo] = useState(false);
 
   useEffect(() => {
     if (id) return
@@ -82,6 +91,7 @@ export default function VeiculoForm() {
   }, []);
 
   useEffect(() => {
+    resetField("idVeiculoModelo");
     getVeiculoModelos();
   }, [idVeiculoMarca])
 
@@ -92,13 +102,13 @@ export default function VeiculoForm() {
 
   const getVeiculoMarcas = async (pesquisa?: string) => {
     const data = await getVeiculoMarcaList(pesquisa);
+    setVeiculosMarca([...data])
     return data;
   }
 
   const getVeiculoModelos = async (pesquisa?: string) => {
     if (!idVeiculoMarca) {
       setVeiculoModelos([]);
-      reset({ idTipoVeiculo: undefined });
       return [];
     }
     const data = await getVeiculoModeloList(pesquisa, idVeiculoMarca ? idVeiculoMarca.value : undefined);
@@ -148,6 +158,7 @@ export default function VeiculoForm() {
       setValue("valorCompra", String(currency(item.valorCompra)));
       setValue("dataVenda", formatarData(item.dataVenda ?? "", "yyyy-mm-dd"));
       setValue("valorVenda", String(currency(item.valorVenda)));
+      setValue("isVendido", item.valorVenda ? true : false);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       toast.dismiss(process);
@@ -184,8 +195,8 @@ export default function VeiculoForm() {
           capacidadePassageiros: data.capacidadePassageiros,
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
-          dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
-          valorVenda: toNumber(data.valorVenda) ?? 0,
+          dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
+          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : 0,
         }
         const res = await addVeiculo(post);
         toast.update(process, { render: res.mensagem, type: "success", isLoading: false, autoClose: 2000 });
@@ -211,8 +222,8 @@ export default function VeiculoForm() {
           capacidadePassageiros: data.capacidadePassageiros,
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
-          dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
-          valorVenda: toNumber(data.valorVenda) ?? 0,
+          dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
+          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : 0,
         }
         const res = await updateVeiculo(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
@@ -228,85 +239,123 @@ export default function VeiculoForm() {
     }
   }
 
+  const handleClickAdicionarMarca = () => {
+    setOpenModalFormMarca(true);
+  }
+
+  const selecionarMarca = (marca: optionType) => {
+    setValue("idVeiculoMarca", marca);
+    getVeiculoMarcas();
+  }
+
+  const handleClickAdicionarModelo = () => {
+    setOpenModalFormModelo(true);
+  }
+
+  const selecionarModelo = (modelo: optionType) => {
+    setValue("idVeiculoModelo", modelo);
+    getVeiculoModelos();
+  }
+
   return (
-    <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
-      <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoVeiculoType))}>
-        <FormContainer>
-          <FormContainerHeader title="Informações Básicas" />
-          <FormContainerBody>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
-              <InputMaskLabel name='placa' title='Placa' mask={Masks.placa} value={watch("placa")} setValue={setValue} />
-              <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
-              <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
-              <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
-              <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
-            </div>
-            {(!id) && (
-              <div className="mt-6">
-                <DivCheckBox style="line">
-                  <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
-                </DivCheckBox>
+    <>
+      <ModalMarca open={openModalFormMarca} setOpen={setOpenModalFormMarca} id={idVeiculoMarca?.value ?? 0} selecionarMarca={selecionarMarca} />
+
+      <ModalModelo open={openModalFormModelo} setOpen={setOpenModalFormModelo} id={idVeiculoModelo ?? 0} selecionarModelo={selecionarModelo} idMarca={idVeiculoMarca?.value} />
+
+      <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
+        <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoVeiculoType))}>
+          <FormContainer>
+            <FormContainerHeader title="Informações Básicas" />
+            <FormContainerBody>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
+                <InputMaskLabel name='placa' title='Placa' mask={Masks.placa} value={watch("placa")} setValue={setValue} />
+                <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
+                <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
+                <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
+                <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
               </div>
-            )}
-          </FormContainerBody>
-        </FormContainer>
+              {(!id) && (
+                <div className="mt-6">
+                  <DivCheckBox style="line">
+                    <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
+                  </DivCheckBox>
+                </div>
+              )}
+            </FormContainerBody>
+          </FormContainer>
 
-        <FormContainer>
-          <FormContainerHeader title="Tipo e Modelo" />
-          <FormContainerBody>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
-              <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
-              <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={veiculoModelos} filter isClearable />
-              <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
-              <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
-              <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
-            </div>
-          </FormContainerBody>
-        </FormContainer>
+          <FormContainer>
+            <FormContainerHeader title="Tipo e Modelo" />
+            <FormContainerBody>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
+                <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
+                  <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={veiculosMarca} asyncFunction={getVeiculoMarcas} filter isClearable size="w-full" />
+                  <PlusButton loading={loading} func={handleClickAdicionarMarca} />
+                </div>
+                <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
+                  <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
+                  <PlusButton loading={loading} func={handleClickAdicionarModelo} />
+                </div>
+                {/* <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
+                <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={veiculoModelos} filter isClearable /> */}
+                <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
+                <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
+                <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
+              </div>
+            </FormContainerBody>
+          </FormContainer>
 
-        <FormContainer>
-          <FormContainerHeader title="Capacidades e Especificações" />
-          <FormContainerBody>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              <InputMaskLabel name='quilometragemInicial' title='Quilometragem Inicial' mask={Masks.numerico} value={watch("quilometragemInicial")} setValue={setValue} />
-              <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
-              <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
-              <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
-            </div>
-          </FormContainerBody>
-        </FormContainer>
+          <FormContainer>
+            <FormContainerHeader title="Capacidades e Especificações" />
+            <FormContainerBody>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                <InputMaskLabel name='quilometragemInicial' title='Quilometragem Inicial' mask={Masks.numerico} value={watch("quilometragemInicial")} setValue={setValue} />
+                <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
+                <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
+                <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
+              </div>
+            </FormContainerBody>
+          </FormContainer>
 
-        <FormContainer>
-          <FormContainerHeader title="Informações Comerciais" />
-          <FormContainerBody>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-              <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao") }} />
-              <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />
-              <InputDataAno title="Data Venda" id="dataVenda" register={{ ...register("dataVenda") }} />
-              <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} />
-            </div>
-          </FormContainerBody>
-        </FormContainer>
+          <FormContainer>
+            <FormContainerHeader title="Informações Comerciais" />
+            <FormContainerBody>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao") }} />
+                <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />
+                {isVendido ?
+                  <>
+                    <InputDataAno title="Data Venda" id="dataVenda" register={{ ...register("dataVenda") }} />
+                    <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} />
+                  </> : <></>}
+              </div>
+              <DivCheckBox style="line">
+                <CheckBoxLabel name="isVendido" title="Vendido" register={{ ...register("isVendido") }} />
+              </DivCheckBox>
+            </FormContainerBody>
+          </FormContainer>
 
-        <FormContainer>
-          <FormContainerBody>
-            <FormLine>
-              <FormLine justify="start">
-                <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
+          <FormContainer>
+            <FormContainerBody>
+              <FormLine>
+                <FormLine justify="start">
+                  <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
+                </FormLine>
+                <FormLine justify="end">
+                  <Button variant="outline" type="button" onClick={() => navigate("/veiculo")} disabled={loading}>Cancelar</Button>
+                  <ButtonSubmit loading={loading}>
+                    Salvar
+                  </ButtonSubmit>
+                </FormLine>
               </FormLine>
-              <FormLine justify="end">
-                <Button variant="outline" type="button" onClick={() => navigate("/veiculo")} disabled={loading}>Cancelar</Button>
-                <ButtonSubmit loading={loading}>
-                  Salvar
-                </ButtonSubmit>
-              </FormLine>
-            </FormLine>
-          </FormContainerBody>
-        </FormContainer>
-      </form>
+            </FormContainerBody>
+          </FormContainer>
+        </form>
 
-    </div>
+      </div>
+    </>
   )
 }

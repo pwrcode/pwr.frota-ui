@@ -93,12 +93,12 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
             if (id === 0) {
                 const response = await addBairro(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
-                if (selecionarBairro) selecionarBairro({ label: dados.descricao, value: response.id });
+                if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: response.id });
             }
             else {
                 const response = await updateBairro(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-                if (selecionarBairro) selecionarBairro({ label: dados.descricao, value: id });
+                if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: id });
             }
             if (updateList) updateList(true);
             reset();

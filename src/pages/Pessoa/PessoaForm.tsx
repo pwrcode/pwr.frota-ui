@@ -55,12 +55,15 @@ const schema = z.object({
     pontoReferencia: z.string().optional(),
     telefonePrincipal: z.string().optional(),
     telefoneSecundario: z.string().optional(),
-    observacao: z.string().optional(),
+    observacao: z.string().optional().nullable(),
     isMotorista: z.boolean().optional(),
     isAjudante: z.boolean().optional(),
     isOficina: z.boolean().optional(),
     cnhNumero: z.string().optional(),
-    cnhCategoria: z.string().optional(),
+    cnhCategoria: z.object({
+        label: z.string().optional().nullable(),
+        value: z.string().optional().nullable()
+    }).optional().transform(t => t && t.value ? t.value : undefined),
     cnhValidade: z.string().optional(),
     ativo: z.boolean().optional(),
 })
@@ -102,6 +105,7 @@ export default function PessoaForm() {
                 return
             }
         });
+        console.log(errors)
     }, [errors]);
 
     useEffect(() => {
@@ -119,7 +123,7 @@ export default function PessoaForm() {
             const item = await getPessoaPorId(Number(id));
             if (item.idUf) setIdUf(item.idUf);
             if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
-            setValue("tipoPessoa", { value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value, label: item.tipoPessoa.toString()  }); // atencao
+            setValue("tipoPessoa", { value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value, label: item.tipoPessoa.toString() }); // atencao
             setValue("documento", formatarCpfCnpj(removeNonDigit(item.documento)));
             setValue("razaoSocial", item.razaoSocial);
             setValue("nomeFantasia", item.nomeFantasia);
@@ -134,8 +138,8 @@ export default function PessoaForm() {
             setValue("isMotorista", item.isMotorista ? true : false);
             setValue("isAjudante", item.isAjudante ? true : false);
             setValue("isOficina", item.isOficina ? true : false);
-            setValue("cnhNumero", item.cnhNumero);
-            setValue("cnhCategoria", item.cnhCategoria);
+            setValue("cnhNumero", item.cnhNumero ?? "");
+            setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
             setValue("cnhValidade", formatarData(item.cnhValidade ?? "", "yyyy-mm-dd"));
             setValue("ativo", item.ativo ? true : false);
             setValuesUf(item.idUf); // useEndereco
@@ -176,7 +180,7 @@ export default function PessoaForm() {
                 isAjudante: data.isAjudante ?? false,
                 isOficina: data.isOficina ?? false,
                 cnhNumero: data.cnhNumero,
-                cnhCategoria: data.cnhCategoria,
+                cnhCategoria: data.cnhCategoria ?? null,
                 cnhValidade: data.cnhCategoria ? data.cnhValidade?.slice(0, 11).concat("T00:00:00") : null,
                 ativo: data.ativo ?? false,
             }
@@ -228,14 +232,8 @@ export default function PessoaForm() {
                                 <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
-                                <AsyncReactSelect name="cnhCategoria" title="Tipo ContribuinteCNH Categoria" control={control} options={categoriasCnh} isClearable />
+                                <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable />
                                 <InputDataAno title="CNH Validade" id="cnhValidade" register={{ ...register("cnhValidade") }} />
-
-                                {/* <InputDataLabel
-                                name="dataNascimentoFundacao" title={tipoPessoa && tipoPessoa.value == 1 ? "Data Nascimento" : "Data Fundação"}
-                                date={watch("dataNascimentoFundacao")} setValue={setValue}
-                            /> */}
-                                {/* <AsyncReactSelect name="tipoContribuinte" title="Tipo Contribuinte" control={control} options={tiposContribuinte} isClearable /> */}
                             </div>
                             <DivCheckBox style="line">
                                 <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
