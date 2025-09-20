@@ -13,7 +13,7 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import { deleteVeiculo, getVeiculos, type postListagemVeiculoType, type veiculoType } from '@/services/veiculo';
-import { ativoOptions, tiposDataVeiculo, type optionType } from '@/services/constants';
+import { ativoOptions, tiposDataVeiculo, type listType, type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { getVeiculoMarcaList } from '@/services/veiculoMarca';
@@ -33,6 +33,7 @@ export default function Veiculo() {
   const [loading, setLoading] = useState<boolean>(false);
   const [veiculos, setVeiculos] = useState<veiculoType[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [veiculoModelos, setVeiculoModelos] = useState<listType>([]);
   const [totalRegisters, setTotalRegisters] = useState<number>(0);
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
@@ -46,7 +47,7 @@ export default function Veiculo() {
   const [tipoData, setTipoData] = useState<optionType>();
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [status, setStatus] = useState<optionType>(ativoOptions[0]);
+  const [status, setStatus] = useState<optionType>();
 
   const initialPostListagem: postListagemVeiculoType = {
     pageSize: pageSize,
@@ -58,7 +59,7 @@ export default function Veiculo() {
     idTipoVeiculo: null,
     idVeiculoMarca: null,
     idVeiculoModelo: null,
-    ativo: true,
+    ativo: null,
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
@@ -111,7 +112,7 @@ export default function Veiculo() {
       idTipoVeiculo: tipoVeiculo && tipoVeiculo.value ? tipoVeiculo.value : null,
       idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
       idVeiculoModelo: veiculoModelo && veiculoModelo.value ? veiculoModelo.value : null,
-      ativo: status.value,
+      ativo: status ? status.value : null,
     });
   }
 
@@ -120,8 +121,19 @@ export default function Veiculo() {
   }, []);
 
   useEffect(() => {
-    getVeiculoModelos();
-  }, [veiculoMarca])
+    getVeiculosModelo();
+  }, [veiculoMarca]);
+
+  const getVeiculosModelo = async (pesquisa?: string) => {
+    if (!veiculoMarca) {
+      setVeiculoModelos([]);
+      setVeiculoModelo(undefined);
+      return [];
+    };
+    const data = await getVeiculoModeloList(pesquisa, veiculoMarca ? veiculoMarca.value : undefined);
+    setVeiculoModelos([...data]);
+    return [...data];
+  }
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
@@ -130,11 +142,6 @@ export default function Veiculo() {
 
   const getVeiculoMarcas = async (pesquisa?: string) => {
     const data = await getVeiculoMarcaList(pesquisa);
-    return [...data];
-  }
-
-  const getVeiculoModelos = async (pesquisa?: string) => {
-    const data = await getVeiculoModeloList(pesquisa, veiculoMarca ? veiculoMarca.value : undefined);
     return [...data];
   }
 
@@ -202,11 +209,11 @@ export default function Veiculo() {
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
         <AsyncReactSelect name="tipoVeiculo" title='Tipo Veículo' options={[]} asyncFunction={getTipoVeiculos} value={tipoVeiculo} setValue={setTipoVeiculo} isClearable />
         <AsyncReactSelect name="veiculoMarca" title='Marca' options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable />
-        <AsyncReactSelect name="veiculoModelo" title='Modelo' options={[]} asyncFunction={getVeiculoModelos} value={veiculoModelo} setValue={setVeiculoModelo} isClearable />
+        <AsyncReactSelect name="veiculoModelo" title="Modelo" options={veiculoModelos} value={veiculoModelo} setValue={setVeiculoModelo} asyncFunction={getVeiculosModelo} filter />
         <AsyncReactSelect name="tipoData" title='Tipo Data' options={tiposDataVeiculo} value={tipoData} setValue={setTipoData} isClearable />
         <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
         <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
-        <AsyncReactSelect name="ativo" title='Status' options={ativoOptions} value={status} setValue={setStatus} />
+        <AsyncReactSelect name="ativo" title='Status' options={ativoOptions} value={status} setValue={setStatus} isClearable />
       </Filters>
 
       {(veiculos.length > 0) && (

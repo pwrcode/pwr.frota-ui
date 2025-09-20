@@ -17,7 +17,7 @@ interface InputInterface {
 
 export default function InputLabelValue({name, title, placeholder, isDisabled, type, value, setValue, size, style, readOnly}: InputInterface) {
   return (
-    <div className={style ?? `space-y-1 ${size ?? "w-full"}`}>
+    <div className={style ?? `space-y-2 ${size ?? "w-full"}`}>
       {title && (
         <Label htmlFor={name} className="text-right">
           {title}

@@ -12,13 +12,16 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getMunicipioList } from '@/services/municipio';
+import { getMunicipioList, getMunicipioPorId } from '@/services/municipio';
+import type { optionType } from '@/services/constants';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void
+    updateList?: (filter: boolean) => void,
+    selecionarBairro?: (bairro: optionType) => void,
+    idMunicipio?: number,
 }
 
 const schema = z.object({
@@ -29,7 +32,7 @@ const schema = z.object({
     }, { message: "Selecione o munícipio" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
 });
 
-export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
+export default function Modal({ open, setOpen, id, updateList, selecionarBairro, idMunicipio }: modalPropsType) {
 
     const { register, handleSubmit, setValue, reset, setFocus, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
@@ -53,6 +56,13 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
+        if (idMunicipio) {
+            const setMunicipio = async () => {
+                const mun = await getMunicipioPorId(idMunicipio);
+                setValue("idMunicipio", { value: mun.id, label: mun.descricao });
+            }
+            setMunicipio();
+        }
     }, [id, open]);
 
     useEffect(() => {
@@ -83,10 +93,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
             if (id === 0) {
                 const response = await addBairro(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
+                if (selecionarBairro) selecionarBairro({ label: dados.descricao, value: response.id });
             }
             else {
                 const response = await updateBairro(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
+                if (selecionarBairro) selecionarBairro({ label: dados.descricao, value: id });
             }
             if (updateList) updateList(true);
             reset();

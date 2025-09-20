@@ -4,18 +4,18 @@ import { errorMsg } from "./api";
 import { type itemSelectType } from "./constants";
 
 // @ts-ignore
-const api = import.meta.env.VITE_API_URL + "/pessoa";
+const api = import.meta.env.VITE_API_URL + "/posto-combustivel";
 
-export type pessoaType = {
+export type postoCombustivelType = {
   id: number,
-  tipoPessoa: number,
-  documento: string,
+  cnpj: string,
   razaoSocial: string,
   nomeFantasia: string,
+  bandeira: string,
   cep: string,
-  idUf: number,
-  idMunicipio: number,
-  idBairro: number,
+  idUf: number | null,
+  idMunicipio: number | null,
+  idBairro: number | null,
   logradouro: string,
   numero: string,
   complemento: string,
@@ -23,44 +23,32 @@ export type pessoaType = {
   telefonePrincipal: string,
   telefoneSecundario: string,
   observacao: string,
-  isMotorista: boolean,
-  isAjudante: boolean,
-  isOficina: boolean,
-  cnhNumero: string,
-  cnhCategoria: string,
-  cnhValidade: string,
-  ativo: boolean,
+  isInterno: boolean | null,
   dataCadastro: string,
   usuarioCadastro: string,
   dataEdicao: string | null,
   usuarioEdicao: string | null
 };
 
-export type postListagemPessoaType = {
+export type postListagemPostoCombustivelType = {
   pageSize: number,
   currentPage: number,
   pesquisa: string,
-  dataInicio: string,
-  dataFim: string,
-  tipoPessoa: number | null,
-  isMotorista: boolean | null,
-  isAjudante: boolean | null,
-  isOficina: boolean | null,
-  ativo: boolean | null,
+  isInterno: boolean | null,
   idUf: number | null,
   idMunicipio: number | null,
   idBairro: number | null,
 }
 
-export type dadosAddEdicaoPessoaType = {
-  tipoPessoa: number,
-  documento: string,
+export type dadosAddEdicaoPostoCombustivelType = {
+  cnpj: string,
   razaoSocial: string,
   nomeFantasia: string,
+  bandeira: string,
   cep: string,
-  idUf: number,
-  idMunicipio: number,
-  idBairro: number,
+  idUf: number | null,
+  idMunicipio: number | null,
+  idBairro: number | null,
   logradouro: string,
   numero: string,
   complemento: string,
@@ -68,20 +56,14 @@ export type dadosAddEdicaoPessoaType = {
   telefonePrincipal: string,
   telefoneSecundario: string,
   observacao: string,
-  isMotorista: boolean,
-  isAjudante: boolean,
-  isOficina: boolean,
-  cnhNumero: string,
-  cnhCategoria: string,
-  cnhValidade: string | null | undefined,
-  ativo: boolean,
+  isInterno: boolean | null,
 }
 
-export const getPessoas = async (dados: postListagemPessoaType) => {
+export const getPostoCombustivels = async (dados: postListagemPostoCombustivelType) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.post(`${api}/listagem`, dados);
   if (response.data.sucesso) return response.data.dados as {
-    dados: pessoaType[],
+    dados: postoCombustivelType[],
     totalPages: number,
     currentPage: number,
     pageSize: number,
@@ -92,38 +74,38 @@ export const getPessoas = async (dados: postListagemPessoaType) => {
   }
 }
 
-export const getPessoaPorId = async (id: number) => {
+export const getPostoCombustivelPorId = async (id: number) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.get(`${api}/${id}`);
-  if (response.data.sucesso) return response.data.dados as pessoaType;
+  if (response.data.sucesso) return response.data.dados as postoCombustivelType;
   throw new Error(response.data.mensagem);
 }
 
-export const addPessoa = async (dados: dadosAddEdicaoPessoaType) => {
+export const addPostoCombustivel = async (dados: dadosAddEdicaoPostoCombustivelType) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.post(api, dados);
-  if (response.data.sucesso) return "Pessoa adicionada";
+  if (response.data.sucesso) return "PostoCombustivel adicionada";
   throw new Error(response.data.mensagem);
 }
 
-export const updatePessoa = async (id: number, dados: dadosAddEdicaoPessoaType) => {
+export const updatePostoCombustivel = async (id: number, dados: dadosAddEdicaoPostoCombustivelType) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.put(`${api}/${id}`, dados);
-  if (response.data.sucesso) return "Pessoa editada";
+  if (response.data.sucesso) return "PostoCombustivel editada";
   throw new Error(response.data.mensagem);
 }
 
-export const deletePessoa = async (id: number) => {
+export const deletePostoCombustivel = async (id: number) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.delete(`${api}/${id}`);
-  if (response.data.sucesso) return "Pessoa excluída";
+  if (response.data.sucesso) return "PostoCombustivel excluída";
   else throw new Error(response.data.mensagem);
 }
 
-export const getPessoaList = async (
+export const getPostoCombustivelList = async (
   pesquisa: string | undefined,
   ativo: boolean | undefined,
-  tipoPessoa: any | undefined,
+  tipoPostoCombustivel: any | undefined,
   isAjudante: boolean | undefined,
   isMotorista: boolean | undefined,
   isOficina: boolean | undefined,
@@ -136,7 +118,7 @@ export const getPessoaList = async (
     const response = await axiosInstance.get(`${api}/select`, {
       params: {
         pesquisa,
-        tipoPessoa,
+        tipoPostoCombustivel,
         isAjudante,
         isOficina,
         isMotorista,

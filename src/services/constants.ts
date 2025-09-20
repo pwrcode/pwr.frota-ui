@@ -37,7 +37,6 @@ export const ativoOptions = [
 ];
 
 export const SimNaoOptions = [
-    {value: undefined, label: "Todos"},
     {value: true, label: "Sim"},
     {value: false, label: "Não"},
 ];

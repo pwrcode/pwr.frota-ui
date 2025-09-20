@@ -48,7 +48,7 @@ export type postListagemVeiculoType = {
   idTipoVeiculo: number | null,
   idVeiculoMarca: number | null,
   idVeiculoModelo: number | null,
-  ativo: boolean,
+  ativo: boolean | null,
 }
 
 export type dadosAddEdicaoVeiculoType = {

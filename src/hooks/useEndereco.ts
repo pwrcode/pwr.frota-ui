@@ -18,7 +18,7 @@ export function useEndereco(useForm: any) {
 
   const [idUf, setIdUf] = useState<number>();
   const [idMunicipio, setIdMunicipio] = useState<number>();
-//   const [idBairro, setBairro] = useState<number>();
+  const [, setIdBairro] = useState<number>();
 
   const [ufs, setUfs] = useState<listType>([]);
   const [municipios, setMunicipios] = useState<listType>([]);
@@ -105,7 +105,7 @@ export function useEndereco(useForm: any) {
   return {
     cep, uf, municipio,
     ufs, municipios, bairros,
-    setIdUf, setIdMunicipio,
+    setIdUf, setIdMunicipio, setIdBairro,
     getUfs, getMunicipios, getBairros,
     loadingCep, buscarCep,
     setValuesUf, setValuesMunicipio, setValuesBairro

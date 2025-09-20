@@ -14,72 +14,53 @@ import { toast } from 'react-toastify';
 import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { ativoOptions, type listType, type optionType, tiposPessoa } from '@/services/constants';
+import { SimNaoOptions, type listType, type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { formatarCpfCnpj } from '@/services/formatacao';
-import { deletePessoa, getPessoas, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
+import { formatarCelular, formatarCpfCnpj } from '@/services/formatacao';
+import { deletePostoCombustivel, getPostoCombustivels, type postoCombustivelType, type postListagemPostoCombustivelType } from '@/services/postoCombustivel';
 import { getUfList } from '@/services/uf';
 import { getMunicipioList } from '@/services/municipio';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
 import { getBairroList } from '@/services/bairro';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import { BadgeTrueFalse } from '@/ui/components/tables/BadgeAtivo';
 
-const options = [
-  { value: "isAjudante", label: "Ajudante" },
-  { value: "isMotorista", label: "Motorista" },
-  { value: "isOficina", label: "Oficina" },
-];
-
-export default function Pessoa() {
+export default function PostoCombustivel() {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-  const [pessoas, setPessoas] = useState<pessoaType[]>([]);
+  const [postoCombustivels, setPostoCombustivels] = useState<postoCombustivelType[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalRegisters, setTotalRegisters] = useState<number>(0);
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-  // const [ufs, setUfs] = useState<listType>([]);
   const [municipios, setMunicipios] = useState<listType>([]);
   const [bairros, setBairros] = useState<listType>([]);
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoPessoa, setTipoPessoa] = useState<optionType>();
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
 
-  const [optionsSelected, setOptionsSelected] = useState<listType>([]);
-  const [status, setStatus] = useState<optionType>();
+  const [isInterno, setIsInterno] = useState<optionType>();
   const [uf, setUf] = useState<optionType>();
   const [municipio, setMunicipio] = useState<optionType>();
   const [bairro, setBairro] = useState<optionType>();
 
-  const initialPostListagem: postListagemPessoaType = {
+  const initialPostListagem: postListagemPostoCombustivelType = {
     pageSize: pageSize,
     currentPage: currentPage,
     pesquisa: "",
-    dataInicio: dataInicio.slice(0, 11).concat("00:00:00"),
-    dataFim: dataFim.slice(0, 11).concat("23:59:59"),
-    ativo: null,
-    tipoPessoa: null,
-    isAjudante: false,
-    isMotorista: false,
-    isOficina: false,
     idUf: null,
     idMunicipio: null,
     idBairro: null,
+    isInterno: null,
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   const getUfs = async (pesquisa?: string) => {
     const data = await getUfList(pesquisa);
-    // setUfs([...data]);
     return [...data];
   }
 
@@ -119,11 +100,7 @@ export default function Pessoa() {
 
   useEffect(() => {
     changeListFilters(0);
-  }, [status]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [tipoPessoa]);
+  }, [isInterno]);
 
   useEffect(() => {
     changeListFilters(0);
@@ -133,28 +110,16 @@ export default function Pessoa() {
     changeListFilters(0);
   }, [municipio]);
 
-  useEffect(() => {
-    if ((Array.isArray(optionsSelected) && optionsSelected.length > 0) || filtersOn) {
-      changeListFilters(0, optionsSelected);
-    }
-  }, [optionsSelected]);
-
-  const changeListFilters = (page: number, list?: listType) => {
+  const changeListFilters = (page: number) => {
     setFiltersOn(true);
     setPostListagem({
       pageSize: pageSize,
       currentPage: page ?? 0,
       pesquisa: pesquisa,
-      dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
-      dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-      ativo: status ? status.value : null,
-      tipoPessoa: tipoPessoa && tipoPessoa.value ? tipoPessoa.value : null,
-      isAjudante: list?.find(l => l.value === "isAjudante") ? true : null,
-      isMotorista: list?.find(l => l.value === "isMotorista") ? true : null,
-      isOficina: list?.find(l => l.value === "isOficina") ? true : null,
       idUf: uf && uf.value ? uf.value : null,
       idMunicipio: municipio && municipio.value ? municipio.value : null,
       idBairro: bairro && bairro.value ? bairro.value : null,
+      isInterno: isInterno ? isInterno.value : null,
     });
   }
 
@@ -166,8 +131,8 @@ export default function Pessoa() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getPessoas(postListagem);
-      setPessoas(data.dados);
+      const data = await getPostoCombustivels(postListagem);
+      setPostoCombustivels(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
       setTotalRegisters(data.totalRegisters);
@@ -189,11 +154,11 @@ export default function Pessoa() {
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
   const handleClickAdicionar = () => {
-    navigate("/pessoa/form");
+    navigate("/posto-combustivel/form");
   }
 
   const handleClickEditar = (id: number) => {
-    navigate(`/pessoa/form/${id}`);
+    navigate(`/posto-combustivel/form/${id}`);
   }
 
   const handleClickDeletar = (id: number) => {
@@ -204,10 +169,10 @@ export default function Pessoa() {
   const deletar = async () => {
     const process = toast.loading("Excluindo item...");
     try {
-      const response = await deletePessoa(excluirId);
+      const response = await deletePostoCombustivel(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (pessoas.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (postoCombustivels.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -220,23 +185,17 @@ export default function Pessoa() {
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
-      <PageTitle title="Pessoa" />
+      <PageTitle title="Posto Combustivel" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
-        <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-          <AsyncReactSelect name="optionsSelected" title="Filtragem" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
-        </div>
         <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
         <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
         <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-        <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
-        <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
-        <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} isClearable />
+        <AsyncReactSelect name="isInterno" title="Interno" options={SimNaoOptions} value={isInterno} setValue={setIsInterno} isClearable />
       </Filters>
 
-      {(pessoas.length > 0) && (
+      {(postoCombustivels.length > 0) && (
         <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
           <TableTop>
             <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
@@ -246,23 +205,22 @@ export default function Pessoa() {
             <TableHeader>
               <TableRow className="hidden sm:table-row">
                 <TableHead className='w-16 text-center'>Id</TableHead>
-                <TableHead className='w-90  '>Pessoa</TableHead>
-                <TableHead className='w-60'>Tipo Pessoa</TableHead>
-                <TableHead className='w-60'>CPF / CNPJ</TableHead>
+                <TableHead className='w-90  '>Posto Combustivel</TableHead>
+                <TableHead className='w-60'>CNPJ</TableHead>
+                <TableHead className='w-60'>Telefone Principal</TableHead>
+                <TableHead className='w-60'>Telefone Secundário</TableHead>
+                <TableHead className='w-60'>Interno</TableHead>
                 <TableHead></TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pessoas.map(c => {
+              {postoCombustivels.map(c => {
                 return (
                   <TableRow key={c.id} className={rowStyle}>
 
                     <TableCardHeader title={c.nomeFantasia}>
-                      <div className="flex flex-row items-center gap-1">
-                        <BadgeAtivo ativo={c.ativo} />
-                        <DropDownMenuItem id={c.id} handleClickEditar={handleClickEditar} handleClickDeletar={handleClickDeletar} />
-                      </div>
+                      <DropDownMenuItem id={c.id} handleClickEditar={handleClickEditar} handleClickDeletar={handleClickDeletar} />
                     </TableCardHeader>
 
                     <TableCell className={hiddenMobile + " text-center"}>
@@ -290,15 +248,19 @@ export default function Pessoa() {
                     </TableCell>}
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Tipo Pessoa: "}{c.tipoPessoa}
+                      {isMobile && "CNPJ: "}{formatarCpfCnpj(c.cnpj)}
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "CPF / CNPJ: "}{formatarCpfCnpj(c.documento)}
+                      {isMobile && "Telefone Principal: "}{formatarCelular(c.telefonePrincipal)}
                     </TableCell>
 
-                    <TableCell className={hiddenMobile + " sm:text-end"}>
-                      <BadgeAtivo ativo={c.ativo} />
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Telefone Secundário: "}{formatarCelular(c.telefoneSecundario)}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-start"}>
+                      {isMobile && "Interno: "}<BadgeTrueFalse value={c.isInterno ?? false} />
                     </TableCell>
 
                     <TableCell className={hiddenMobile + "text-right"}>
@@ -316,13 +278,13 @@ export default function Pessoa() {
             totalPages={totalPages}
             pageSize={pageSize}
             totalRegisters={totalRegisters}
-            lengthCurrentPage={pessoas.length}
+            lengthCurrentPage={postoCombustivels.length}
             setCurrentPage={setCurrentPage}
           />
         </div>
       )}
 
-      {pessoas.length === 0 && <>
+      {postoCombustivels.length === 0 && <>
         {loading ? (
           <TableLoading />
         ) : (
