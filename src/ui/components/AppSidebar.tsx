@@ -45,19 +45,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         acc[menu.descricao] = isMenuActive(menu, location.pathname);
         return acc;
       }, {} as Record<string, boolean>);
-  
+
       setMenuActiveStates(newMenuActiveStates);
-  
+
       const activeMenu = acessos.find((menu) =>
         isMenuActive(menu, location.pathname)
       );
-  
+
       if (activeMenu) {
-        setCurrentAccordion(activeMenu.descricao); 
+        setCurrentAccordion(activeMenu.descricao);
       }
     }
   }, [acessos, location.pathname]);
-  
+
 
   useEffect(() => {
     checkAcessos();
@@ -80,14 +80,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   function normalizePath(path: string): string {
-    return path.split("/")[1] || ""; 
+    return path.split("/")[1] || "";
   }
-  
+
   function isActive(item: SubmenuType | menusType, currentPath: string): boolean {
     if (!item.link) return false;
     return normalizePath(currentPath) === normalizePath(item.link);
   }
-  
+
   function isMenuActive(menu: menusType, currentPath: string): boolean {
     return (
       isActive(menu, currentPath) ||
@@ -211,7 +211,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         )}
       </SidebarContent>
-
       <SidebarFooter className="bg-slate-800 p-2">
         <div className="flex items-center gap-2 pb-2 mt-1">
           <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">

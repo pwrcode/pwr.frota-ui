@@ -91,3 +91,39 @@ export const formatMaskNumerico = (v: string | undefined | null) => {
   if(!v) return "";
   return v.replace(/\D/g, "");
 }
+
+export const formatMaskPlaca = (p: string) => {
+  if (!p) return "";
+
+  let clean = p.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+
+  let result = "";
+
+  for (let i = 0; i < clean.length && i < 7; i++) {
+    const char = clean[i];
+
+    if (i < 3) {
+      if (/[A-Z]/.test(char)) {
+        result += char;
+      }
+    } else if (i === 3) {
+      if (/[0-9]/.test(char)) {
+        result += char;
+      }
+    } else if (i === 4) {
+      if (/[A-Z0-9]/.test(char)) {
+        result += char;
+      }
+    } else {
+      if (/[0-9]/.test(char)) {
+        result += char;
+      }
+    }
+  }
+
+  if (result.length <= 3) {
+    return result;
+  } else {
+    return `${result.slice(0, 3)}-${result.slice(3)}`;
+  }
+}

@@ -74,7 +74,7 @@ export default function Login() {
 
           {/* LOGO NO MOBILE */}
           <div className="flex justify-center mb-4 lg:hidden">
-            <img src="/assets/logo.png" alt="logo" className="w-24 h-auto" />
+            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
           </div>
 
           {/* Login Card Unificado */}
