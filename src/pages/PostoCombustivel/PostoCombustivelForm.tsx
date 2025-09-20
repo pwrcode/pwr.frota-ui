@@ -137,7 +137,7 @@ export default function PostoCombustivelForm() {
         const process = toast.loading("Salvando item...")
         try {
             const postPut: dadosAddEdicaoPostoCombustivelType = {
-                cnpj: data.cnpj,
+                cnpj: removeNonDigit(data.cnpj),
                 razaoSocial: data.razaoSocial,
                 nomeFantasia: data.nomeFantasia,
                 bandeira: data.bandeira,

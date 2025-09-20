@@ -19,7 +19,6 @@ import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
-import { formatMaskDinheiro } from '@/services/mask';
 import { getPostoCombustivelList } from '@/services/postoCombustivel';
 import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { getPessoaList } from '@/services/pessoa';
@@ -28,6 +27,8 @@ import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 import TextareaLabel from '@/ui/components/forms/TextareaLabel';
 import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { Label } from '@/components/ui/label';
+import { currency } from '@/services/currency';
+import { toNumber } from '@/services/utils';
 
 export const schema = z.object({
   dataAbastecimento: z.string().optional(),
@@ -126,7 +127,7 @@ export default function AbastecimentoForm() {
       setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
       setValue("quilometragem", item.quilometragem.toString())
       setValue("quantidadeAbastecida", item.quantidadeAbastecida.toString())
-      setValue("quilometragem", formatMaskDinheiro(item.valorUnitario.toString()))
+      setValue("valorUnitario", String(currency(item.valorUnitario)))
       setValue("observacao", item.observacao)
       setValue("tanqueCheio", item.tanqueCheio ? true : false)
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
@@ -153,7 +154,7 @@ export default function AbastecimentoForm() {
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
-          valorUnitario: data.valorUnitario,
+          valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
           idArquivoFotoPainelAntes: idArquivoFotoPainelAntes !== 0 ? idArquivoFotoPainelAntes : null,
@@ -171,7 +172,7 @@ export default function AbastecimentoForm() {
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
-          valorUnitario: data.valorUnitario,
+          valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
           idArquivoFotoPainelAntes: idArquivoFotoPainelAntes !== 0 ? idArquivoFotoPainelAntes : null,
@@ -221,9 +222,6 @@ export default function AbastecimentoForm() {
               <DivCheckBox style="line">
                 <CheckBoxLabel name="tanqueCheio" title="Tanque Cheio" register={{ ...register("tanqueCheio") }} />
               </DivCheckBox>
-              {/* <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} /> */}
-              {/* <InputDataAno title="Data Venda" id="dataVenda" register={{ ...register("dataVenda") }} />
-              <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} /> */}
             </div>
           </FormContainerBody>
         </FormContainer>
@@ -231,14 +229,18 @@ export default function AbastecimentoForm() {
         <FormContainer>
           <FormContainerHeader title="Fotos" />
           <FormContainerBody>
-            <div className='flex flex-col md:flex-row gap-2'>
-              <Label className='space-y-2 flex flex-col items-start'>
+            <div className='flex flex-col md:flex-row gap-2 w-full'>
+              <Label className='space-y-2 flex flex-col items-start w-full'>
                 Foto Painel Antes
-                <UploadFoto referenciaTipo="FotoPainelAntes" idArquivo={idArquivoFotoPainelAntes} changeIdArquivo={setIdArquivoFotoPainelAntes} alt="Foto do painel antes" isDisabled={loading} />
+                <div className="w-full">
+                  <UploadFoto referenciaTipo="FotoPainelAntes" idArquivo={idArquivoFotoPainelAntes} changeIdArquivo={setIdArquivoFotoPainelAntes} alt="Foto do painel antes" isDisabled={loading} />
+                </div>
               </Label>
-              <Label className='space-y-2 flex flex-col items-start'>
+              <Label className='space-y-2 flex flex-col items-start w-full'>
                 Foto Painel Depois
-                <UploadFoto referenciaTipo="FotoPainelDepois" idArquivo={idArquivoFotoPainelDepois} changeIdArquivo={setIdArquivoFotoPainelDepois} alt="Foto do painel depois" isDisabled={loading} />
+                <div className="w-full">
+                  <UploadFoto referenciaTipo="FotoPainelDepois" idArquivo={idArquivoFotoPainelDepois} changeIdArquivo={setIdArquivoFotoPainelDepois} alt="Foto do painel depois" isDisabled={loading} />
+                </div>
               </Label>
             </div>
           </FormContainerBody>

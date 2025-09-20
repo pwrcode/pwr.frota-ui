@@ -50,8 +50,8 @@ export default function Abastecimento() {
   const initialPostListagem: postListagemAbastecimentoType = {
     pageSize: pageSize,
     currentPage: currentPage,
-    dataInicio: dataInicio.slice(0, 11).concat("00:00:00"),
-    dataFim: dataFim.slice(0, 11).concat("23:59:59"),
+    dataInicio: "",
+    dataFim: "",
     idMotorista: null,
     idPostoCombustivel: null,
     idProdutoAbastecimento: null,
@@ -189,7 +189,7 @@ export default function Abastecimento() {
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
         <AsyncReactSelect name="idVeiculo" title='Veículo' options={[]} asyncFunction={getVeiculos} value={veiculo} setValue={setVeiculo} isClearable />
         <AsyncReactSelect name="idMotorista" title='Motorista' options={[]} asyncFunction={getMotoristas} value={motorista} setValue={setMotorista} isClearable />
-        <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} filter />
+        <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
         <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable />
         <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
         <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
@@ -241,7 +241,7 @@ export default function Abastecimento() {
                       {isMobile && "Tanque Cheio: "}<BadgeSimNao value={c.tanqueCheio ?? false} />
                     </TableCell>
 
-                    <TableCell className={hiddenMobile + "text-right w-[100px]"}>
+                    <TableCell className={hiddenMobile + "text-right"}>
                       <DropDownMenuItem id={c.id} handleClickEditar={handleClickEditar} handleClickDeletar={handleClickDeletar} />
                     </TableCell>
 

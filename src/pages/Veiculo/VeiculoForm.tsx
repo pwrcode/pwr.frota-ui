@@ -23,8 +23,10 @@ import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
-import { formatMaskDinheiro, formatMaskPlaca } from '@/services/mask';
+import { formatMaskPlaca } from '@/services/mask';
 import type { listType } from '@/services/constants';
+import { currency } from '@/services/currency';
+import { toNumber } from '@/services/utils';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -143,9 +145,9 @@ export default function VeiculoForm() {
       setValue("capacidadeVolumeM3", item.capacidadeVolumeM3?.toString());
       setValue("capacidadePassageiros", item.capacidadePassageiros?.toString());
       setValue("dataAquisicao", formatarData(item.dataAquisicao ?? "", "yyyy-mm-dd"));
-      setValue("valorCompra", formatMaskDinheiro(item.valorCompra?.toString()));
+      setValue("valorCompra", String(currency(item.valorCompra)));
       setValue("dataVenda", formatarData(item.dataVenda ?? "", "yyyy-mm-dd"));
-      setValue("valorVenda", formatMaskDinheiro(item.valorVenda?.toString()));
+      setValue("valorVenda", String(currency(item.valorVenda)));
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       toast.dismiss(process);
@@ -181,9 +183,9 @@ export default function VeiculoForm() {
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
-          valorCompra: data.valorCompra,
+          valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
-          valorVenda: data.valorVenda,
+          valorVenda: toNumber(data.valorVenda) ?? 0,
         }
         const res = await addVeiculo(post);
         toast.update(process, { render: res.mensagem, type: "success", isLoading: false, autoClose: 2000 });
@@ -208,9 +210,9 @@ export default function VeiculoForm() {
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
-          valorCompra: data.valorCompra,
+          valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null,
-          valorVenda: data.valorVenda,
+          valorVenda: toNumber(data.valorVenda) ?? 0,
         }
         const res = await updateVeiculo(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });

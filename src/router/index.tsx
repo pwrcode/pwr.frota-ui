@@ -26,6 +26,7 @@ const PostoCombustivelForm = lazy(() => import("@/pages/PostoCombustivel/PostoCo
 const Abastecimento = lazy(() => import("@/pages/Abastecimento/Index"));
 const AbastecimentoForm = lazy(() => import("@/pages/Abastecimento/AbastecimentoForm"));
 const Configuracoes = lazy(() => import("@/pages/Configuracoes/Index"));
+const EntradaCombustivel = lazy(() => import("@/pages/EntradaCombustivel/"));
 
 const PublicRoute = () => (
   <Suspense fallback={
@@ -68,6 +69,7 @@ const routeList = [
   { path: "/abastecimento", element: <Abastecimento />, label: "Abastecimento" },
   { path: "/abastecimento/form/:id?", element: <AbastecimentoForm />, label: "invisible" },
   { path: "/configuracoes", element: <Configuracoes />, label: "Configurações" },
+  { path: "/entrada-combustivel", element: <EntradaCombustivel />, label: "Entrada Combustível" },
 ]
 
 const routeObjects: RouteObject[] = routeList.map(({ label, ...route }) => ({
