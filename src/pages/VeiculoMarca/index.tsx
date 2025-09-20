@@ -122,7 +122,7 @@ export default function VeiculoMarca() {
     const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
     return (
-        <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
+        <div className="flex flex-col gap-8 min-h-[calc(100%-4rem)]">
 
             <PageTitle title="Veículo Marcas" />
 

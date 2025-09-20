@@ -119,7 +119,7 @@ export default function PessoaForm() {
             const item = await getPessoaPorId(Number(id));
             if (item.idUf) setIdUf(item.idUf);
             if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
-            setValue("tipoPessoa", { value: item.tipoPessoa, label: tiposPessoa.find(t => t.value == item.tipoPessoa)?.label }); // atencao
+            setValue("tipoPessoa", { value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value, label: item.tipoPessoa.toString()  }); // atencao
             setValue("documento", formatarCpfCnpj(removeNonDigit(item.documento)));
             setValue("razaoSocial", item.razaoSocial);
             setValue("nomeFantasia", item.nomeFantasia);
@@ -158,10 +158,10 @@ export default function PessoaForm() {
         try {
             const postPut: dadosAddEdicaoPessoaType = {
                 tipoPessoa: data.tipoPessoa ?? null,
-                documento: data.documento,
+                documento: removeNonDigit(data.documento),
                 razaoSocial: data.razaoSocial,
                 nomeFantasia: data.nomeFantasia,
-                cep: data.cep,
+                cep: removeNonDigit(data.cep),
                 idUf: data.idUf ?? null,
                 idMunicipio: data.idMunicipio ?? null,
                 idBairro: data.idBairro ?? null,
@@ -169,8 +169,8 @@ export default function PessoaForm() {
                 numero: data.numero,
                 complemento: data.complemento,
                 pontoReferencia: data.pontoReferencia,
-                telefonePrincipal: data.telefonePrincipal,
-                telefoneSecundario: data.telefoneSecundario,
+                telefonePrincipal: removeNonDigit(data.telefonePrincipal),
+                telefoneSecundario: removeNonDigit(data.telefoneSecundario),
                 observacao: data.observacao,
                 isMotorista: data.isMotorista ?? false,
                 isAjudante: data.isAjudante ?? false,
@@ -237,7 +237,7 @@ export default function PessoaForm() {
                             /> */}
                                 {/* <AsyncReactSelect name="tipoContribuinte" title="Tipo Contribuinte" control={control} options={tiposContribuinte} isClearable /> */}
                             </div>
-                            <DivCheckBox style="micro">
+                            <DivCheckBox style="line">
                                 <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
                             </DivCheckBox>
                         </FormContainerBody>

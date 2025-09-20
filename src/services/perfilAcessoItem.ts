@@ -30,14 +30,14 @@ export const listarAcessosPerfil = async (idPerfil: number) => {
   throw new Error(response.data.mensagem);
 }
 
-// export type acessoType = string[];
+export type acessoType = string[];
 
-// export const listarAcessosFuncionalidades = async (funcionalidade: string) => {
-//   const axiosInstance = await getAxios();
-//   const response = await axiosInstance.get(`${apiUrl}/acesso/${funcionalidade}`);
-//   if (response.status === 200) return response.data as acessoType;
-//   throw new Error("Erro ao solicitar acessos");
-// }
+export const listarAcessosFuncionalidades = async (funcionalidade: string) => {
+  const axiosInstance = await getAxios();
+  const response = await axiosInstance.get(`${apiUrl}/acesso/${funcionalidade}`);
+  if (response.status === 200) return response.data as acessoType;
+  throw new Error("Erro ao solicitar acessos");
+}
 
 export type funcionalidadeType = {
   id: number,

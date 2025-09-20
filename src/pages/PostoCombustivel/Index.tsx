@@ -288,7 +288,7 @@ export default function PostoCombustivel() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="users" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty icon="fuel" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

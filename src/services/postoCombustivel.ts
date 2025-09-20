@@ -104,11 +104,7 @@ export const deletePostoCombustivel = async (id: number) => {
 
 export const getPostoCombustivelList = async (
   pesquisa: string | undefined,
-  ativo: boolean | undefined,
-  tipoPostoCombustivel: any | undefined,
-  isAjudante: boolean | undefined,
-  isMotorista: boolean | undefined,
-  isOficina: boolean | undefined,
+  isInterno: boolean | undefined,
   idUf: number | undefined,
   idMunicipio: number | undefined,
   idBairro: number | undefined,
@@ -118,11 +114,7 @@ export const getPostoCombustivelList = async (
     const response = await axiosInstance.get(`${api}/select`, {
       params: {
         pesquisa,
-        tipoPostoCombustivel,
-        isAjudante,
-        isOficina,
-        isMotorista,
-        ativo: ativo,
+        isInterno,
         idUf,
         idMunicipio,
         idBairro,
