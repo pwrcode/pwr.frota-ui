@@ -14,7 +14,7 @@ export type listType = {
 export type optionType = {
     value: any,
     label: string
-}
+} | null
 
 export type itemSelectType = {
   id: number,

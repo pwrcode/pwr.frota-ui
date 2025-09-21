@@ -216,13 +216,13 @@ export default function Veiculo() {
   }
 
   const clearFilters = () => {
-    setTipoVeiculo(undefined);
-    setVeiculoMarca(undefined);
-    setVeiculoModelo(undefined);
-    setTipoData(undefined);
+    setTipoVeiculo(null);
+    setVeiculoMarca(null);
+    setVeiculoModelo(null);
+    setTipoData(null);
     setDataInicio("");
     setDataFim("");
-    setStatus(undefined);
+    setStatus(null);
   }
 
   const checkActiveFilters = () => {
