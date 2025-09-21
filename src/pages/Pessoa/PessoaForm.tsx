@@ -24,7 +24,6 @@ import { addPessoa, type dadosAddEdicaoPessoaType, getPessoaPorId, updatePessoa 
 import { FormGrid, FormGridPair } from '@/ui/components/forms/FormGrid';
 import { useEndereco } from '@/hooks/useEndereco';
 import z from 'zod';
-import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import Modal from '../Bairro/Modal';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
