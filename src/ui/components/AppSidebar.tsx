@@ -167,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ) : (
                     <SidebarMenuButton
                       asChild
-                      className={`py-5 text-base hover:bg-slate-700 hover:text-white ${menuIsActive ? "bg-slate-900 text-white" : ""}`}
+                      className={`py-5 hover:bg-slate-700 hover:text-white ${menuIsActive ? "bg-slate-900 text-white" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -195,7 +195,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       key={menu.link}
                       asChild
-                      className={`py-5 text-base hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                      className={`py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -215,7 +215,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <SidebarMenuButton
                         key={submenu.link}
                         asChild
-                        className={`py-5 text-base hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                        className={`py-5 hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
                         onClick={() => setOpenMobile(false)}
                       >
                         <Link to={submenu.link} className="flex items-center">
