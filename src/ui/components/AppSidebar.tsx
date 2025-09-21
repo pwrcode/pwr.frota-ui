@@ -99,23 +99,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="bg-slate-800 h-16 flex justify-center items-start text-md">
+      <SidebarHeader className="bg-sidebar h-16 flex justify-center items-start text-md">
         <div className="flex items-center ml-1">
           <div className="flex aspect-square size-7 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <img src="/logo.png" alt="Logo" />
           </div>
-          <span className="font-normal text-white ml-4" translate="no">
+          <span className="font-normal text-sidebar-foreground ml-4" translate="no">
             PWR Frota
           </span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="bg-slate-800 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-500 scrollbar-track-gray-200 scrollbar-hide">
+      <SidebarContent className="bg-sidebar h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-500 scrollbar-track-gray-200 scrollbar-hide">
         <div className="h-10 px-2">
           <Input
             name="search"
             placeholder="Pesquisar..."
-            className="dark:border-white"
+            className="border-sidebar-border"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -127,7 +127,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {acessos?.map((menu) => {
               const menuIsActive = menuActiveStates[menu.descricao] ?? false;
               return (
-                <SidebarMenuItem key={menu.link || menu.descricao} className="text-white mx-2">
+                <SidebarMenuItem key={menu.link || menu.descricao} className="text-sidebar-foreground mx-2">
                   {menu.submenus && menu.submenus.length > 0 ? (
                     <Accordion
                       type="single"
@@ -138,7 +138,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }}
                     >
                       <AccordionItem value={menu.descricao} className={`border-b-0 ${menuIsActive ? "open" : ""}`}>
-                        <AccordionTrigger className={`text-white hover:bg-slate-700 p-2 rounded-md`}>
+                        <AccordionTrigger className={`text-sidebar-foreground hover:bg-sidebar-accent p-2 rounded-md`}>
                           <div className="flex items-center">
                             {renderIcon(menu.icone, "size-5 mr-2")}
                             <div className="ml-1 font-normal">{menu.descricao}</div>
@@ -151,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               <SidebarMenuButton
                                 key={submenu.link}
                                 asChild
-                                className={`pl-5 py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                                className={`pl-5 py-5 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
                                 onClick={() => setOpenMobile(false)}
                               >
                                 <Link to={submenu.link}>
@@ -167,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ) : (
                     <SidebarMenuButton
                       asChild
-                      className={`py-5 hover:bg-slate-700 hover:text-white ${menuIsActive ? "bg-slate-900 text-white" : ""}`}
+                      className={`py-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${menuIsActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -184,7 +184,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         {/* Menus quando pesquisa */}
         {search.length > 0 && (
-          <SidebarMenu className="mb-3 scrollbar-hide text-white gap-0">
+          <SidebarMenu className="mb-3 scrollbar-hide text-sidebar-foreground gap-0">
             {acessos?.map(menu => {
               const hasSearch = menu.descricao.toLowerCase().includes(search.toLowerCase());
               const isSubmenuActive = isActive(menu, location.pathname);
@@ -195,7 +195,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       key={menu.link}
                       asChild
-                      className={`py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                      className={`py-5 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -215,7 +215,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <SidebarMenuButton
                         key={submenu.link}
                         asChild
-                        className={`py-5 hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                        className={`py-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
                         onClick={() => setOpenMobile(false)}
                       >
                         <Link to={submenu.link} className="flex items-center">
@@ -231,12 +231,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         )}
       </SidebarContent>
-      <SidebarFooter className="bg-slate-800 p-2">
+      <SidebarFooter className="bg-sidebar p-2">
         <div className="flex items-center gap-2 pb-2 mt-1">
           <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
             <img src="/logo.png" alt="Logo" className="rounded-md p-1" />
           </div>
-          <span className="font-normal text-white ml-2">Cliente</span>
+          <span className="font-normal text-sidebar-foreground ml-2">Cliente</span>
         </div>
       </SidebarFooter>
     </Sidebar>

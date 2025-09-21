@@ -15,7 +15,7 @@ type rankingPropsType = {
 
 export const RankingProdutos = ({ rankingQtd, rankingTotal, toggle, setToggle }: rankingPropsType) => {
   return (
-    <Card className="dark:bg-slate-800">
+    <Card className="dark:bg-card">
 
       <CardHeader className="border-b p-0">
         <div className={`
@@ -71,7 +71,7 @@ function TableComp({ data, toggle }: tablePropsType) {
                 />
               </AvatarFallback>
             ) : (
-              <AvatarFallback className="rounded-none bg-gray-200 dark:bg-slate-700">
+              <AvatarFallback className="rounded-none bg-gray-200 dark:bg-accent">
                 {produto.descricao.split(" ").map((word) => word.charAt(0)).slice(0, 2).join("").toUpperCase()}
               </AvatarFallback>
             )}

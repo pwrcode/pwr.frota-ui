@@ -96,8 +96,8 @@ const DraggableImgs = ({ imagensIds, changeIdsImagens, removerImg, alt }: Props)
       {items.map(item => (
         <div
           className={`
-            relative aspect-square border flex items-center justify-center border-dashed border-[2px] border-slate-200 rounded-md p-1
-            ${draggedOverItem === item ? 'border border-slate-400' : 'border-dashed'}
+            relative aspect-square border flex items-center justify-center border-dashed border-[2px] border-border rounded-md p-1
+            ${draggedOverItem === item ? 'border border-muted-foreground' : 'border-dashed'}
             ${draggedItem === item ? 'opacity-80' : ''}
           `}
           key={item}

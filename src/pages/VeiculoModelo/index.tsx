@@ -148,7 +148,7 @@ export default function VeiculoModelo() {
             </Filters>
 
             {(veiculoModelos.length > 0) && (
-                <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
+                <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
                     <TableTop>
                         <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
                     </TableTop>

@@ -25,32 +25,32 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
   return (
     <div className={`space-y-2 ${size ?? "w-full"}`}>
       {title && (
-        <Label htmlFor={name} className="text-right dark:text-white">
+        <Label htmlFor={name} className="text-right dark:text-foreground">
           {title}
         </Label>
       )}
 
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild className='border dark:bg-slate-800 dark:hover:bg-slate-800 dark:text-white border-gray-300 data-[state=open]:border-blue-400 focus-visible:border-blue-400 active:border-blue-400 outline-none rounded-md px-3 py-2 transition'>
+        <PopoverTrigger asChild className='border bg-background dark:bg-background border-border data-[state=open]:border-ring focus-visible:border-ring active:border-ring outline-none rounded-md px-3 py-2 transition'>
           <Button
             variant="data"
             size="lg"
             id={name}
             name={name}
-            className="w-full justify-between font-normal dark:text-white text-neutral-500 col-span-3"
+            className="w-full justify-between font-normal text-foreground col-span-3"
             onClick={() => setIsOpen(!isOpen)}
             disabled={isDisabled ?? false}
           >
-            <div className={date ? "text-black dark:text-white" : ""}>
+            <div className={date ? "text-foreground" : ""}>
               {date ? formatarData(date) : "Selecionar data"}
             </div>
             <CalendarIcon className="ml-2 h-4 w-4" />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-auto p-0 dark:text-white">
+        <PopoverContent className="w-auto p-0">
           <Calendar
-            className="border-2 border-blue-600 dark:bg-slate-800 dark:border-gray-400 dark:text-white rounded-md"
+            className="border-2 border-ring bg-popover text-popover-foreground rounded-md"
             mode="single"
             locale={ptBR}
             disabled={isDisabled ?? false}

@@ -78,10 +78,10 @@ export const getVariantClasses = (variant: string) => {
       };
     default:
       return {
-        card: 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 shadow-md',
-        icon: 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300',
+        card: 'bg-card border-gray-200 dark:border-border shadow-md',
+        icon: 'bg-gray-100 dark:bg-accent text-gray-600 dark:text-gray-300',
         title: 'text-gray-600 dark:text-gray-300',
-        content: 'text-gray-900 dark:text-white'
+        content: 'text-gray-900 dark:text-foreground'
       };
   }
 };

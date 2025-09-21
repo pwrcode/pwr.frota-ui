@@ -84,7 +84,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="pt-20 pb-12 px-4">
-        <Card className="w-full shadow-xl border-0 bg-white dark:bg-slate-800">
+        <Card className="w-full shadow-xl border-0 bg-card">
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="flex-shrink-0">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center ring-4 ring-blue-100 dark:ring-blue-900">
@@ -96,10 +96,10 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                 Bem-vindo, {nome}
               </CardTitle>
-              <p className="text-slate-600 dark:text-slate-300 font-medium mt-2">
+              <p className="text-muted-foreground font-medium mt-2">
                 Escolha uma das opções abaixo para começar
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function Home() {
 
       {/* Navigation Cards */}
       <div className="px-4 pb-12">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-8">
           Acesso Rápido
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -253,7 +253,7 @@ export default function Pessoa() {
       </Filters>
 
       {(pessoas.length > 0) && (
-        <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
+        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
           <TableTop>
             <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
           </TableTop>
@@ -289,10 +289,10 @@ export default function Pessoa() {
                       <div className="flex flex-col justify-start min-w-[100px]">
                         {/* <span className="font-semibold">#{c.id}</span> */}
                         <span className="text-nowrap">
-                          <span className="text-gray-700 dark:text-white/80">Razão Social:</span> {c.razaoSocial}
+                          <span className="text-gray-700 dark:text-foreground/80">Razão Social:</span> {c.razaoSocial}
                         </span>
                         <span className="text-nowrap">
-                          <span className="text-gray-700 dark:text-white/80">Nome Fantasia:</span> {c.nomeFantasia}
+                          <span className="text-gray-700 dark:text-foreground/80">Nome Fantasia:</span> {c.nomeFantasia}
                         </span>
                       </div>
                     </TableCell>

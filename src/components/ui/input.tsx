@@ -12,8 +12,8 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
            file:bg-transparent file:text-sm file:font-medium file:text-neutral-950 placeholder:text-neutral-500 
            focus-visible:outline-none focus-visible:ring-0
            focus:border-2 hover:bg-neutral-100 focus:border-blue-600 
-           disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:text-white
-           dark:border-neutral-800 dark:bg-slate-800 dark:file:text-neutral-50 
+           disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:text-foreground
+           dark:border-neutral-800 dark:bg-card dark:file:text-neutral-50 
            dark:placeholder:text-neutral-400 dark:hover:border-gray-400 dark:focus:border-white`,
         className
       )}

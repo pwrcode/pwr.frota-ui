@@ -65,11 +65,11 @@ export function VerticalChartBar({icon, title, data, dataName, nameIsDate, dataK
               else return value
             }}
               tick={{ fill: "currentColor" }}
-              className="text-black dark:text-white"
+              className="text-black dark:text-foreground"
           />
           <ChartTooltip content={
             <ChartTooltipContent
-              className="w-fit dark:bg-slate-700"
+              className="w-fit dark:bg-accent"
               nameKey={dataKey}
               labelFormatter={(value) => {
                 if (nameIsDate) {
@@ -95,7 +95,7 @@ export function VerticalChartBar({icon, title, data, dataName, nameIsDate, dataK
                     {/* key name */}
                     {toolTipName || chartConfig[name as keyof typeof chartConfig]?.label || name}
                     {/* key value */}
-                    <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-white">
+                    <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-foreground">
                       {money ? `${currency(Number(value))}` : toNumberLabel(Number(value))}
                     </div>
                   </>
@@ -154,7 +154,7 @@ export function VerticalChartBar({icon, title, data, dataName, nameIsDate, dataK
 
 const CardBar = ({icon, title, children}: {icon?: React.ReactNode, title?: string, children: React.ReactNode}) => {
   if (title) return (
-    <Card className="dark:bg-slate-800">
+    <Card className="dark:bg-card">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">        
         <div className="flex flex-1 flex-row justify-start items-center gap-1 px-5 py-5 sm:py-6">
           {icon && (
