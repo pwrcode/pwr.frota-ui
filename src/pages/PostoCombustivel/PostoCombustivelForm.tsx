@@ -30,6 +30,8 @@ import type { optionType } from '@/services/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Abastecimento from '../Abastecimento/Index';
+import EntradaCombustivel from '../EntradaCombustivel';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -199,19 +201,21 @@ export default function PostoCombustivelForm() {
                     <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")}>
                         Posto Combustível
                     </TabsTrigger>
-                    <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")}>
-                        Abastecimentos
-                    </TabsTrigger>
-                    <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")}>
-                        Entradas
-                    </TabsTrigger>
+                    {id ? <>
+                        <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")}>
+                            Abastecimentos
+                        </TabsTrigger>
+                        <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")}>
+                            Entradas
+                        </TabsTrigger>
+                    </> : <></>}
                 </TabsList>
 
-                <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)}>
+                <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)} open={id ? isDropDownTabsOpen : false}>
                     <TabsList className='flex w-min px-0 md:hidden'>
                         <DropdownMenuTrigger asChild>
                             <Button variant={"ghost"} className='text-black dark:text-white flex justify-between items-center gap-2 py-2'>
-                                {tabNameMobile} <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div>
+                                {tabNameMobile} {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className='md:hidden'>
@@ -321,6 +325,14 @@ export default function PostoCombustivelForm() {
                         </FormContainer>
 
                     </form>
+                </TabsContent>
+
+                <TabsContent value='abastecimento'>
+                    <Abastecimento />
+                </TabsContent>
+
+                <TabsContent value='entrada'>
+                    <EntradaCombustivel />
                 </TabsContent>
 
             </Tabs >
