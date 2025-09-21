@@ -24,7 +24,7 @@ import { formatarData } from '@/services/date';
 import { currency } from '@/services/currency';
 import type { optionType } from '@/services/constants';
 
-export default function EntradaCombustivel() {
+export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [entradaCombustivels, setEntradaCombustivels] = useState<entradaCombustivelType[]>([]);
@@ -47,7 +47,7 @@ export default function EntradaCombustivel() {
         currentPage: currentPage,
         dataInicio: "",
         dataFim: "",
-        idPostoCombustivel: null,
+        idPostoCombustivel: idPosto ?? null,
         idProdutoAbastecimento: null,
     };
     const [postListagem, setPostListagem] = useState(initialPostListagem);
@@ -80,7 +80,7 @@ export default function EntradaCombustivel() {
             currentPage: page ?? 0,
             dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
             dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-            idPostoCombustivel: postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null,
+            idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
             idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
         });
     }
@@ -159,13 +159,13 @@ export default function EntradaCombustivel() {
     const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
     return (
-        <div className="flex flex-col mt-16 gap-8 min-h-[calc(100%-4rem)]">
+        <div className={`flex flex-col gap-8 ${!idPosto ? "mt-16" : "p-5"} min-h-[calc(100%-4rem)]`}>
 
             <PageTitle title="Entradas Combustível" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
                 <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
-                <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable />
+                {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable /> : <></>}
                 <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
                 <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
             </Filters>
@@ -180,6 +180,8 @@ export default function EntradaCombustivel() {
                         <TableHeader>
                             <TableRow className="hidden sm:table-row">
                                 <TableHead className="w-16 text-center">Id</TableHead>
+                                <TableHead className='w-100'>Posto Combustível</TableHead>
+                                <TableHead className='w-50'>Produto Abastecimento</TableHead>
                                 <TableHead className='w-50'>Data Recebimento</TableHead>
                                 <TableHead className='w-50'>Quantidade</TableHead>
                                 <TableHead className='w-50'>Valor Unitário</TableHead>
@@ -202,6 +204,14 @@ export default function EntradaCombustivel() {
 
                                         <TableCell className={hiddenMobile + "sm:text-center font-medium"}>
                                             {c.id}
+                                        </TableCell>
+
+                                        <TableCell className={cellStyle + "sm:text-left"}>
+                                            {isMobile && "Posto Combustível: "}{c.razaoSocialPostoCombustivel}
+                                        </TableCell>
+
+                                        <TableCell className={cellStyle + "sm:text-left"}>
+                                            {isMobile && "Produto Abastecimento: "}{c.descricaoProdutoAbastecimento}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
@@ -253,7 +263,7 @@ export default function EntradaCombustivel() {
                 )}
             </>}
 
-            <Modal open={openModalForm} setOpen={setOpenModalForm} id={idEditar} updateList={updateList} />
+            <Modal open={openModalForm} setOpen={setOpenModalForm} id={idEditar} updateList={updateList} idPosto={idPosto ?? undefined} />
 
             <AlertExcluir openDialog={openDialogExcluir} setOpenDialog={setOpenDialogExcluir} func={deletar} />
 

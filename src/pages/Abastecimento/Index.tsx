@@ -27,7 +27,7 @@ import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { getVeiculoList } from '@/services/veiculo';
 import { currency } from '@/services/currency';
 
-export default function Abastecimento({ id } : { id?: number}) {
+export default function Abastecimento({ idPosto }: { idPosto?: number }) {
 
   const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ export default function Abastecimento({ id } : { id?: number}) {
     dataInicio: "",
     dataFim: "",
     idMotorista: null,
-    idPostoCombustivel: id ?? null,
+    idPostoCombustivel: idPosto ?? null,
     idProdutoAbastecimento: null,
     idVeiculo: null,
   };
@@ -96,7 +96,7 @@ export default function Abastecimento({ id } : { id?: number}) {
       dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
       dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
       idMotorista: motorista && motorista.value ? motorista.value : null,
-      idPostoCombustivel: id ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
+      idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
       idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
       idVeiculo: veiculo && veiculo.value ? veiculo.value : null,
     });
@@ -153,11 +153,11 @@ export default function Abastecimento({ id } : { id?: number}) {
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
   const handleClickAdicionar = () => {
-    navigate("/abastecimento/form");
+    navigate(`/abastecimento/form${idPosto ? `?idPosto=${idPosto}` : ""}`);
   }
 
   const handleClickEditar = (id: number) => {
-    navigate(`/abastecimento/form/${id}`);
+    navigate(`/abastecimento/form/${id}${idPosto ? `?idPosto=${idPosto}` : ""}`);
   }
 
   const handleClickDeletar = (id: number) => {
@@ -182,14 +182,14 @@ export default function Abastecimento({ id } : { id?: number}) {
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
-    <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
+    <div className={`flex flex-col gap-8 ${!idPosto ? "mt-16" : "p-5"} min-h-[calc(100%-4rem)]`}>
 
       <PageTitle title="Abastecimentos" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
         <AsyncReactSelect name="idVeiculo" title='Veículo' options={[]} asyncFunction={getVeiculos} value={veiculo} setValue={setVeiculo} isClearable />
         <AsyncReactSelect name="idMotorista" title='Motorista' options={[]} asyncFunction={getMotoristas} value={motorista} setValue={setMotorista} isClearable />
-        {!id ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable /> : <></>}
+        {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable /> : <></>}
         <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable />
         <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
         <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />

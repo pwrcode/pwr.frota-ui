@@ -6,7 +6,7 @@ import FormContainerBody from '@/ui/components/forms/FormContainerBody';
 import FormLine from '@/ui/components/forms/FormLine';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,6 +64,8 @@ export default function AbastecimentoForm() {
   });
 
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const idPosto = searchParams.get("idPosto");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
@@ -75,7 +77,6 @@ export default function AbastecimentoForm() {
 
   useEffect(() => {
     if (id) return
-    getVeiculos();
   }, []);
 
   const getVeiculos = async (pesquisa?: string) => {
@@ -150,7 +151,7 @@ export default function AbastecimentoForm() {
           dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
           idVeiculo: data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
-          idPostoCombustivel: data.idPostoCombustivel ?? null,
+          idPostoCombustivel: Number(idPosto) ?? data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
@@ -168,7 +169,7 @@ export default function AbastecimentoForm() {
           dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
           idVeiculo: data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
-          idPostoCombustivel: data.idPostoCombustivel ?? null,
+          idPostoCombustivel: Number(idPosto) ?? data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
@@ -182,7 +183,7 @@ export default function AbastecimentoForm() {
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
       }
       reset();
-      navigate("/abastecimento");
+      idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : navigate("/abastecimento");
     }
     catch (error: Error | any) {
       toast.update(process, { render: errorMsg(error), type: "error", isLoading: false, autoClose: 2000 });
@@ -190,6 +191,10 @@ export default function AbastecimentoForm() {
     finally {
       setLoading(false);
     }
+  }
+
+  const handleClickVoltar = () => {
+    idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : navigate("/abastecimento");
   }
 
   return (
@@ -202,7 +207,7 @@ export default function AbastecimentoForm() {
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
               <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable />
               <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
-              <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable />
+              {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
               <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
             </div>
           </FormContainerBody>
@@ -253,7 +258,7 @@ export default function AbastecimentoForm() {
                 <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
               </FormLine>
               <FormLine justify="end">
-                <Button variant="outline" type="button" onClick={() => navigate("/abastecimento")} disabled={loading}>Cancelar</Button>
+                <Button variant="outline" type="button" onClick={handleClickVoltar} disabled={loading}>Cancelar</Button>
                 <ButtonSubmit loading={loading}>
                   Salvar
                 </ButtonSubmit>

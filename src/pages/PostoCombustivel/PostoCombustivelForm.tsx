@@ -328,11 +328,11 @@ export default function PostoCombustivelForm() {
                 </TabsContent>
 
                 <TabsContent value='abastecimento'>
-                    <Abastecimento />
+                    <Abastecimento idPosto={Number(id)} />
                 </TabsContent>
 
                 <TabsContent value='entrada'>
-                    <EntradaCombustivel />
+                    <EntradaCombustivel idPosto={Number(id)}/>
                 </TabsContent>
 
             </Tabs >

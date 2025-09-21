@@ -23,7 +23,8 @@ type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void
+    updateList: (filter: boolean) => void,
+    idPosto?: number,
 }
 
 const schema = z.object({
@@ -40,7 +41,7 @@ const schema = z.object({
     valorUnitario: z.string().optional(),
 });
 
-export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
+export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
     const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
@@ -97,7 +98,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         try {
             const postPut: dadosAddEdicaoEntradaCombustivelType = {
                 dataRecebimento: dados.dataRecebimento ? dados.dataRecebimento.slice(0, 11).concat("T00:00:00") : "",
-                idPostoCombustivel: dados.idPostoCombustivel ?? null,
+                idPostoCombustivel: Number(idPosto) ?? (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
                 quantidade: dados.quantidade,
                 valorUnitario: toNumber(dados.valorUnitario) ?? 0,
@@ -132,7 +133,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
 
                     <ModalFormBody>
                         <InputDataAno title="Data Recebimento" id="dataRecebimento" register={{ ...register("dataRecebimento") }} />
-                        <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable />
+                        {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
                         <InputMaskLabel name='quantidade' title='Quantidade' mask={Masks.numerico} setValue={setValue} value={watch("quantidade")} />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
