@@ -186,7 +186,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {search.length > 0 && (
           <SidebarMenu className="mb-3 scrollbar-hide text-white gap-0">
             {acessos?.map(menu =>
-              <div key={menu.descricao}>
+              <div key={menu.descricao} className="mx-2">
                 {Array.isArray(menu.submenus) && menu.submenus.map(submenu => {
 
                   const hasSearch = submenu.descricao.toLowerCase().includes(search.toLowerCase());
@@ -196,10 +196,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       key={submenu.link}
                       asChild
-                      className={`pl-5 py-5 text-sm hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                      className={`py-5 text-base hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
-                      <Link to={submenu.link}>
+                      <Link to={submenu.link} className="flex items-center">
                         {renderIcon(submenu.icone, "size-5 mr-2")}
                         {submenu.descricao}
                       </Link>
