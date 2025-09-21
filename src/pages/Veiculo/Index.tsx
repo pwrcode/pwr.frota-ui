@@ -52,13 +52,13 @@ export default function Veiculo() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoVeiculo, setTipoVeiculo] = useState<optionType>();
-  const [veiculoMarca, setVeiculoMarca] = useState<optionType>();
-  const [veiculoModelo, setVeiculoModelo] = useState<optionType>();
-  const [tipoData, setTipoData] = useState<optionType>();
+  const [tipoVeiculo, setTipoVeiculo] = useState<optionType | null>();
+  const [veiculoMarca, setVeiculoMarca] = useState<optionType  | null>();
+  const [veiculoModelo, setVeiculoModelo] = useState<optionType | null>();
+  const [tipoData, setTipoData] = useState<optionType  | null>();
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [status, setStatus] = useState<optionType>();
+  const [status, setStatus] = useState<optionType  | null>();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
