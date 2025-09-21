@@ -27,9 +27,9 @@ interface AlertInterface {
 export const Alert = ({openDialog, setOpenDialog, func, title, subtitle, buttonText, alertType}: AlertInterface) => {
   return (
     <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
-      <AlertDialogContent className='dark:bg-slate-700'>
+      <AlertDialogContent className='dark:bg-accent'>
         <AlertDialogHeader>
-          <AlertDialogTitle className='dark:text-white'>
+          <AlertDialogTitle className='dark:text-foreground'>
             {title ?? "Confirmar essa ação?"}
           </AlertDialogTitle>
           {subtitle && (
@@ -42,7 +42,7 @@ export const Alert = ({openDialog, setOpenDialog, func, title, subtitle, buttonT
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
 
           <AlertDialogAction
-            className={(alertType ?? AlertEnum.destructive) + " dark:text-white"}
+            className={(alertType ?? AlertEnum.destructive) + " dark:text-foreground"}
             onClick={func}
             type="button"
           >

@@ -30,7 +30,7 @@ export function HorizontalChartBar({data, baseKey, valueKey, money, active}: pro
         <YAxis dataKey={baseKey} type="category" tickLine={false} interval={0} tickMargin={10} axisLine={false} tickFormatter={(value) => (
           value.split(" ")[0]
         )} tick={{ fill: "currentColor" }}
-        className="text-black dark:text-white"
+        className="text-black dark:text-foreground"
         />
         <ChartTooltip cursor={false} content={
           <ChartTooltipContent 
@@ -45,7 +45,7 @@ export function HorizontalChartBar({data, baseKey, valueKey, money, active}: pro
                 {/* key name */}
                 {chartConfig[name as keyof typeof chartConfig]?.label || name}
                 {/* key value */}
-                <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-white">
+                <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-foreground">
                   {money ? `${currency(Number(value))}` : toNumberLabel(Number(value))}
                 </div>
               </>

@@ -9,7 +9,7 @@ type propsType = {
 
 export const TableTop = ({children, title, icon: Icon}: propsType) => {
   return (
-    <div className={`w-full dark:bg-slate-800 dark:text-white gap-2 flex ${title ? "justify-between" : "justify-end"} p-4 pt-3 px-6 items-center`}>
+    <div className={`w-full dark:bg-card dark:text-foreground gap-2 flex ${title ? "justify-between" : "justify-end"} p-4 pt-3 px-6 items-center`}>
       {title && (
         <div className="flex items-center gap-3">
           {Icon && (

@@ -69,7 +69,7 @@ export const UploadFotoMultiple = ({descricao, codigos, changeCodigos, addCodigo
         className={`
           w-full p-4 py-6
           flex flex-col gap-3 justify-center items-center
-          bg-gray-100 dark:bg-slate-300 border-dashed border-[3px] border-gray-300 rounded-md shadow-md
+          bg-gray-100 dark:bg-muted border-dashed border-[3px] border-gray-300 rounded-md shadow-md
           cursor-pointer
         `}
       >

@@ -111,13 +111,13 @@ export default function PerfilAcessoPermissoes() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "SEM ACESSO":
-        return "bg-red-100 hover:bg-red-100 text-red-700 dark:bg-red-500 dark:hover:bg-red-500 dark:text-white";
+        return "bg-red-100 hover:bg-red-100 text-red-700 dark:bg-red-500 dark:hover:bg-red-500 dark:text-foreground";
       case "ACESSO PARCIAL":
-        return "bg-yellow-100 hover:bg-yellow-100 text-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-500 dark:text-white";
+        return "bg-yellow-100 hover:bg-yellow-100 text-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-500 dark:text-foreground";
       case "ACESSO TOTAL":
-        return "bg-green-100 hover:bg-green-100 text-green-700 dark:bg-green-500 dark:hover:bg-green-500 dark:text-white";
+        return "bg-green-100 hover:bg-green-100 text-green-700 dark:bg-green-500 dark:hover:bg-green-500 dark:text-foreground";
       default:
-        return "bg-gray-100 hover:bg-gray-100 text-black dark:bg-gray-500 dark:hover:bg-gray-500 dark:text-white";
+        return "bg-gray-100 hover:bg-gray-100 text-black dark:bg-gray-500 dark:hover:bg-gray-500 dark:text-foreground";
     }
   };
 
@@ -135,7 +135,7 @@ export default function PerfilAcessoPermissoes() {
           <div className="flex justify-between gap-2">
             <Button
               onClick={() => confirmarLiberacao(Number(id))}
-              className="w-1/2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white text-white"
+              className="w-1/2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-foreground text-white"
               disabled={liberando || bloqueando}
             >
               <LockOpen />
@@ -144,7 +144,7 @@ export default function PerfilAcessoPermissoes() {
 
             <Button
               onClick={() => confirmarBloqueio(Number(id))}
-              className="w-1/2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-white text-white"
+              className="w-1/2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-foreground text-white"
               disabled={liberando || bloqueando}
             >
               <Lock />
@@ -156,7 +156,7 @@ export default function PerfilAcessoPermissoes() {
       </div>
       </Filters>
 
-      <div className="bg-white rounded-md shadow-md dark:bg-slate-800">
+      <div className="bg-white rounded-md shadow-md dark:bg-card">
         {acessos.length > 0 && <>
           <Table>
             <TableHeader>

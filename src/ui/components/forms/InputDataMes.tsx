@@ -61,7 +61,7 @@ export default function InputDataMes({ title, name, date, setDate, setValue, isD
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between font-normal text-muted-foreground dark:bg-slate-800 dark:hover:bg-slate-800 dark:text-white dark:hover:border-gray-400 border-gray-300 data-[state=open]:border-blue-600 focus-visible:border-blue-600 active:border-blue-600 outline-none rounded-md px-3 py-2 transition"
+            className="w-full justify-between font-normal text-muted-foreground dark:bg-card dark:hover:bg-accent dark:text-foreground dark:hover:border-gray-400 border-gray-300 data-[state=open]:border-blue-600 focus-visible:border-blue-600 active:border-blue-600 outline-none rounded-md px-3 py-2 transition"
             onClick={() => setIsOpen(!isOpen)}
             disabled={isDisabled}
           >
@@ -72,14 +72,14 @@ export default function InputDataMes({ title, name, date, setDate, setValue, isD
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-auto p-3 dark:bg-slate-800">
+        <PopoverContent className="w-auto p-3 dark:bg-card">
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
-              <Button variant="outline" className="dark:bg-slate-900" size="icon" onClick={handlePreviousYear} disabled={isDisabled}>
+              <Button variant="outline" className="dark:bg-background" size="icon" onClick={handlePreviousYear} disabled={isDisabled}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="font-medium">{currentYear}</div>
-              <Button variant="outline" className="dark:bg-slate-900" size="icon" onClick={handleNextYear} disabled={isDisabled}>
+              <Button variant="outline" className="dark:bg-background" size="icon" onClick={handleNextYear} disabled={isDisabled}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -94,8 +94,8 @@ export default function InputDataMes({ title, name, date, setDate, setValue, isD
                     key={month}
                     variant={isSelected ? "default" : "outline"}
                     className={cn(
-                      "h-9 bg-transparent dark:bg-slate-800", 
-                      isSelected && "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
+                      "h-9 bg-transparent dark:bg-card", 
+                      isSelected && "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-foreground dark:hover:bg-blue-700"
                     )}
                     onClick={() => handleSelectMonth(index)}
                     disabled={isDisabled}

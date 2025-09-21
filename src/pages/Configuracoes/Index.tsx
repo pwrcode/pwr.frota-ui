@@ -197,11 +197,11 @@ export default function Configuracoes() {
 
       <Tabs defaultValue="veiculoMarca" className="flex flex-col xl:flex-row xl:gap-6">
         <div className="xl:w-72 mb-6 xl:mb-0">
-          <TabsList className="flex flex-col w-full h-fit bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
-            <div className="w-full p-4 border-b border-slate-200 dark:border-slate-700">
+          <TabsList className="flex flex-col w-full h-fit bg-card shadow-sm border border-border">
+            <div className="w-full p-4 border-b border-border">
               <div className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                <span className="font-medium text-slate-900 dark:text-slate-100">
+                <Settings className="h-5 w-5 text-muted-foreground" />
+                <span className="font-medium text-foreground">
                   Configurações
                 </span>
               </div>
@@ -210,7 +210,7 @@ export default function Configuracoes() {
             <div className="w-full space-y-1 p-2">
               <TabsTrigger
                 value="geral"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
                 onClick={() => setDropTabActive(false)}
               >
                 <Building className="h-4 w-4" />
@@ -219,7 +219,7 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="usuarios"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
                 onClick={() => setDropTabActive(false)}
               >
                 <Users className="h-4 w-4" />
@@ -228,18 +228,18 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="perfilAcesso"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
                 onClick={() => setDropTabActive(false)}
               >
                 <Users className="h-4 w-4" />
                 Perfil Acesso
               </TabsTrigger>
 
-              <div className="border-t border-slate-200 dark:border-slate-700 my-2"></div>
+              <div className="border-t border-border my-2"></div>
 
               <TabsTrigger
                 value="veiculoMarca"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
                 onClick={() => setDropTabActive(false)}
               >
                 <Car className="h-4 w-4" />
@@ -248,7 +248,7 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="veiculoModelo"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
                 onClick={() => setDropTabActive(false)}
               >
                 <CarFront className="h-4 w-4" />
@@ -260,23 +260,23 @@ export default function Configuracoes() {
 
         <div className="flex-1">
           <FormContainer>
-            <TabsContent value="geral" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+            <TabsContent value="geral" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
 
             </TabsContent>
 
-            <TabsContent value="usuarios" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700">
+            <TabsContent value="usuarios" className="p-6 bg-muted/30 rounded-lg border border-border">
               <Usuario config />
             </TabsContent>
 
-            <TabsContent value="perfilAcesso" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+            <TabsContent value="perfilAcesso" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <PerfilAcesso config />
             </TabsContent>
 
-            <TabsContent value="veiculoMarca" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+            <TabsContent value="veiculoMarca" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <VeiculoMarca />
             </TabsContent>
 
-            <TabsContent value="veiculoModelo" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+            <TabsContent value="veiculoModelo" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <VeiculoModelo />
             </TabsContent>
           </FormContainer>

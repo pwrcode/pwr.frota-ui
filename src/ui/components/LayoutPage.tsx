@@ -89,8 +89,8 @@ export default function LayoutPage() {
         <AppSidebar />
 
         <SidebarInset className="overflow-hidden">
-          <header className="fixed top-0 z-10 flex h-16 w-[100vw] items-center justify-between gap-2 border-b px-4 bg-white dark:bg-slate-800 dark:border-slate-600 shadow-md">
-            <SidebarTrigger className="-ml-1 dark:text-white dark:hover:bg-slate-700" />
+          <header className="fixed top-0 z-10 flex h-16 w-[100vw] items-center justify-between gap-2 border-b border-border px-4 bg-background shadow-md">
+            <SidebarTrigger className="-ml-1 text-foreground hover:bg-accent" />
             <Separator orientation="vertical" className="mx-6 h-4 " />
             <Breadcrumb className="fixed right-3">
               <BreadcrumbList>
@@ -99,25 +99,25 @@ export default function LayoutPage() {
                     variant="outline"
                     size="icon"
                     onClick={toggleFullscreen}
-                    className="dark:bg-slate-800 dark:border-slate-500 dark:hover:bg-slate-700 dark:text-white focus:outline-none focus-visible:outline-none"
+                    className="bg-background border-border hover:bg-accent text-foreground focus:outline-none focus-visible:outline-none"
                   >
                     {isFullscreen ? <Minimize className="h-[1.2rem] w-[1.2rem]" /> : <Maximize className="h-[1.2rem] w-[1.2rem]" />}
                   </Button>
                   <ModeToggle />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <div className="flex justify-center items-center gap-3 px-3 rounded-md cursor-pointer hover:bg-gray-100 dark:bg-slate-800 hover:dark:bg-slate-700">
-                        <p className="text-blue-800 dark:text-white text-sm font-semibold" translate="no">{nome}</p>
+                      <div className="flex justify-center items-center gap-3 px-3 rounded-md cursor-pointer hover:bg-accent">
+                        <p className="text-blue-800 dark:text-foreground text-sm font-semibold" translate="no">{nome}</p>
                         <div className="size-8 rounded-full flex justify-center items-center overflow-hidden">
                           <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="w-full h-full max-w-max" typeImg={TypesImg.user} />
                         </div>
                       </div>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className='w-40 dark:bg-slate-800'>
-                      <DropdownMenuItem className="cursor-pointer text-base font-semibold text-gray-800 dark:text-white" onClick={alterarSenha}>
+                    <DropdownMenuContent align="end" className='w-40 bg-popover'>
+                      <DropdownMenuItem className="cursor-pointer text-base font-semibold text-gray-800 dark:text-foreground" onClick={alterarSenha}>
                         Alterar senha
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer text-base font-semibold text-red-600 dark:text-white" onClick={handleLogOut}>
+                      <DropdownMenuItem className="cursor-pointer text-base font-semibold text-red-600 dark:text-foreground" onClick={handleLogOut}>
                         Sair
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -127,7 +127,7 @@ export default function LayoutPage() {
             </Breadcrumb>
           </header>
 
-          <main className="bg-gray-100 dark:bg-slate-700 flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 max-w-[100vw] md:max-w-[calc(100vw)] lg:max-w-[calc(100vw)] overflow-y-auto">
+          <main className="bg-gray-100 dark:bg-accent flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 max-w-[100vw] md:max-w-[calc(100vw)] lg:max-w-[calc(100vw)] overflow-y-auto">
             <Suspense fallback={<ContentLoading />}>
               <Outlet />
             </Suspense>

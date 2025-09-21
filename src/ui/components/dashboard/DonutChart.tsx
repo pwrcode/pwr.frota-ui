@@ -57,7 +57,7 @@ export const DonutChart = ({ faturamentoPorZona, valueKey, money, active, icon, 
 
   if (active) return (
     <div>
-      <Card className="w-full rounded-b-none border-b-0 dark:bg-slate-800">
+      <Card className="w-full rounded-b-none border-b-0 dark:bg-card">
         <CardHeader className="flex flex-col items-stretch p-0">
           <div className={`
           flex-1 flex flex-row lg:flex-row justify-between items-stretch gap-1
@@ -80,7 +80,7 @@ export const DonutChart = ({ faturamentoPorZona, valueKey, money, active, icon, 
           <CardDescription className={`px-6 pt-2 w-full max-w-full h-fit flex gap-3 ${dados.length <= 3 ? "justify-center" : "flex-wrap gap-y-0 justify-between w-[400px]"} sm:mx-auto`}>
             {dados.map((dados: any, index) => {
               return (
-                <div key={index} className="flex w-fit h-fit gap-1 items-center dark:text-white">
+                <div key={index} className="flex w-fit h-fit gap-1 items-center dark:text-foreground">
                   <span style={{ backgroundColor: dados.fill }} className={`h-3 w-6`}></span>
                   {dados.descricao}
                 </div>
@@ -112,7 +112,7 @@ export const DonutChart = ({ faturamentoPorZona, valueKey, money, active, icon, 
                       {/* key name */}
                       {name}
                       {/* key value */}
-                      <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-white">
+                      <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground dark:text-foreground">
                         {money ? `${currency(Number(value))}` : toNumberLabel(Number(value))}
                       </div>
                     </>
@@ -138,12 +138,12 @@ export const DonutChart = ({ faturamentoPorZona, valueKey, money, active, icon, 
           </ChartContainer>
         </CardContent>
       </Card>
-      <div className="bg-gray-50 dark:bg-slate-700 dark:border-slate-800 rounded-b-xl border-b border-x">
-        <Button onClick={() => setOpenPopover(!openPopover)} className="w-full dark:hover:bg-slate-600 dark:text-white flex justify-between text-lg text-neutral-600" variant={"ghost"}>Lista Completa {openPopover ? <ChevronUp /> : <ChevronDown />}</Button>
+      <div className="bg-gray-50 dark:bg-accent dark:border-border rounded-b-xl border-b border-x">
+        <Button onClick={() => setOpenPopover(!openPopover)} className="w-full dark:hover:bg-accent dark:text-foreground flex justify-between text-lg text-neutral-600" variant={"ghost"}>Lista Completa {openPopover ? <ChevronUp /> : <ChevronDown />}</Button>
         {openPopover && <ScrollArea className={`h-64 w-full p-4`}>
           <div className="space-y-1">
             {data.map((dados, index) => (
-              <div key={index} className="text-base flex justify-between rounded-md bg-white dark:bg-slate-800 dark:text-white p-3">
+              <div key={index} className="text-base flex justify-between rounded-md bg-card dark:text-foreground p-3">
                 <p>{dados.descricao}</p>
                 {valueKey === "qtd" ?
                   <p>{dados.qtd}</p>

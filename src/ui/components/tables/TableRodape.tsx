@@ -42,9 +42,9 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
   const prevPage = currentPage > 0 ? currentPage - 1 : 0;
   const nextPage = currentPage < lastPage ? currentPage + 1 : lastPage;
 
-  const style = "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium rounded-none size-[40px] dark:border-gray-500 dark:hover:bg-slate-600";
-  const styleCurrent = `${style} z-10 bg-indigo-50 border-indigo-500 text-indigo-600 dark:border-gray-500 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-600`;
-  const styleMblBtn = "relative dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:border-slate-800 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-500 dark:hover:bg-slate-600";
+  const style = "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium rounded-none size-[40px] dark:border-gray-500 dark:hover:bg-accent";
+  const styleCurrent = `${style} z-10 bg-indigo-50 border-indigo-500 text-indigo-600 dark:border-gray-500 dark:bg-card dark:text-foreground dark:hover:bg-accent`;
+  const styleMblBtn = "relative dark:bg-card dark:text-foreground dark:hover:bg-accent dark:border-border inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-500 dark:hover:bg-accent";
 
   //
 
@@ -64,17 +64,17 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
   return (
     <>
-      <div id="small-rodape" className="flex dark:bg-slate-800 dark:border-gray-500 md:hidden flex-row justify-between my-4 gap-2 px-2">
+      <div id="small-rodape" className="flex dark:bg-card dark:border-gray-500 md:hidden flex-row justify-between my-4 gap-2 px-2">
         {!first && (
           <Button
-            className={styleMblBtn + "dark:bg-slate-800 dark:text-white"}
+            className={styleMblBtn + "dark:bg-card dark:text-foreground"}
             onClick={() => setCurrentPage(prevPage)}
           >
             Anterior
           </Button>
         )}
 
-        <div className="w-full flex flex-row justify-left items-center dark:bg-slate-800">
+        <div className="w-full flex flex-row justify-left items-center dark:bg-card">
           <TitleRodape minPage={minPage} maxInfo={maxInfo} totalRegisters={totalRegisters} />
         </div>
 
@@ -90,7 +90,7 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
 
 
-      <div id="desktop-rodape" className="hidden dark:bg-slate-800 w-full md:flex flex-row justify-between px-5 py-3">
+      <div id="desktop-rodape" className="hidden dark:bg-card w-full md:flex flex-row justify-between px-5 py-3">
         <div className="w-1/2 flex flex-col justify-center">
           <TitleRodape minPage={minPage} maxInfo={maxInfo} totalRegisters={totalRegisters} />
         </div>
@@ -102,7 +102,7 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
               {/* Left Arrow */}
               {!first && (
                 <PaginationItem
-                  className={style + " border-r-0 rounded-l cursor-pointer dark:bg-slate-700"}
+                  className={style + " border-r-0 rounded-l cursor-pointer dark:bg-accent"}
                   onClick={() => setCurrentPage(prevPage)}
                 >
                   <div className="scale-110 -ml-2">
@@ -113,17 +113,17 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
               {/* Primeira página */}
               <PaginationItem className={first || previousFirst ? "hidden" : ""} onClick={() => setCurrentPage(0)}>
-                <PaginationLink className={style + " border-r-0 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"}>1</PaginationLink>
+                <PaginationLink className={style + " border-r-0 cursor-pointer dark:bg-accent dark:hover:bg-accent dark:text-foreground"}>1</PaginationLink>
               </PaginationItem>
 
               {/* ... */}
               <PaginationItem className={betweenFirstPrevious ? "" : "hidden"}>
-                <PaginationEllipsis className={style + " border-r-0 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"} />
+                <PaginationEllipsis className={style + " border-r-0 dark:bg-accent dark:hover:bg-accent dark:text-foreground"} />
               </PaginationItem>
 
               {/* Página anterior */}
               <PaginationItem className={first ? "hidden" : ""} onClick={() => setCurrentPage(prevPage)}>
-                <PaginationLink className={style + " border-r-0 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"}>{currentPage}</PaginationLink>
+                <PaginationLink className={style + " border-r-0 cursor-pointer dark:bg-accent dark:hover:bg-accent dark:text-foreground"}>{currentPage}</PaginationLink>
               </PaginationItem>
 
               {/* Página atual */}
@@ -133,26 +133,26 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
               {/* Próxima página */}
               <PaginationItem className={last ? "hidden" : ""} onClick={() => setCurrentPage(nextPage)}>
-                <PaginationLink className={style + " border-l-0 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"}>{currentPage + 2}</PaginationLink>
+                <PaginationLink className={style + " border-l-0 cursor-pointer dark:bg-accent dark:hover:bg-accent dark:text-foreground"}>{currentPage + 2}</PaginationLink>
               </PaginationItem>
 
               {/* ... */}
               <PaginationItem className={betweenNextLast ? "" : "hidden"}>
-                <PaginationEllipsis className={style + " border-l-0 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"}/>
+                <PaginationEllipsis className={style + " border-l-0 dark:bg-accent dark:hover:bg-accent dark:text-foreground"}/>
               </PaginationItem>
 
               {/* Última página */}
               <PaginationItem className={last || nextLast ? "hidden" : ""} onClick={() => setCurrentPage(lastPage)}>
-                <PaginationLink className={style + " border-l-0 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white"}>{totalPages}</PaginationLink>
+                <PaginationLink className={style + " border-l-0 cursor-pointer dark:bg-accent dark:hover:bg-accent dark:text-foreground"}>{totalPages}</PaginationLink>
               </PaginationItem>
 
               {/* Right Arrow */}
               {!last && (
                 <PaginationItem
-                  className={style + " border-l-0 rounded-r cursor-pointer dark:bg-slate-700"}
+                  className={style + " border-l-0 rounded-r cursor-pointer dark:bg-accent"}
                   onClick={() => setCurrentPage(nextPage)}
                 >
-                  <div className="scale-110 -ml-2 dark:text-white">
+                  <div className="scale-110 -ml-2 dark:text-foreground">
                     <ChevronRight />
                   </div>
                 </PaginationItem>
@@ -171,8 +171,8 @@ type TitleRodapeType = { minPage: number, maxInfo: number, totalRegisters: numbe
 
 const TitleRodape = ({minPage, maxInfo, totalRegisters}: TitleRodapeType) => {
   return (
-    <h6 className="text-sm text-gray-700 dark:text-white">
-       <span className="hidden sm:inline dark:text-white">Mostrando</span> <span className="font-medium dark:text-white">{minPage}</span> até <span className="font-medium dark:text-white">{maxInfo}</span> de <span className="font-medium dark:text-white">{totalRegisters}</span> resultados
+    <h6 className="text-sm text-gray-700 dark:text-foreground">
+       <span className="hidden sm:inline dark:text-foreground">Mostrando</span> <span className="font-medium dark:text-foreground">{minPage}</span> até <span className="font-medium dark:text-foreground">{maxInfo}</span> de <span className="font-medium dark:text-foreground">{totalRegisters}</span> resultados
     </h6>
   )
 }

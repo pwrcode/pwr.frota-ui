@@ -324,8 +324,8 @@ export default function Veiculo() {
                   />
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-                  <h4 className="text-sm font-medium mb-4 text-slate-700 dark:text-slate-300">
+                <div className="border-t border-border pt-6">
+                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">
                     Filtros por Data
                   </h4>
                   <div className="space-y-4">
@@ -357,7 +357,7 @@ export default function Veiculo() {
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-6 flex gap-3 sticky bottom-0 bg-white dark:bg-slate-950 pb-4 -mx-6 px-6">
+                <div className="border-t border-border pt-6 flex gap-3 sticky bottom-0 bg-background pb-4 -mx-6 px-6">
                   <Button
                     variant="outline"
                     onClick={clearFilters}
@@ -382,7 +382,7 @@ export default function Veiculo() {
       </div>
 
       {(veiculos.length > 0) && (
-        <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
+        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
           <TableTop>
             <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
           </TableTop>

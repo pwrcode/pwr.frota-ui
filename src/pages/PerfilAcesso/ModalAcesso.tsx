@@ -106,11 +106,11 @@ export default function ModalAcesso({ open, setOpen, idPerfil, idFuncionalidade,
             <span className="font-semibold size-md">{descricaoFuncionalidade}</span>
 
             <div className="flex flex-col sm:flex-row justify-between gap-2">
-              <Button type="button" onClick={marcarTodos} variant="outline" className="w-1/2 text-green-700 font-semibold hover:text-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-white">
+              <Button type="button" onClick={marcarTodos} variant="outline" className="w-1/2 text-green-700 font-semibold hover:text-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:text-foreground">
                 <LockOpen />
                 Liberar Todos
               </Button>
-              <Button type="button" onClick={desmarcarTodos} variant="outline" className="w-1/2 text-red-700 font-semibold hover:text-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-white">
+              <Button type="button" onClick={desmarcarTodos} variant="outline" className="w-1/2 text-red-700 font-semibold hover:text-red-700 dark:bg-red-600 dark:hover:bg-red-700 dark:text-foreground">
                 <Lock />
                 Bloquear Todos
               </Button>

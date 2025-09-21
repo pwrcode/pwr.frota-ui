@@ -64,7 +64,7 @@ export default function Login() {
 
   return (
     <div className="lg:grid lg:grid-cols-[1fr_2fr] w-full h-screen">
-      <div className="h-full flex items-center justify-center py-12 bg-slate-100 dark:bg-slate-600">
+      <div className="h-full flex items-center justify-center py-12 bg-muted/30">
 
         <div className='absolute top-4 right-4'>
           <ModeToggle />

@@ -34,7 +34,7 @@ export const CardChart = ({ icon, title, children, toggle, setToggle, totalizado
 
   return (
     <div>
-      <Card className="w-full dark:bg-slate-800">
+      <Card className="w-full dark:bg-card">
         <CardHeader className="flex flex-col items-stretch border-b p-0 sm:flex-row">
           <div className={`
           flex-1 flex flex-row lg:flex-row ${showToggle ? 'justify-between' : 'justify-start'} items-stretch gap-1
@@ -65,7 +65,7 @@ export const CardChart = ({ icon, title, children, toggle, setToggle, totalizado
         </CardContent>
 
         {totalizador && (
-          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-700 border-t rounded-b-lg">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-accent border-t rounded-b-lg">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               <TotalizadorItem
                 icon={<DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />}

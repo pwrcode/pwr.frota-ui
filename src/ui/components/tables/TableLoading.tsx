@@ -11,7 +11,7 @@ export default function TableLoading({iconSize}: propsType) {
 
         <div className="flex flex-row gap-3 text-gray-500">
           <LoaderCircle className={`
-            animate-spin ${iconSize ?? "size-9"} dark:text-white
+            animate-spin ${iconSize ?? "size-9"} dark:text-foreground
           `} />
         </div>
 

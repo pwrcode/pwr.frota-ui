@@ -5,7 +5,7 @@ type paramsType = {
 
 export default function ModalFormFooter({children, style}: paramsType) {
     return (
-        <div className={style ? style : `flex flex-col w-full dark:bg-slate-700 rounded-b-lg bg-muted/50`}>
+        <div className={style ? style : `flex flex-col w-full dark:bg-accent rounded-b-lg bg-muted/50`}>
             <hr />
             <div className='flex flex-row justify-end gap-2 p-4 w-full'>
                 {children}

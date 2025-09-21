@@ -210,7 +210,7 @@ export default function PostoCombustivelForm() {
                 <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)}>
                     <TabsList className='flex w-min px-0 md:hidden'>
                         <DropdownMenuTrigger asChild>
-                            <Button variant={"ghost"} className='text-black dark:text-white flex justify-between items-center gap-2 py-2'>
+                            <Button variant={"ghost"} className='text-black dark:text-foreground flex justify-between items-center gap-2 py-2'>
                                 {tabNameMobile} <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div>
                             </Button>
                         </DropdownMenuTrigger>
