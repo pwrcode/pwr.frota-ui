@@ -185,28 +185,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Menus quando pesquisa */}
         {search.length > 0 && (
           <SidebarMenu className="mb-3 scrollbar-hide text-white gap-0">
-            {acessos?.map(menu =>
-              <div key={menu.descricao} className="mx-2">
-                {Array.isArray(menu.submenus) && menu.submenus.map(submenu => {
+            {acessos?.map(menu => {
+              const hasSearch = menu.descricao.toLowerCase().includes(search.toLowerCase());
+              const isSubmenuActive = isActive(menu, location.pathname);
 
-                  const hasSearch = submenu.descricao.toLowerCase().includes(search.toLowerCase());
-                  const isSubmenuActive = isActive(submenu, location.pathname);
-
-                  if (hasSearch) return (
+              if (hasSearch && menu.link !== "")
+                return (
+                  <div key={menu.descricao} className="mx-2">
                     <SidebarMenuButton
-                      key={submenu.link}
+                      key={menu.link}
                       asChild
                       className={`py-5 text-base hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
                       onClick={() => setOpenMobile(false)}
                     >
-                      <Link to={submenu.link} className="flex items-center">
-                        {renderIcon(submenu.icone, "size-5 mr-2")}
-                        {submenu.descricao}
+                      <Link to={menu.link} className="flex items-center">
+                        {renderIcon(menu.icone, "size-5 mr-2")}
+                        {menu.descricao}
                       </Link>
                     </SidebarMenuButton>
-                  )
-                })}
-              </div>
+                  </div>)
+              return (
+                <div key={menu.descricao} className="mx-2">
+                  {Array.isArray(menu.submenus) && menu.submenus.map(submenu => {
+
+                    const hasSearch = submenu.descricao.toLowerCase().includes(search.toLowerCase());
+                    const isSubmenuActive = isActive(submenu, location.pathname);
+
+                    if (hasSearch) return (
+                      <SidebarMenuButton
+                        key={submenu.link}
+                        asChild
+                        className={`py-5 text-base hover:bg-slate-700 hover:text-white ${isSubmenuActive ? "bg-slate-900 text-white" : ""}`}
+                        onClick={() => setOpenMobile(false)}
+                      >
+                        <Link to={submenu.link} className="flex items-center">
+                          {renderIcon(submenu.icone, "size-5 mr-2")}
+                          {submenu.descricao}
+                        </Link>
+                      </SidebarMenuButton>
+                    )
+                  })}
+                </div>)
+            }
             )}
           </SidebarMenu>
         )}

@@ -27,6 +27,9 @@ import TextareaLabel from '@/ui/components/forms/TextareaLabel';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import Modal from '../Bairro/Modal';
 import type { optionType } from '@/services/constants';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -72,6 +75,9 @@ export default function PostoCombustivelForm() {
     const [cadInfo, setCadInfo] = useState<string>("");
     const [edicaoInfo, setEdicaoInfo] = useState<string>("");
     const [openModalFormBairro, setOpenModalFormBairro] = useState(false);
+
+    const [isDropDownTabsOpen, setIsDropDownTabsOpen] = useState(false);
+    const [tabNameMobile, setTabNameMobile] = useState("Posto Combustível");
 
     const {
         cep,
@@ -174,7 +180,7 @@ export default function PostoCombustivelForm() {
     }
 
     const handleClickAdicionarBairro = () => {
-            setOpenModalFormBairro(true);
+        setOpenModalFormBairro(true);
     }
 
     const selecionarBairro = (bairro: optionType) => {
@@ -186,98 +192,139 @@ export default function PostoCombustivelForm() {
         <>
             <Modal open={openModalFormBairro} setOpen={setOpenModalFormBairro} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
-            <div className="w-full mt-16">
-                <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoPostoCombustivelType))}>
 
-                    <FormContainer>
-                        <FormContainerHeader title="Posto Combustivel" />
-                        <FormContainerBody>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
-                                <InputMaskLabel
-                                    name="cnpj" title="CNPJ"
-                                    mask={Masks.cnpj}
-                                    register={{ ...register("cnpj") }} value={documento} setValue={setValue}
-                                />
-                                <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
-                                <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
-                                <InputMaskLabel name='bandeira' title='Bandeira' mask={Masks.numerico} value={watch("bandeira")} setValue={setValue} />
-                                <div className='lg:col-span-2'>
-                                    <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
+            <Tabs defaultValue='postoCombustivel' className='w-full mt-16 flex flex-col gap-2'>
+
+                <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-0'>
+                    <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")}>
+                        Posto Combustível
+                    </TabsTrigger>
+                    <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")}>
+                        Abastecimentos
+                    </TabsTrigger>
+                    <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")}>
+                        Entradas
+                    </TabsTrigger>
+                </TabsList>
+
+                <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)}>
+                    <TabsList className='flex w-min px-0 md:hidden'>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant={"ghost"} className='text-black dark:text-white flex justify-between items-center gap-2 py-2'>
+                                {tabNameMobile} <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className='md:hidden'>
+                            <DropdownMenuItem className='p-0 flex flex-col'>
+                                <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")} className='py-2'>
+                                    Posto Combustível
+                                </TabsTrigger>
+                                <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")} className='py-2'>
+                                    Posto Combustível
+                                </TabsTrigger>
+                                <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")} className='py-2'>
+                                    Entradas
+                                </TabsTrigger>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </TabsList>
+                </DropdownMenu>
+
+                <TabsContent value="postoCombustivel">
+                    <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoPostoCombustivelType))}>
+
+                        <FormContainer>
+                            <FormContainerHeader title="Posto Combustivel" />
+                            <FormContainerBody>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+                                    <InputMaskLabel
+                                        name="cnpj" title="CNPJ"
+                                        mask={Masks.cnpj}
+                                        register={{ ...register("cnpj") }} value={documento} setValue={setValue}
+                                    />
+                                    <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
+                                    <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
+                                    <InputMaskLabel name='bandeira' title='Bandeira' mask={Masks.numerico} value={watch("bandeira")} setValue={setValue} />
+                                    <div className='lg:col-span-2'>
+                                        <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
+                                    </div>
                                 </div>
-                            </div>
-                            <DivCheckBox style="micro">
-                                <CheckBoxLabel name="isInterno" title="Interno" register={{ ...register("isInterno") }} />
-                            </DivCheckBox>
-                        </FormContainerBody>
-                    </FormContainer>
+                                <DivCheckBox style="micro">
+                                    <CheckBoxLabel name="isInterno" title="Interno" register={{ ...register("isInterno") }} />
+                                </DivCheckBox>
+                            </FormContainerBody>
+                        </FormContainer>
 
-                    <FormContainer>
-                        <FormContainerHeader title="Contato" />
-                        <FormContainerBody>
-                            <FormGridPair>
-                                <InputMaskLabel
-                                    name="telefonePrincipal"
-                                    title="Telefone Principal"
-                                    mask={Masks.celular}
-                                    register={{ ...register("telefonePrincipal") }}
-                                    value={watch("telefonePrincipal")}
-                                    setValue={setValue}
-                                />
-                                <InputMaskLabel
-                                    name="telefoneSecundario"
-                                    title="Telefone Secundário"
-                                    mask={Masks.celular}
-                                    register={{ ...register("telefoneSecundario") }}
-                                    value={watch("telefoneSecundario")}
-                                    setValue={setValue}
-                                />
-                            </FormGridPair>
-                        </FormContainerBody>
-                    </FormContainer>
+                        <FormContainer>
+                            <FormContainerHeader title="Contato" />
+                            <FormContainerBody>
+                                <FormGridPair>
+                                    <InputMaskLabel
+                                        name="telefonePrincipal"
+                                        title="Telefone Principal"
+                                        mask={Masks.celular}
+                                        register={{ ...register("telefonePrincipal") }}
+                                        value={watch("telefonePrincipal")}
+                                        setValue={setValue}
+                                    />
+                                    <InputMaskLabel
+                                        name="telefoneSecundario"
+                                        title="Telefone Secundário"
+                                        mask={Masks.celular}
+                                        register={{ ...register("telefoneSecundario") }}
+                                        value={watch("telefoneSecundario")}
+                                        setValue={setValue}
+                                    />
+                                </FormGridPair>
+                            </FormContainerBody>
+                        </FormContainer>
 
-                    <FormContainer>
-                        <FormContainerHeader title="Endereço" />
-                        <FormContainerBody>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-8 gap-2">
-                                {/* CEP e Buscar */}
-                                <div className="col-span-1 xl:col-span-2 flex flex-row items-end gap-1">
-                                    <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
-                                    <SearchButton func={buscarCep} disabled={loadingCep} />
+                        <FormContainer>
+                            <FormContainerHeader title="Endereço" />
+                            <FormContainerBody>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-8 gap-2">
+                                    {/* CEP e Buscar */}
+                                    <div className="col-span-1 xl:col-span-2 flex flex-row items-end gap-1">
+                                        <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
+                                        <SearchButton func={buscarCep} disabled={loadingCep} />
+                                    </div>
+                                    <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                    <span className='col-span-1 hidden lg:invisible'></span>
+                                    <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                    <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
+                                        <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                        <PlusButton loading={loading} func={handleClickAdicionarBairro} />
+                                    </div>
+                                    {/* Bairro e Add */}
+                                    <InputLabel name="logradouro" title="Logradouro" register={{ ...register("logradouro") }} size="xl:col-span-3" />
+                                    <InputLabel name="numero" title="Número" register={{ ...register("numero") }} size="xl:col-span-1" />
+                                    <InputLabel name="complemento" title="Complemento" register={{ ...register("complemento") }} size="xl:col-span-2" />
+                                    <InputLabel name="pontoReferencia" title="Ponto Referência" register={{ ...register("pontoReferencia") }} size="xl:col-span-2" />
                                 </div>
-                                <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
-                                <span className='col-span-1 hidden lg:invisible'></span>
-                                <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
-                                <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                                    <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
-                                    <PlusButton loading={loading} func={handleClickAdicionarBairro} />
-                                </div>
-                                {/* Bairro e Add */}
-                                <InputLabel name="logradouro" title="Logradouro" register={{ ...register("logradouro") }} size="xl:col-span-3" />
-                                <InputLabel name="numero" title="Número" register={{ ...register("numero") }} size="xl:col-span-1" />
-                                <InputLabel name="complemento" title="Complemento" register={{ ...register("complemento") }} size="xl:col-span-2" />
-                                <InputLabel name="pontoReferencia" title="Ponto Referência" register={{ ...register("pontoReferencia") }} size="xl:col-span-2" />
-                            </div>
-                        </FormContainerBody>
-                    </FormContainer>
+                            </FormContainerBody>
+                        </FormContainer>
 
-                    <FormContainer>
-                        <FormContainerBody>
-                            <FormLine>
-                                <FormLine justify="start">
-                                    <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
+                        <FormContainer>
+                            <FormContainerBody>
+                                <FormLine>
+                                    <FormLine justify="start">
+                                        <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
+                                    </FormLine>
+                                    <FormLine justify="end">
+                                        <Button variant="outline" type="button" onClick={() => navigate("/posto-combustivel")} disabled={loading}>Cancelar</Button>
+                                        <ButtonSubmit loading={loading}>
+                                            Salvar
+                                        </ButtonSubmit>
+                                    </FormLine>
                                 </FormLine>
-                                <FormLine justify="end">
-                                    <Button variant="outline" type="button" onClick={() => navigate("/posto-combustivel")} disabled={loading}>Cancelar</Button>
-                                    <ButtonSubmit loading={loading}>
-                                        Salvar
-                                    </ButtonSubmit>
-                                </FormLine>
-                            </FormLine>
-                        </FormContainerBody>
-                    </FormContainer>
+                            </FormContainerBody>
+                        </FormContainer>
 
-                </form>
-            </div>
+                    </form>
+                </TabsContent>
+
+            </Tabs >
+
         </>
     )
 }
