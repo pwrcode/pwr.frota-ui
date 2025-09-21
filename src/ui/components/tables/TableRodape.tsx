@@ -67,6 +67,7 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
       <div id="small-rodape" className="flex dark:bg-card dark:border-gray-500 md:hidden flex-row justify-between my-4 gap-2 px-2">
         {!first && (
           <Button
+            type="button"
             className={styleMblBtn + "dark:bg-card dark:text-foreground"}
             onClick={() => setCurrentPage(prevPage)}
           >
@@ -80,7 +81,8 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
         {!last && (
           <Button
-            className={styleMblBtn} 
+            type="button"
+            className={styleMblBtn}
             onClick={() => setCurrentPage(nextPage)}
           >
             Próximo
@@ -138,7 +140,7 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
               {/* ... */}
               <PaginationItem className={betweenNextLast ? "" : "hidden"}>
-                <PaginationEllipsis className={style + " border-l-0 dark:bg-accent dark:hover:bg-accent dark:text-foreground"}/>
+                <PaginationEllipsis className={style + " border-l-0 dark:bg-accent dark:hover:bg-accent dark:text-foreground"} />
               </PaginationItem>
 
               {/* Última página */}
@@ -169,10 +171,10 @@ export const TableRodape = ({ currentPage, totalPages, pageSize, totalRegisters,
 
 type TitleRodapeType = { minPage: number, maxInfo: number, totalRegisters: number }
 
-const TitleRodape = ({minPage, maxInfo, totalRegisters}: TitleRodapeType) => {
+const TitleRodape = ({ minPage, maxInfo, totalRegisters }: TitleRodapeType) => {
   return (
     <h6 className="text-sm text-gray-700 dark:text-foreground">
-       <span className="hidden sm:inline dark:text-foreground">Mostrando</span> <span className="font-medium dark:text-foreground">{minPage}</span> até <span className="font-medium dark:text-foreground">{maxInfo}</span> de <span className="font-medium dark:text-foreground">{totalRegisters}</span> resultados
+      <span className="hidden sm:inline dark:text-foreground">Mostrando</span> <span className="font-medium dark:text-foreground">{minPage}</span> até <span className="font-medium dark:text-foreground">{maxInfo}</span> de <span className="font-medium dark:text-foreground">{totalRegisters}</span> resultados
     </h6>
   )
 }

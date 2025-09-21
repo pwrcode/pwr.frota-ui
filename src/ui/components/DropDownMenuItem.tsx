@@ -58,7 +58,7 @@ export default function DropDownMenuItem({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild type="button">
-        <Button variant="ghost" className="dark:bg-card dark:hover:bg-accent">
+        <Button type="button" variant="ghost" className="dark:bg-card dark:hover:bg-accent">
           <EllipsisVertical />
         </Button>
       </DropdownMenuTrigger>

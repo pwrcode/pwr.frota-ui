@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { LoaderCircle, Search } from "lucide-react";
 
 type propsType = {
-  children: React.ReactNode, type?: string, className?: string, loading?: boolean, disabled?: boolean
+  children: React.ReactNode, type?: string, className?: string, loading?: boolean, disabled?: boolean, onClick?: any
 }
 
-export const ButtonSubmit = ({children, type, className, loading, disabled}: propsType) => {
+export const ButtonSubmit = ({children, type, className, loading, disabled, onClick}: propsType) => {
   const btnLoading = loading ? "flex flex-row items-center justify-center gap-2" : "";
   return (
     <Button
@@ -13,6 +13,7 @@ export const ButtonSubmit = ({children, type, className, loading, disabled}: pro
       type={type === "button" ? "button" : "submit"}
       className={`${className} ${btnLoading}`}
       disabled={disabled || loading}
+      onClick={onClick}
     >
       {loading && <LoaderCircle className="animate-spin size-10" />}
       {children ?? "Salvar"}

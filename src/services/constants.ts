@@ -21,6 +21,11 @@ export type itemSelectType = {
   descricao: string
 };
 
+export const tiposTanque = [
+    { value: 1, label: "Combustível", valueLabel: "Combustivel" },
+    { value: 2, label: "Arla", valueLabel: "Arla" },
+]
+
 export const selecioneOption = {
     value: undefined,
     label: "Selecione"

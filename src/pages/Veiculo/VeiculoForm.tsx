@@ -34,6 +34,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
+import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
+import VeiculoTanque from '../VeiculoTanque/Index';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -79,7 +81,6 @@ export default function VeiculoForm() {
   const idVeiculoMarca = watch("idVeiculoMarca");
   const idVeiculoModelo = watch("idVeiculoModelo.value");
   const isVendido = watch("isVendido");
-  const [veiculosMarca, setVeiculosMarca] = useState<listType>([])
   const [veiculoModelos, setVeiculoModelos] = useState<listType>([])
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -89,6 +90,7 @@ export default function VeiculoForm() {
   const [openModalFormModelo, setOpenModalFormModelo] = useState(false);
   const [isDropDownTabsOpen, setIsDropDownTabsOpen] = useState(false);
   const [tabNameMobile, setTabNameMobile] = useState("Veículo");
+  const [tanques, setTanques] = useState<dadosAddEdicaoVeiculoTanqueType[]>([]);
 
   useEffect(() => {
     if (id) return
@@ -97,7 +99,7 @@ export default function VeiculoForm() {
   }, []);
 
   useEffect(() => {
-    resetField("idVeiculoModelo");
+    resetField("idVeiculoModelo")
     getVeiculoModelos();
   }, [idVeiculoMarca])
 
@@ -108,7 +110,6 @@ export default function VeiculoForm() {
 
   const getVeiculoMarcas = async (pesquisa?: string) => {
     const data = await getVeiculoMarcaList(pesquisa);
-    setVeiculosMarca([...data])
     return data;
   }
 
@@ -149,7 +150,6 @@ export default function VeiculoForm() {
       setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
-      if (item.idVeiculoModelo) setValue("idVeiculoModelo", { value: item.idVeiculoModelo, label: item.descricaoVeiculoModelo });
       setValue("versao", item.versao);
       setValue("anoFabricacao", item.anoFabricacao?.toString());
       setValue("anoModelo", item.anoModelo?.toString());
@@ -167,6 +167,9 @@ export default function VeiculoForm() {
       setValue("isVendido", item.valorVenda ? true : false);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
+      setTimeout(() => {
+        if (item.idVeiculoModelo) setValue("idVeiculoModelo", { value: item.idVeiculoModelo, label: item.descricaoVeiculoModelo });
+      }, 500);
       toast.dismiss(process);
     }
     catch (error: Error | any) {
@@ -202,7 +205,8 @@ export default function VeiculoForm() {
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
-          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : 0,
+          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
+          veiculoTanques: tanques,
         }
         const res = await addVeiculo(post);
         toast.update(process, { render: res.mensagem, type: "success", isLoading: false, autoClose: 2000 });
@@ -229,7 +233,7 @@ export default function VeiculoForm() {
           dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
-          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : 0,
+          valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
         }
         const res = await updateVeiculo(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
@@ -333,11 +337,11 @@ export default function VeiculoForm() {
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
-                  <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                    <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={veiculosMarca} asyncFunction={getVeiculoMarcas} filter isClearable size="w-full" />
+                  <div className='flex justify-between items-end gap-2'>
+                    <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={[]} asyncFunction={getVeiculoMarcas} isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarMarca} />
                   </div>
-                  <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
+                  <div className=' flex justify-between items-end gap-2'>
                     <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarModelo} />
                   </div>
@@ -379,6 +383,8 @@ export default function VeiculoForm() {
                 </DivCheckBox>
               </FormContainerBody>
             </FormContainer>
+
+            <VeiculoTanque idVeiculo={Number(id) !== 0 ? Number(id) : undefined} tanques={tanques} setTanques={setTanques} />
 
             <FormContainer>
               <FormContainerBody>

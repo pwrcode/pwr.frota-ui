@@ -49,7 +49,7 @@ export default function TableEmpty({handleClickAdicionar, title, subTitle, empre
         )}
 
         {!children && !icon && handleClickAdicionar && (
-          <Button variant="success" onClick={handleClickAdicionar} className="mt-4">Adicionar</Button>
+          <Button type='button' variant="success" onClick={handleClickAdicionar} className="mt-4">Adicionar</Button>
         )}
 
         {children && (
@@ -78,7 +78,7 @@ export default function TableEmpty({handleClickAdicionar, title, subTitle, empre
                   <span className="text-sm text-muted-foreground">{subTitle}</span>
                 )}
                 {handleClickAdicionar && (
-                  <Button variant="success" onClick={handleClickAdicionar} className="mt-2">Adicionar</Button>
+                  <Button type='button' variant="success" onClick={handleClickAdicionar} className="mt-2">Adicionar</Button>
                 )}
               </div>
           </div>
