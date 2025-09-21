@@ -111,9 +111,9 @@ export default function PessoaForm() {
     }, [errors]);
 
     useEffect(() => {
-      getUfs();
+        getUfs();
     }, [])
-    
+
 
     useEffect(() => {
         if (id) setValuesPorId();
@@ -240,14 +240,23 @@ export default function PessoaForm() {
                                 />
                                 <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
+                            </div>
+                            <DivCheckBox style="line">
+                                <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
+                            </DivCheckBox>
+                        </FormContainerBody>
+                    </FormContainer>
+
+                    <FormContainer>
+                        <FormContainerHeader title="Dados CNH" />
+                        <FormContainerBody>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
                                 <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable />
                                 {/* <InputDataAno title="CNH Validade" id="cnhValidade" register={{ ...register("cnhValidade") }} /> */}
                                 <InputDataLabel name='cnhValidade' title='CNH Validade' date={dataCnhValidade} setDate={setDataCnhValidade} />
                             </div>
-                            <DivCheckBox style="line">
-                                <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
-                            </DivCheckBox>
                         </FormContainerBody>
                     </FormContainer>
 
