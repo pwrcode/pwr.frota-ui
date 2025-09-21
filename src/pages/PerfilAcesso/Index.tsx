@@ -19,7 +19,7 @@ import { Filters, FiltersGrid } from '@/ui/components/Filters';
 import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 
-export default function PerfilAcesso() {
+export default function PerfilAcesso({ config }: any) {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -44,11 +44,11 @@ export default function PerfilAcesso() {
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   useEffect(() => {
-    if(currentPage > 0 || filtersOn) changeListFilters(currentPage);
+    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
   }, [currentPage]);
 
   useEffect(() => {
-    if(pesquisa.length > 0 || filtersOn) changeListFilters();
+    if (pesquisa.length > 0 || filtersOn) changeListFilters();
   }, [pesquisa]);
 
   const changeListFilters = (page?: number) => {
@@ -85,7 +85,7 @@ export default function PerfilAcesso() {
   }
 
   useEffect(() => {
-    if(postListagem !== initialPostListagem) debounceUpdate();
+    if (postListagem !== initialPostListagem) debounceUpdate();
   }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
@@ -124,11 +124,11 @@ export default function PerfilAcesso() {
       toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
     }
   }
-  
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
-    <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
+    <div className={`flex flex-col gap-8 ${config ? "" : "mt-16"} min-h-[calc(100%-4rem)]`}>
 
       <PageTitle title="Perfil de Acesso" />
 

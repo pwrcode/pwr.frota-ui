@@ -23,7 +23,7 @@ import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import { ImageSrc } from '@/ui/components/ImageSrc';
 
-export default function Usuario() {
+export default function Usuario({ config } : any) {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -135,7 +135,7 @@ export default function Usuario() {
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
-    <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
+    <div className={`flex flex-col gap-8 ${config ? "" : "mt-16"} min-h-[calc(100%-4rem)]`}>
 
       <PageTitle title="Usuário" />
 

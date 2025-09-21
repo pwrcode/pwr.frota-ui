@@ -265,11 +265,11 @@ export default function Configuracoes() {
             </TabsContent>
 
             <TabsContent value="usuarios" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700">
-              <Usuario />
+              <Usuario config />
             </TabsContent>
 
             <TabsContent value="perfilAcesso" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
-              <PerfilAcesso />
+              <PerfilAcesso config />
             </TabsContent>
 
             <TabsContent value="veiculoMarca" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
