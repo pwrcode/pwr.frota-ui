@@ -143,7 +143,7 @@ export default function VeiculoModelo() {
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
                 <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca}
+                <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable
                 />
             </Filters>
 

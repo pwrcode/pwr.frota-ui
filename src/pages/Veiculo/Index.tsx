@@ -89,11 +89,11 @@ export default function Veiculo() {
   }, [tipoData]);
 
   useEffect(() => {
-    if (dataInicio != "") changeListFilters();
+    changeListFilters();
   }, [dataInicio]);
 
   useEffect(() => {
-    if (dataFim) changeListFilters();
+    changeListFilters();
   }, [dataFim]);
 
   useEffect(() => {
@@ -209,7 +209,7 @@ export default function Veiculo() {
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
         <AsyncReactSelect name="tipoVeiculo" title='Tipo Veículo' options={[]} asyncFunction={getTipoVeiculos} value={tipoVeiculo} setValue={setTipoVeiculo} isClearable />
         <AsyncReactSelect name="veiculoMarca" title='Marca' options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable />
-        <AsyncReactSelect name="veiculoModelo" title="Modelo" options={veiculoModelos} value={veiculoModelo} setValue={setVeiculoModelo} asyncFunction={getVeiculosModelo} filter />
+        <AsyncReactSelect name="veiculoModelo" title="Modelo" options={veiculoModelos} value={veiculoModelo} setValue={setVeiculoModelo} asyncFunction={getVeiculosModelo} filter isClearable />
         <AsyncReactSelect name="tipoData" title='Tipo Data' options={tiposDataVeiculo} value={tipoData} setValue={setTipoData} isClearable />
         <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
         <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />

@@ -87,6 +87,10 @@ export default function Pessoa() {
     getMunicipios();
   }, [uf]);
 
+  useEffect(() => {
+    getBairros();
+  }, [municipio]);
+
   const getMunicipios = async (pesquisa?: string) => {
     if (!uf) {
       setMunicipios([]);
@@ -99,7 +103,7 @@ export default function Pessoa() {
   }
 
   const getBairros = async (pesquisa?: string) => {
-    if (!uf) {
+    if (!municipio) {
       setBairros([]);
       setBairro(undefined);
       return [];
@@ -132,6 +136,18 @@ export default function Pessoa() {
   useEffect(() => {
     changeListFilters(0);
   }, [municipio]);
+
+  useEffect(() => {
+    changeListFilters(0);
+  }, [bairro]);
+
+  useEffect(() => {
+    changeListFilters(0);
+  }, [dataInicio]);
+
+  useEffect(() => {
+    changeListFilters(0);
+  }, [dataFim]);
 
   useEffect(() => {
     if ((Array.isArray(optionsSelected) && optionsSelected.length > 0) || filtersOn) {

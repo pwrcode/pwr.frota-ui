@@ -81,11 +81,11 @@ export default function Abastecimento() {
   }, [veiculo]);
 
   useEffect(() => {
-    if (dataInicio != "") changeListFilters();
+    changeListFilters();
   }, [dataInicio]);
 
   useEffect(() => {
-    if (dataFim) changeListFilters();
+    changeListFilters();
   }, [dataFim]);
 
   const changeListFilters = (page?: number) => {

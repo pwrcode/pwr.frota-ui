@@ -58,11 +58,11 @@ export default function EntradaCombustivel() {
     }, [currentPage]);
 
     useEffect(() => {
-        if (dataInicio != "") changeListFilters();
+        changeListFilters();
     }, [dataInicio]);
 
     useEffect(() => {
-        if (dataFim) changeListFilters();
+        changeListFilters();
     }, [dataFim]);
 
     useEffect(() => {

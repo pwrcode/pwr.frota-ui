@@ -68,6 +68,10 @@ export default function PostoCombustivel() {
     getMunicipios();
   }, [uf]);
 
+  useEffect(() => {
+    getBairros();
+  }, [municipio]);
+
   const getMunicipios = async (pesquisa?: string) => {
     if (!uf) {
       setMunicipios([]);
@@ -80,7 +84,7 @@ export default function PostoCombustivel() {
   }
 
   const getBairros = async (pesquisa?: string) => {
-    if (!uf) {
+    if (!municipio) {
       setBairros([]);
       setBairro(undefined);
       return [];
@@ -109,6 +113,10 @@ export default function PostoCombustivel() {
   useEffect(() => {
     changeListFilters(0);
   }, [municipio]);
+
+  useEffect(() => {
+    changeListFilters(0);
+  }, [bairro]);
 
   const changeListFilters = (page: number) => {
     setFiltersOn(true);
