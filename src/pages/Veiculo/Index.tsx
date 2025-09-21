@@ -34,6 +34,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Filter, X } from 'lucide-react';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 
 export default function Veiculo() {
 
@@ -50,13 +52,13 @@ export default function Veiculo() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoVeiculo, setTipoVeiculo] = useState<optionType>();
-  const [veiculoMarca, setVeiculoMarca] = useState<optionType>();
-  const [veiculoModelo, setVeiculoModelo] = useState<optionType>();
-  const [tipoData, setTipoData] = useState<optionType>();
+  const [tipoVeiculo, setTipoVeiculo] = useState<optionType | null>();
+  const [veiculoMarca, setVeiculoMarca] = useState<optionType  | null>();
+  const [veiculoModelo, setVeiculoModelo] = useState<optionType | null>();
+  const [tipoData, setTipoData] = useState<optionType  | null>();
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [status, setStatus] = useState<optionType>();
+  const [status, setStatus] = useState<optionType  | null>();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
@@ -214,13 +216,13 @@ export default function Veiculo() {
   }
 
   const clearFilters = () => {
-    setTipoVeiculo(undefined);
-    setVeiculoMarca(undefined);
-    setVeiculoModelo(undefined);
-    setTipoData(undefined);
+    setTipoVeiculo(null);
+    setVeiculoMarca(null);
+    setVeiculoModelo(null);
+    setTipoData(null);
     setDataInicio("");
     setDataFim("");
-    setStatus(undefined);
+    setStatus(null);
   }
 
   const checkActiveFilters = () => {
@@ -270,7 +272,7 @@ export default function Veiculo() {
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+            <SheetContent className='p-0 gap-0 m-4 w-[400px] sm:w-[540px] h-[96%] rounded-lg border shadow-xl'>
               <SheetHeader className="px-6">
                 <SheetTitle className="flex items-center gap-2">
                   <Filter className="h-5 w-5" />
@@ -281,7 +283,7 @@ export default function Veiculo() {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] px-6">
+              <ModalFormBody>
                 <div className="space-y-4">
                   <AsyncReactSelect
                     name="tipoVeiculo"
@@ -357,25 +359,25 @@ export default function Veiculo() {
                   </div>
                 </div>
 
-                <div className="border-t border-border pt-6 flex gap-3 sticky bottom-0 bg-background pb-4 -mx-6 px-6">
-                  <Button
-                    variant="outline"
-                    onClick={clearFilters}
-                    disabled={!hasActiveFilters}
-                    className="flex-1"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Limpar Filtros
-                  </Button>
-                  <Button
-                    onClick={() => setIsFiltersOpen(false)}
-                    className="flex-1"
-                    variant="success"
-                  >
-                    Aplicar Filtros
-                  </Button>
-                </div>
-              </div>
+              </ModalFormBody>
+              <ModalFormFooter>
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                  className="flex-1"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+                <Button
+                  onClick={() => setIsFiltersOpen(false)}
+                  className="flex-1"
+                  variant="success"
+                >
+                  Aplicar Filtros
+                </Button>
+              </ModalFormFooter>
             </SheetContent>
           </Sheet>
         </div>

@@ -90,7 +90,7 @@ export default function EntradaCombustivel() {
     }, []);
 
     const getPostosCombustivel = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelList(pesquisa, undefined, undefined, undefined, undefined);
+        const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
         return [...data];
     }
 
