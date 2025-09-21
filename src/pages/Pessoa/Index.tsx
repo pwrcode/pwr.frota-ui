@@ -242,13 +242,13 @@ export default function Pessoa() {
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
         <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
         <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-          <AsyncReactSelect name="optionsSelected" title="Filtragem" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
+          <AsyncReactSelect name="optionsSelected" title="Tipo Pessoa" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
         </div>
         <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
         <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
         <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-        <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
-        <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
+        <InputDataLabel name="dataInicio" title='Data Início (Validade CNH)' date={dataInicio} setDate={setDataInicio} />
+        <InputDataLabel name="dataFim" title='Data Fim (Validade CNH)' date={dataFim} setDate={setDataFim} />
         <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} isClearable />
       </Filters>
 
