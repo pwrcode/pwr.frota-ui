@@ -130,7 +130,11 @@ export default function PessoaForm() {
             const item = await getPessoaPorId(Number(id));
             if (item.idUf) setIdUf(item.idUf);
             if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
-            setValue("tipoPessoa", { value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value, label: item.tipoPessoa.toString() }); // atencao
+            setValue("tipoPessoa",
+                {
+                    value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value,
+                    label: tiposPessoa.find(t => t.valueString === item.tipoPessoa.toString())?.label
+                }); // atencao
             setValue("documento", formatarCpfCnpj(removeNonDigit(item.documento)));
             setValue("razaoSocial", item.razaoSocial);
             setValue("nomeFantasia", item.nomeFantasia);
