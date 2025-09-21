@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { categoriasCnh, tiposPessoa, type optionType } from '@/services/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { dateDiaMesAno, dateHoraMin, formatarData } from '@/services/date';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
@@ -27,6 +27,7 @@ import z from 'zod';
 import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import Modal from '../Bairro/Modal';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 
 const schema = z.object({
     tipoPessoa: z.object({
@@ -84,6 +85,8 @@ export default function PessoaForm() {
     const [cadInfo, setCadInfo] = useState<string>("");
     const [edicaoInfo, setEdicaoInfo] = useState<string>("");
     const [openModalFormBairro, setOpenModalFormBairro] = useState(false);
+
+    const [dataCnhValidade, setDataCnhValidade] = useState("");
 
     const {
         cep,
@@ -145,7 +148,8 @@ export default function PessoaForm() {
             setValue("isOficina", item.isOficina ? true : false);
             setValue("cnhNumero", item.cnhNumero ?? "");
             setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
-            setValue("cnhValidade", formatarData(item.cnhValidade ?? "", "yyyy-mm-dd"));
+            // setValue("cnhValidade", formatarData(item.cnhValidade ?? "", "yyyy-mm-dd"));
+            setDataCnhValidade(item.cnhValidade ?? "")
             setValue("ativo", item.ativo ? true : false);
             setValuesUf(item.idUf); // useEndereco
             setValuesMunicipio(item.idMunicipio); // useEndereco
@@ -186,7 +190,8 @@ export default function PessoaForm() {
                 isOficina: data.isOficina ?? false,
                 cnhNumero: data.cnhNumero,
                 cnhCategoria: data.cnhCategoria ?? null,
-                cnhValidade: data.cnhCategoria ? data.cnhValidade?.slice(0, 11).concat("T00:00:00") : null,
+                // cnhValidade: data.cnhCategoria ? data.cnhValidade?.slice(0, 11).concat("T00:00:00") : null,
+                cnhValidade: dataCnhValidade ? dataCnhValidade?.slice(0, 11).concat("00:00:00") : null,
                 ativo: data.ativo ?? false,
             }
             if (!id) {
@@ -238,7 +243,8 @@ export default function PessoaForm() {
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
                                 <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable />
-                                <InputDataAno title="CNH Validade" id="cnhValidade" register={{ ...register("cnhValidade") }} />
+                                {/* <InputDataAno title="CNH Validade" id="cnhValidade" register={{ ...register("cnhValidade") }} /> */}
+                                <InputDataLabel name='cnhValidade' title='CNH Validade' date={dataCnhValidade} setDate={setDataCnhValidade} />
                             </div>
                             <DivCheckBox style="line">
                                 <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
