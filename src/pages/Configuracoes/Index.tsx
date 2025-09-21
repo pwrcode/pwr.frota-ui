@@ -14,6 +14,8 @@ import VeiculoMarca from "../VeiculoMarca";
 import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
 import PageTitle from "@/ui/components/PageTitle";
+import Usuario from "../Usuario/Index";
+import PerfilAcesso from "../PerfilAcesso/Index";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -224,6 +226,15 @@ export default function Configuracoes() {
                 Usuários
               </TabsTrigger>
 
+              <TabsTrigger
+                value="perfilAcesso"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Users className="h-4 w-4" />
+                Perfil Acesso
+              </TabsTrigger>
+
               <div className="border-t border-slate-200 dark:border-slate-700 my-2"></div>
 
               <TabsTrigger
@@ -250,11 +261,15 @@ export default function Configuracoes() {
         <div className="flex-1">
           <FormContainer>
             <TabsContent value="geral" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
-              
+
             </TabsContent>
 
-            <TabsContent value="usuarios" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
-              
+            <TabsContent value="usuarios" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700">
+              <Usuario />
+            </TabsContent>
+
+            <TabsContent value="perfilAcesso" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+              <PerfilAcesso />
             </TabsContent>
 
             <TabsContent value="veiculoMarca" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
