@@ -34,6 +34,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Filter, X } from 'lucide-react';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 
 export default function Veiculo() {
 
@@ -270,7 +272,7 @@ export default function Veiculo() {
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+            <SheetContent className='p-0 gap-0 m-4 w-[400px] sm:w-[540px] h-[96%] rounded-lg border shadow-xl'>
               <SheetHeader className="px-6">
                 <SheetTitle className="flex items-center gap-2">
                   <Filter className="h-5 w-5" />
@@ -281,7 +283,7 @@ export default function Veiculo() {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] px-6">
+              <ModalFormBody>
                 <div className="space-y-4">
                   <AsyncReactSelect
                     name="tipoVeiculo"
@@ -357,25 +359,25 @@ export default function Veiculo() {
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-6 flex gap-3 sticky bottom-0 bg-white dark:bg-slate-950 pb-4 -mx-6 px-6">
-                  <Button
-                    variant="outline"
-                    onClick={clearFilters}
-                    disabled={!hasActiveFilters}
-                    className="flex-1"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Limpar Filtros
-                  </Button>
-                  <Button
-                    onClick={() => setIsFiltersOpen(false)}
-                    className="flex-1"
-                    variant="success"
-                  >
-                    Aplicar Filtros
-                  </Button>
-                </div>
-              </div>
+              </ModalFormBody>
+              <ModalFormFooter>
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                  className="flex-1"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+                <Button
+                  onClick={() => setIsFiltersOpen(false)}
+                  className="flex-1"
+                  variant="success"
+                >
+                  Aplicar Filtros
+                </Button>
+              </ModalFormFooter>
             </SheetContent>
           </Sheet>
         </div>
