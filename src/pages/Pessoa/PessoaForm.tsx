@@ -109,6 +109,11 @@ export default function PessoaForm() {
     }, [errors]);
 
     useEffect(() => {
+      getUfs();
+    }, [])
+    
+
+    useEffect(() => {
         if (id) setValuesPorId();
         else {
             setValue("ativo", true);
