@@ -224,7 +224,7 @@ export default function PostoCombustivelForm() {
                                     Posto Combustível
                                 </TabsTrigger>
                                 <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")} className='py-2'>
-                                    Posto Combustível
+                                    Abastecimentos
                                 </TabsTrigger>
                                 <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")} className='py-2'>
                                     Entradas

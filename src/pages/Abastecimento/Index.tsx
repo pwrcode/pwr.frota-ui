@@ -27,7 +27,7 @@ import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { getVeiculoList } from '@/services/veiculo';
 import { currency } from '@/services/currency';
 
-export default function Abastecimento({ idPosto }: { idPosto?: number }) {
+export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number, idVeiculo?: number }) {
 
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ export default function Abastecimento({ idPosto }: { idPosto?: number }) {
     idMotorista: null,
     idPostoCombustivel: idPosto ?? null,
     idProdutoAbastecimento: null,
-    idVeiculo: null,
+    idVeiculo: idVeiculo ?? null,
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
@@ -98,7 +98,7 @@ export default function Abastecimento({ idPosto }: { idPosto?: number }) {
       idMotorista: motorista && motorista.value ? motorista.value : null,
       idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
       idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
-      idVeiculo: veiculo && veiculo.value ? veiculo.value : null,
+      idVeiculo: idVeiculo ?? (veiculo && veiculo.value ? veiculo.value : null),
     });
   }
 
@@ -153,11 +153,11 @@ export default function Abastecimento({ idPosto }: { idPosto?: number }) {
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
   const handleClickAdicionar = () => {
-    navigate(`/abastecimento/form${idPosto ? `?idPosto=${idPosto}` : ""}`);
+    navigate(`/abastecimento/form${idPosto ? `?idPosto=${idPosto}` : ""}${idVeiculo ? `?idVeiculo=${idVeiculo}` : ""}`);
   }
 
   const handleClickEditar = (id: number) => {
-    navigate(`/abastecimento/form/${id}${idPosto ? `?idPosto=${idPosto}` : ""}`);
+    navigate(`/abastecimento/form/${id}${idPosto ? `?idPosto=${idPosto}` : ""}${idVeiculo ? `?idVeiculo=${idVeiculo}` : ""}`);
   }
 
   const handleClickDeletar = (id: number) => {
@@ -187,7 +187,7 @@ export default function Abastecimento({ idPosto }: { idPosto?: number }) {
       <PageTitle title="Abastecimentos" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <AsyncReactSelect name="idVeiculo" title='Veículo' options={[]} asyncFunction={getVeiculos} value={veiculo} setValue={setVeiculo} isClearable />
+        {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title='Veículo' options={[]} asyncFunction={getVeiculos} value={veiculo} setValue={setVeiculo} isClearable /> : <></>}
         <AsyncReactSelect name="idMotorista" title='Motorista' options={[]} asyncFunction={getMotoristas} value={motorista} setValue={setMotorista} isClearable />
         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable /> : <></>}
         <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable />

@@ -66,6 +66,7 @@ export default function AbastecimentoForm() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const idPosto = searchParams.get("idPosto");
+  const idVeiculo = searchParams.get("idVeiculo");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
@@ -149,9 +150,9 @@ export default function AbastecimentoForm() {
       if (!id) {
         const post: dadosAddEdicaoAbastecimentoType = {
           dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
-          idVeiculo: data.idVeiculo ?? null,
+          idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
-          idPostoCombustivel: Number(idPosto) ?? data.idPostoCombustivel ?? null,
+          idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
@@ -167,9 +168,9 @@ export default function AbastecimentoForm() {
       else {
         const put: dadosAddEdicaoAbastecimentoType = {
           dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
-          idVeiculo: data.idVeiculo ?? null,
+          idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
-          idPostoCombustivel: Number(idPosto) ?? data.idPostoCombustivel ?? null,
+          idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: data.quilometragem,
           quantidadeAbastecida: data.quantidadeAbastecida,
@@ -183,7 +184,7 @@ export default function AbastecimentoForm() {
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
       }
       reset();
-      idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : navigate("/abastecimento");
+      idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : idVeiculo ? navigate(`/veiculo/form/${idVeiculo}`) : navigate("/abastecimento");
     }
     catch (error: Error | any) {
       toast.update(process, { render: errorMsg(error), type: "error", isLoading: false, autoClose: 2000 });
@@ -194,7 +195,7 @@ export default function AbastecimentoForm() {
   }
 
   const handleClickVoltar = () => {
-    idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : navigate("/abastecimento");
+    idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : idVeiculo ? navigate(`/veiculo/form/${idVeiculo}`) : navigate("/abastecimento");
   }
 
   return (
@@ -205,7 +206,7 @@ export default function AbastecimentoForm() {
           <FormContainerHeader title="Abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
-              <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable />
+              {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable /> : <></>}
               <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
               {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
               <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />

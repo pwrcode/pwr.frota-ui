@@ -144,7 +144,7 @@ export default function Veiculo() {
   const getVeiculosModelo = async (pesquisa?: string) => {
     if (!veiculoMarca) {
       setVeiculoModelos([]);
-      setVeiculoModelo(undefined);
+      setVeiculoModelo(null);
       return [];
     };
     const data = await getVeiculoModeloList(pesquisa, veiculoMarca ? veiculoMarca.value : undefined);
