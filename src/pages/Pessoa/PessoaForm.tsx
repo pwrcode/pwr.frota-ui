@@ -230,7 +230,7 @@ export default function PessoaForm() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
                                 <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" control={control} options={tiposPessoa} />
                                 <InputMaskLabel
-                                    name="documento" title="Documento"
+                                    name="documento" title={tipoPessoa && tipoPessoa.value === 1 ? "CPF" : "CNPJ"}
                                     mask={tipoPessoa && tipoPessoa.value == 1 ? Masks.cpf : Masks.cnpj}
                                     register={{ ...register("documento") }} value={documento} setValue={setValue}
                                 />
