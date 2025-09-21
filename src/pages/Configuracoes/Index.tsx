@@ -1,12 +1,19 @@
 import {
   Tabs, TabsContent, TabsList, TabsTrigger
 } from "@/components/ui/tabs";
-import { Car, CarFront } from "lucide-react";
+import {
+  Car,
+  CarFront,
+  Settings,
+  Users,
+  Building
+} from "lucide-react";
 // import { getConfigType, getConfiguracoes, postConfigType, postConfiguracoes } from "@/services/configuracoesServices";
 import { useState } from "react";
 import VeiculoMarca from "../VeiculoMarca";
 import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
+import PageTitle from "@/ui/components/PageTitle";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -183,44 +190,82 @@ export default function Configuracoes() {
   const [, setDropTabActive] = useState<boolean>(false);
 
   return (
-    </*form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as postConfigType))}*/div className="w-full mt-16">
-      <Tabs defaultValue="veiculoMarca" className="flex flex-col lg:flex-row lg:gap-4">
+    <div className="w-full space-y-6">
+      <PageTitle title="Configurações do Sistema" />
 
-        <TabsList className="flex flex-col mb-3 lg:mb-0 h-fit">
-          <TabsTrigger
-            value="veiculoMarca" className="w-full lg:w-[220px] justify-start gap-2 pl-3 py-2 text-[16px]"
-            onClick={() => setDropTabActive(false)}
-          >
-            <Car /> Veículo Marca
-          </TabsTrigger>
-          <TabsTrigger
-            value="veiculoModelo" className="w-full lg:w-[220px] justify-start gap-2 pl-3 py-2 text-[16px]"
-            onClick={() => setDropTabActive(false)}
-          >
-            <CarFront /> Veiculo Modelo
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="veiculoMarca" className="flex flex-col xl:flex-row xl:gap-6">
+        <div className="xl:w-72 mb-6 xl:mb-0">
+          <TabsList className="flex flex-col w-full h-fit bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="w-full p-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2">
+                <Settings className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  Configurações
+                </span>
+              </div>
+            </div>
 
-        <FormContainer>
-          <TabsContent value="veiculoMarca" className="p-4 lg:p-6 bg-neutral-100 dark:bg-slate-800/50">
-            <VeiculoMarca />
-          </TabsContent>
+            <div className="w-full space-y-1 p-2">
+              <TabsTrigger
+                value="geral"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Building className="h-4 w-4" />
+                Configurações Gerais
+              </TabsTrigger>
 
-          <TabsContent value="veiculoModelo" className="p-4 lg:p-6 bg-neutral-100 dark:bg-slate-800/50">
-            <VeiculoModelo />
-          </TabsContent>
+              <TabsTrigger
+                value="usuarios"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Users className="h-4 w-4" />
+                Usuários
+              </TabsTrigger>
 
-          {/* {!dropTabActive && <FormContent>
-            <FormLine justify="end">
-              {acessoEditar && (
-                <ButtonSubmit loading={loading} disabled={buscandoCep}>
-                  Salvar alterações
-                </ButtonSubmit>
-              )}
-            </FormLine>
-          </FormContent>} */}
-        </FormContainer>
+              <div className="border-t border-slate-200 dark:border-slate-700 my-2"></div>
 
+              <TabsTrigger
+                value="veiculoMarca"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Car className="h-4 w-4" />
+                Marcas de Veículos
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="veiculoModelo"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                onClick={() => setDropTabActive(false)}
+              >
+                <CarFront className="h-4 w-4" />
+                Modelos de Veículos
+              </TabsTrigger>
+            </div>
+          </TabsList>
+        </div>
+
+        <div className="flex-1">
+          <FormContainer>
+            <TabsContent value="geral" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+              
+            </TabsContent>
+
+            <TabsContent value="usuarios" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+              
+            </TabsContent>
+
+            <TabsContent value="veiculoMarca" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+              <VeiculoMarca />
+            </TabsContent>
+
+            <TabsContent value="veiculoModelo" className="p-6 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-200 dark:border-slate-700 mt-0">
+              <VeiculoModelo />
+            </TabsContent>
+          </FormContainer>
+        </div>
       </Tabs>
     </div>
   )
