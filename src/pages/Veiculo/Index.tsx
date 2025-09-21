@@ -25,6 +25,15 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Filter, X } from 'lucide-react';
 
 export default function Veiculo() {
 
@@ -48,6 +57,8 @@ export default function Veiculo() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
   const [status, setStatus] = useState<optionType>();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
   const initialPostListagem: postListagemVeiculoType = {
     pageSize: pageSize,
@@ -85,6 +96,10 @@ export default function Veiculo() {
   }, [veiculoModelo]);
 
   useEffect(() => {
+    if (!tipoData || !tipoData.value) {
+      setDataInicio("");
+      setDataFim("");
+    }
     changeListFilters();
   }, [tipoData]);
 
@@ -198,6 +213,33 @@ export default function Veiculo() {
     }
   }
 
+  const clearFilters = () => {
+    setTipoVeiculo(undefined);
+    setVeiculoMarca(undefined);
+    setVeiculoModelo(undefined);
+    setTipoData(undefined);
+    setDataInicio("");
+    setDataFim("");
+    setStatus(undefined);
+  }
+
+  const checkActiveFilters = () => {
+    const hasFilters = Boolean(
+      tipoVeiculo ||
+      veiculoMarca ||
+      veiculoModelo ||
+      tipoData ||
+      dataInicio ||
+      dataFim ||
+      status
+    );
+    setHasActiveFilters(hasFilters);
+  }
+
+  useEffect(() => {
+    checkActiveFilters();
+  }, [tipoVeiculo, veiculoMarca, veiculoModelo, tipoData, dataInicio, dataFim, status]);
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
@@ -205,16 +247,139 @@ export default function Veiculo() {
 
       <PageTitle title="Veículos" />
 
-      <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
-        <AsyncReactSelect name="tipoVeiculo" title='Tipo Veículo' options={[]} asyncFunction={getTipoVeiculos} value={tipoVeiculo} setValue={setTipoVeiculo} isClearable />
-        <AsyncReactSelect name="veiculoMarca" title='Marca' options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable />
-        <AsyncReactSelect name="veiculoModelo" title="Modelo" options={veiculoModelos} value={veiculoModelo} setValue={setVeiculoModelo} asyncFunction={getVeiculosModelo} filter isClearable />
-        <AsyncReactSelect name="tipoData" title='Tipo Data' options={tiposDataVeiculo} value={tipoData} setValue={setTipoData} isClearable />
-        <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
-        <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
-        <AsyncReactSelect name="ativo" title='Status' options={ativoOptions} value={status} setValue={setStatus} isClearable />
-      </Filters>
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="flex-1">
+          <Filters grid={FiltersGrid.sm1_md1_lg1}>
+            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+          </Filters>
+        </div>
+
+        <div className="flex items-end h-fit">
+          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                className={`relative h-10 ${hasActiveFilters ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400' : ''}`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filtros Avançados
+                {hasActiveFilters && (
+                  <span className="absolute -top-2 -right-2 h-5 w-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                    !
+                  </span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+              <SheetHeader className="px-6">
+                <SheetTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filtros Avançados
+                </SheetTitle>
+                <SheetDescription>
+                  Configure filtros específicos para encontrar os veículos desejados.
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] px-6">
+                <div className="space-y-4">
+                  <AsyncReactSelect
+                    name="tipoVeiculo"
+                    title='Tipo Veículo'
+                    options={[]}
+                    asyncFunction={getTipoVeiculos}
+                    value={tipoVeiculo}
+                    setValue={setTipoVeiculo}
+                    isClearable
+                  />
+
+                  <AsyncReactSelect
+                    name="veiculoMarca"
+                    title='Marca'
+                    options={[]}
+                    asyncFunction={getVeiculoMarcas}
+                    value={veiculoMarca}
+                    setValue={setVeiculoMarca}
+                    isClearable
+                  />
+
+                  <AsyncReactSelect
+                    name="veiculoModelo"
+                    title="Modelo"
+                    options={veiculoModelos}
+                    value={veiculoModelo}
+                    setValue={setVeiculoModelo}
+                    asyncFunction={getVeiculosModelo}
+                    filter
+                    isClearable
+                  />
+
+                  <AsyncReactSelect
+                    name="ativo"
+                    title='Status'
+                    options={ativoOptions}
+                    value={status}
+                    setValue={setStatus}
+                    isClearable
+                  />
+                </div>
+
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                  <h4 className="text-sm font-medium mb-4 text-slate-700 dark:text-slate-300">
+                    Filtros por Data
+                  </h4>
+                  <div className="space-y-4">
+                    <AsyncReactSelect
+                      name="tipoData"
+                      title='Tipo Data'
+                      options={tiposDataVeiculo}
+                      value={tipoData}
+                      setValue={setTipoData}
+                      isClearable
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <InputDataLabel
+                        name="dataInicio"
+                        title='Data Início'
+                        date={dataInicio}
+                        setDate={setDataInicio}
+                        isDisabled={!tipoData || !tipoData.value}
+                      />
+                      <InputDataLabel
+                        name="dataFim"
+                        title='Data Fim'
+                        date={dataFim}
+                        setDate={setDataFim}
+                        isDisabled={!tipoData || !tipoData.value}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6 flex gap-3 sticky bottom-0 bg-white dark:bg-slate-950 pb-4 -mx-6 px-6">
+                  <Button
+                    variant="outline"
+                    onClick={clearFilters}
+                    disabled={!hasActiveFilters}
+                    className="flex-1"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Limpar Filtros
+                  </Button>
+                  <Button
+                    onClick={() => setIsFiltersOpen(false)}
+                    className="flex-1"
+                    variant="success"
+                  >
+                    Aplicar Filtros
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
 
       {(veiculos.length > 0) && (
         <div className="bg-white dark:bg-slate-800 py-1 rounded-md shadow-md">
