@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="bg-sidebar h-16 flex justify-center items-start text-md">
+      <SidebarHeader className="bg-sidebar h-16 flex justify-center items-start text-md border-b border-border">
         <div className="flex items-center ml-1">
           <div className="flex aspect-square size-7 items-center justify-center rounded-sm bg-orange-600">
             <Zap className="size-4 text-white" />
@@ -112,7 +112,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent className="bg-sidebar h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-500 scrollbar-track-gray-200 scrollbar-hide">
-        <div className="h-10 px-2">
+        <div className="h-10 px-2 mt-3">
           <Input
             name="search"
             placeholder="Pesquisar..."
@@ -232,7 +232,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         )}
       </SidebarContent>
-      <SidebarFooter className="bg-sidebar p-2">
+      <SidebarFooter className="bg-sidebar p-2 border-t border-border">
         <div className="flex items-center gap-2 pb-2 mt-1">
           <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
             <img src="/logo.png" alt="Logo" className="rounded-md p-1" />
