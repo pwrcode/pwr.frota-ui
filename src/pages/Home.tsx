@@ -34,7 +34,7 @@ export default function Home() {
   // Função para renderizar todos os itens de menu (incluindo submenus)
   const renderAllMenuItems = () => {
     const allItems: menusType[] = [];
-    const excludedItems = ['inicio', 'home', 'usuario', 'usuarios', 'perfil-acesso', 'perfil de acesso'];
+    const excludedItems = ['inicio', 'início', 'home', 'usuario', 'usuarios', 'perfil-acesso', 'perfil de acesso'];
 
     menuItems.forEach(menu => {
       // Verifica se o item principal deve ser excluído
@@ -87,7 +87,7 @@ export default function Home() {
         <Card className="w-full shadow-xl border-0 bg-card">
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center ring-4 ring-blue-100 dark:ring-blue-900">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-hover flex items-center justify-center ring-4 ring-orange-100 dark:ring-orange-900">
                 {idArquivoFoto ?
                   <ImageSrc idArquivo={idArquivoFoto} alt="Foto do usuário" style="w-full h-full rounded-full max-w-max" typeImg={TypesImg.user} />
                   :
