@@ -30,9 +30,9 @@ const EntradaCombustivel = lazy(() => import("@/pages/EntradaCombustivel/"));
 
 const PublicRoute = () => (
   <Suspense fallback={
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="flex flex-col gap-4 items-center text-lg text-gray-600 dark:text-gray-300">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col gap-4 items-center text-lg text-foreground">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         <p>Carregando...</p>
       </div>
     </div>
@@ -92,9 +92,9 @@ const routes = createBrowserRouter([
         path: "/",
         element: (
           <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-              <div className="flex flex-col gap-4 items-center text-lg text-gray-600 dark:text-gray-300">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen flex items-center justify-center bg-background">
+              <div className="flex flex-col gap-4 items-center text-lg text-foreground">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 <p>Carregando aplicação...</p>
               </div>
             </div>
