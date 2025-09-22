@@ -140,7 +140,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
     const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
     return (
-        <div className={`flex flex-col gap-8 min-h-[25vh]`}>
+        <div className={`flex flex-col gap-8`}>
 
             <PageTitle title="Tanques" />
 
@@ -237,7 +237,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="search-x" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty icon="search-x" handleClickAdicionar={handleClickAdicionar} py='py-20'/>
                 )}
             </>}
 
