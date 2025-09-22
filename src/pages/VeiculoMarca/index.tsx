@@ -131,7 +131,7 @@ export default function VeiculoMarca() {
             </Filters>
 
             {(veiculoMarcas.length > 0) && (
-                <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
+                <div className="bg-card dark:bg-card py-1 rounded-md shadow-md dark:border">
                     <TableTop>
                         <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
                     </TableTop>

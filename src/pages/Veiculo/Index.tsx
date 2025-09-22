@@ -19,7 +19,6 @@ import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 import { getTipoVeiculoList } from '@/services/tipoVeiculo';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { formatarData } from '@/services/date';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,6 +35,8 @@ import {
 import { Filter, X } from 'lucide-react';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
+import { Badge } from '@/components/ui/badge';
+import { capitalizeText } from '@/services/utils';
 
 export default function Veiculo() {
 
@@ -244,6 +245,14 @@ export default function Veiculo() {
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
+  const badgeStatus = (value: string) => {
+    return (
+      <Badge variant={value === "ATIVO" ? "green" : value === "INATIVO" ? "red" : value === "EM MANUTENÇÃO" ? "yellow" : "blue"}>
+        {capitalizeText(value)}
+      </Badge>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
@@ -384,7 +393,7 @@ export default function Veiculo() {
       </div>
 
       {(veiculos.length > 0) && (
-        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
+        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md dark:border">
           <TableTop>
             <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
           </TableTop>
@@ -446,7 +455,7 @@ export default function Veiculo() {
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Status: "}<BadgeAtivo ativo={c.ativo} />
+                      {isMobile && "Status: "} {badgeStatus(c.statusVeiculo)}
                     </TableCell>
 
                     <TableCell className={hiddenMobile + "text-right w-[100px]"}>

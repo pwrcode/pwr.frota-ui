@@ -12,6 +12,8 @@ export type usuarioType = {
   login: string,
   idPerfil: number,
   descricaoPerfil: string,
+  descricaoPessoa: string,
+  idPessoa: number | null,
   ativo: true,
   dataUltimaAlteracaoSenha: string | null,
   dataUltimoLogin: string | null,
@@ -31,6 +33,7 @@ export type postListagemUsuarioType = {
 
 export type dadosAddEdicaoUsuarioType = {
   nome: string,
+  idPessoa: number | null,
   login: string,
   idPerfil: number,
   idArquivoFoto: number | null,

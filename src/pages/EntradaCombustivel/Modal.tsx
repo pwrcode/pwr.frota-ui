@@ -10,14 +10,13 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { formatarData } from '@/services/date';
 import { currency } from '@/services/currency';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getPostoCombustivelList } from '@/services/postoCombustivel';
 import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { toNumber } from '@/services/utils';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 
 type modalPropsType = {
     open: boolean,
@@ -28,7 +27,6 @@ type modalPropsType = {
 }
 
 const schema = z.object({
-    dataRecebimento: z.string().optional(),
     idPostoCombustivel: z.object({
         label: z.string().optional(),
         value: z.number().optional()
@@ -43,16 +41,17 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
+    const { handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
+    const [dataRecebimento, setDataRecebimento] = useState("");
 
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
             const item = await getEntradaCombustivelPorId(Number(id));
-            setValue("dataRecebimento", formatarData(item.dataRecebimento, "yyyy-mm-dd"));
+            setDataRecebimento(item.dataRecebimento);
             setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
             setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento });
             setValue("quantidade", item.quantidade.toString());
@@ -97,7 +96,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         const process = toast.loading("Salvando item...");
         try {
             const postPut: dadosAddEdicaoEntradaCombustivelType = {
-                dataRecebimento: dados.dataRecebimento ? dados.dataRecebimento.slice(0, 11).concat("T00:00:00") : "",
+                dataRecebimento: dataRecebimento ? dataRecebimento.slice(0, 11).concat("00:00:00") : "",
                 idPostoCombustivel: Number(idPosto) ?? (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
                 quantidade: dados.quantidade,
@@ -132,7 +131,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputDataAno title="Data Recebimento" id="dataRecebimento" register={{ ...register("dataRecebimento") }} />
+                        <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
                         <InputMaskLabel name='quantidade' title='Quantidade' mask={Masks.numerico} setValue={setValue} value={watch("quantidade")} />

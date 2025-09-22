@@ -151,7 +151,6 @@ export default function PessoaForm() {
             setValue("isOficina", item.isOficina ? true : false);
             setValue("cnhNumero", item.cnhNumero ?? "");
             setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
-            // setValue("cnhValidade", formatarData(item.cnhValidade ?? "", "yyyy-mm-dd"));
             setDataCnhValidade(item.cnhValidade ?? "")
             setValue("ativo", item.ativo ? true : false);
             setValuesUf(item.idUf); // useEndereco
@@ -193,7 +192,6 @@ export default function PessoaForm() {
                 isOficina: data.isOficina ?? false,
                 cnhNumero: data.cnhNumero,
                 cnhCategoria: data.cnhCategoria ?? null,
-                // cnhValidade: data.cnhCategoria ? data.cnhValidade?.slice(0, 11).concat("T00:00:00") : null,
                 cnhValidade: dataCnhValidade ? dataCnhValidade?.slice(0, 11).concat("00:00:00") : null,
                 ativo: data.ativo ?? false,
             }
@@ -258,7 +256,6 @@ export default function PessoaForm() {
 
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
                                 <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable />
-                                {/* <InputDataAno title="CNH Validade" id="cnhValidade" register={{ ...register("cnhValidade") }} /> */}
                                 <InputDataLabel name='cnhValidade' title='CNH Validade' date={dataCnhValidade} setDate={setDataCnhValidade} />
                             </div>
                         </FormContainerBody>

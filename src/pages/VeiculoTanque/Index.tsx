@@ -129,7 +129,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
         <div className={`flex flex-col gap-8`}>
 
             {(tanques.length > 0) && (
-                <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
+                <div className="bg-card dark:bg-card py-1 rounded-md shadow-md dark:border">
                     <TableTop title='Tanques'>
                         <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
                     </TableTop>

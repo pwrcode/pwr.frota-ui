@@ -123,7 +123,7 @@ export default function Municipio() {
       </Filters>
 
       {(municipios.length > 0) && (
-        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
+        <div className="bg-card dark:bg-card py-1 rounded-md shadow-md dark:border">
           <Table>
             <TableHeader>
               <TableRow className="hidden sm:table-row">

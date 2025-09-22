@@ -156,7 +156,7 @@ export default function PerfilAcessoPermissoes() {
       </div>
       </Filters>
 
-      <div className="bg-white rounded-md shadow-md dark:bg-card">
+      <div className="bg-white rounded-md shadow-md dark:bg-card dark:border">
         {acessos.length > 0 && <>
           <Table>
             <TableHeader>

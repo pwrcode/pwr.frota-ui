@@ -10,7 +10,7 @@ import { formatarData } from '@/services/date';
 
 interface InputDataInterface {
   title?: string,
-  name: string, 
+  name: string,
   date: string,
   setDate?: React.Dispatch<React.SetStateAction<string>>,
   setValue?: (name: string, value: string) => void,
@@ -31,7 +31,7 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
       )}
 
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild className='border bg-background dark:bg-background border-border data-[state=open]:border-ring focus-visible:border-ring active:border-ring outline-none rounded-md px-3 py-2 transition'>
+        <PopoverTrigger asChild>
           <Button
             variant="data"
             size="lg"
@@ -41,16 +41,15 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
             onClick={() => setIsOpen(!isOpen)}
             disabled={isDisabled ?? false}
           >
-            <div className={date ? "text-foreground" : ""}>
+            <div className={date ? "text-foreground" : "text-neutral-400"}>
               {date ? formatarData(date) : "Selecionar data"}
             </div>
             <CalendarIcon className="ml-2 h-4 w-4" />
           </Button>
         </PopoverTrigger>
-
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
           <Calendar
-            className="border-2 border-ring bg-popover text-popover-foreground rounded-md"
+            captionLayout="dropdown"
             mode="single"
             locale={ptBR}
             disabled={isDisabled ?? false}
@@ -61,7 +60,7 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
               if (setValue) setValue(name, selectedDate ? formatISO(selectedDate) : "");
               setIsOpen(false); // Fecha o popover ao selecionar a data
             }}
-            initialFocus
+            autoFocus
           />
         </PopoverContent>
       </Popover>

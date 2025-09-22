@@ -13,12 +13,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { getVeiculoList } from '@/services/veiculo';
-import { dateDiaMesAno, dateHoraMin, formatarData } from '@/services/date';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { getPostoCombustivelList } from '@/services/postoCombustivel';
 import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { getPessoaList } from '@/services/pessoa';
@@ -29,9 +28,9 @@ import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { Label } from '@/components/ui/label';
 import { currency } from '@/services/currency';
 import { toNumber } from '@/services/utils';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 
 export const schema = z.object({
-  dataAbastecimento: z.string().optional(),
   idVeiculo: z.object({
     label: z.string().optional(),
     value: z.number().optional()
@@ -71,6 +70,7 @@ export default function AbastecimentoForm() {
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
+  const [dataAbastecimento, setDataAbastecimento] = useState("");
 
   const [idArquivoFotoPainelAntes, setIdArquivoFotoPainelAntes] = useState<number>(0);
   const [idArquivoFotoPainelDepois, setIdArquivoFotoPainelDepois] = useState<number>(0);
@@ -120,7 +120,7 @@ export default function AbastecimentoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getAbastecimentoPorId(Number(id));
-      setValue("dataAbastecimento", formatarData(item.dataAbastecimento, "yyyy-mm-dd"))
+      setDataAbastecimento(item.dataAbastecimento ?? "");
       setIdArquivoFotoPainelAntes(item.idArquivoFotoPainelAntes ?? 0);
       setIdArquivoFotoPainelDepois(item.idArquivoFotoPainelDepois ?? 0);
       setValue("idVeiculo", { value: item.idVeiculo, label: item.descricaoVeiculo });
@@ -149,7 +149,7 @@ export default function AbastecimentoForm() {
     try {
       if (!id) {
         const post: dadosAddEdicaoAbastecimentoType = {
-          dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
+          dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
@@ -167,7 +167,7 @@ export default function AbastecimentoForm() {
       }
       else {
         const put: dadosAddEdicaoAbastecimentoType = {
-          dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("T00:00:00") : "",
+          dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
@@ -218,7 +218,7 @@ export default function AbastecimentoForm() {
           <FormContainerHeader title="Informações abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
-              <InputDataAno title="Data Abastecimento" id="dataAbastecimento" register={{ ...register("dataAbastecimento") }} />
+              <InputDataLabel title="Data Abastecimento" name="dataAbastecimento" date={dataAbastecimento} setDate={setDataAbastecimento} />
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />

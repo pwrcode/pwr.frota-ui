@@ -21,26 +21,35 @@ import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 import ModalSenha from './ModalSenha';
+import { getPessoaList } from '@/services/pessoa';
 
 export const schemaAdd = z.object({
-  nome: z.string().min(1, {message: "Informe o nome"}),
-  login: z.string().min(1, {message: "Informe o login"}),
+  nome: z.string().min(1, { message: "Informe o nome" }),
+  login: z.string().min(1, { message: "Informe o login" }),
   idPerfil: z.object({
     label: z.string().optional(),
     value: z.number().optional()
-  }, {message: "Selecione o perfil"}).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), {message: "Selecione o perfil"}),
+  }, { message: "Selecione o perfil" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o perfil" }),
+  idPessoa: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().transform(t => t && t.value ? t.value : undefined),
   ativo: z.boolean().optional(),
-  senha: z.string().min(1, {message: "Informe a senha"}),
-  confirmacaoSenha: z.string().min(1, {message: "Confirme a senha"}),
+  senha: z.string().min(1, { message: "Informe a senha" }),
+  confirmacaoSenha: z.string().min(1, { message: "Confirme a senha" }),
 });
 
 export const schemaUpdate = z.object({
-  nome: z.string().min(1, {message: "Informe o nome"}),
-  login: z.string().min(1, {message: "Informe o login"}),
+  nome: z.string().min(1, { message: "Informe o nome" }),
+  login: z.string().min(1, { message: "Informe o login" }),
   idPerfil: z.object({
     label: z.string().optional(),
     value: z.number().optional()
-  }, {message: "Selecione o perfil"}).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), {message: "Selecione o perfil"}),
+  }, { message: "Selecione o perfil" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o perfil" }),
+  idPessoa: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().transform(t => t && t.value ? t.value : undefined),
   ativo: z.boolean().optional(),
   senha: z.string().optional(),
   confirmacaoSenha: z.string().optional(),
@@ -63,6 +72,11 @@ export default function UsuarioForm() {
 
   const getPerfis = async (pesquisa?: string) => {
     const data = await getPerfilAcessoList(pesquisa);
+    return data;
+  }
+
+  const getPessoas = async (pesquisa?: string) => {
+    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
     return data;
   }
 
@@ -94,7 +108,8 @@ export default function UsuarioForm() {
       setIdArquivoFoto(item.idArquivoFoto ?? 0);
       setValue("nome", item.nome);
       setValue("login", item.login);
-      if (item.idPerfil) setValue("idPerfil", {value: item.idPerfil, label: item.descricaoPerfil});
+      if (item.idPerfil) setValue("idPerfil", { value: item.idPerfil, label: item.descricaoPerfil });
+      if (item.idPessoa) setValue("idPessoa", { value: item.idPessoa, label: item.descricaoPessoa });
       setValue("ativo", item.ativo ? true : false);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
@@ -105,7 +120,7 @@ export default function UsuarioForm() {
       navigate("/usuario");
     }
   };
-  
+
   const changeIdArquivo = (codigo: number) => {
     setIdArquivoFoto(codigo);
   }
@@ -120,6 +135,7 @@ export default function UsuarioForm() {
           nome: data.nome,
           login: data.login,
           idPerfil: data.idPerfil ?? null,
+          idPessoa: data.idPessoa ?? null,
           idArquivoFoto: idArquivoFoto !== 0 ? idArquivoFoto : null,
           ativo: data.ativo ?? false,
           senha: data.senha,
@@ -132,6 +148,7 @@ export default function UsuarioForm() {
         const put: dadosAddEdicaoUsuarioType = {
           nome: data.nome,
           login: data.login,
+          idPessoa: data.idPessoa ?? null,
           idPerfil: data.idPerfil ?? null,
           idArquivoFoto: idArquivoFoto !== 0 ? idArquivoFoto : null,
           ativo: data.ativo ?? false
@@ -161,7 +178,7 @@ export default function UsuarioForm() {
         <UploadFoto referenciaTipo="Usuario" idArquivo={idArquivoFoto} changeIdArquivo={changeIdArquivo} alt="Foto do usuário" isDisabled={loading} />
       </div>
 
-      <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoUsuarioType))}>
+      <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoUsuarioType))}>
         <FormContainer>
           <FormContainerHeader title="Usuário">
             {(id && Number(id) > 0) && (
@@ -173,6 +190,7 @@ export default function UsuarioForm() {
             <FormLine>
               <InputLabel name="nome" title="Nome" register={{ ...register("nome") }} />
               <AsyncReactSelect name="idPerfil" title="Perfil de Acesso" control={control} asyncFunction={getPerfis} options={[]} isClearable />
+              <AsyncReactSelect name="idPessoa" title="Pessoa" control={control} asyncFunction={getPessoas} options={[]} isClearable />
             </FormLine>
 
             <FormLine justify="start">

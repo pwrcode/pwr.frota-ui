@@ -21,7 +21,7 @@ const Title = ({children}: {children: React.ReactNode}) => {
 export default function TableEmpty({handleClickAdicionar, title, subTitle, empresaEmpty, icon, children, py}: EmptyStateInterface) {
   return (
     <div
-      className={`flex flex-1 items-center justify-center rounded-lg border h-full border-dashed shadow-sm ${py}`}
+      className={`flex flex-1 items-center justify-center rounded-lg border h-full border-dashed shadow-sm dark:border dark:shadow-sm ${py}`}
       x-chunk="dashboard-02-chunk-1"
     >
       <div className="flex flex-col items-center gap-2 text-center dark:text-foreground">

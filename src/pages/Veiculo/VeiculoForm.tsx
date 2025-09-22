@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { addVeiculo, type dadosAddEdicaoVeiculoType, getVeiculoPorId, updateVeiculo } from '@/services/veiculo';
-import { dateDiaMesAno, dateHoraMin, formatarData } from '@/services/date';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
@@ -22,9 +22,8 @@ import { getTipoVeiculoList } from '@/services/tipoVeiculo';
 import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import InputDataAno from '@/ui/components/forms/InputDataAno';
 import { formatMaskPlaca } from '@/services/mask';
-import type { listType, optionType } from '@/services/constants';
+import { tiposCorVeiculo, type listType, type optionType } from '@/services/constants';
 import { currency } from '@/services/currency';
 import { toNumber } from '@/services/utils';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
@@ -36,6 +35,8 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
 import VeiculoTanque from '../VeiculoTanque/Index';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -57,7 +58,10 @@ export const schema = z.object({
   versao: z.string().optional()/*.min(1, {message: "Informe a versão"})*/,
   anoFabricacao: z.string().optional()/*.min(1, {message: "Informe o ano de fabricação"})*/,
   anoModelo: z.string().optional()/*.min(1, {message: "Informe o ano do modelo"})*/,
-  cor: z.string().optional()/*.min(1, {message: "Informe a cor"})*/,
+  cor: z.object({
+    label: z.string().optional(),
+    value: z.string().optional()
+  },).optional().transform(t => t && t.value ? t.value : undefined),
   ativo: z.boolean().optional(),
   isVendido: z.boolean().optional(),
   icone: z.string().optional()/*.min(1, {message: "Informe o icone"})*/,
@@ -65,9 +69,7 @@ export const schema = z.object({
   capacidadeCargaKg: z.string().optional()/*.min(1, {message: "Informe a capacidadeCargaKg"})*/,
   capacidadeVolumeM3: z.string().optional()/*.min(1, {message: "Informe a capacidadeVolumeM3"})*/,
   capacidadePassageiros: z.string().optional()/*.min(1, {message: "Informe a capacidadePassageiros"})*/,
-  dataAquisicao: z.string().optional()/*.min(1, {message: "Informe a dataAquisicao"})*/,
   valorCompra: z.string().optional()/*.min(1, {message: "Informe o valorCompra"})*/,
-  dataVenda: z.string().optional()/*.min(1, {message: "Informe a dataVenda"})*/,
   valorVenda: z.string().optional()/*.min(1, {message: "Informe o valorVenda"})*/,
 });
 
@@ -78,6 +80,7 @@ export default function VeiculoForm() {
   });
 
   const { id } = useParams();
+  const [idArquivoFotoVeiculo, setIdArquivoFotoVeiculo] = useState<number>(0);
   const idVeiculoMarca = watch("idVeiculoMarca");
   const idVeiculoModelo = watch("idVeiculoModelo.value");
   const isVendido = watch("isVendido");
@@ -91,6 +94,8 @@ export default function VeiculoForm() {
   const [isDropDownTabsOpen, setIsDropDownTabsOpen] = useState(false);
   const [tabNameMobile, setTabNameMobile] = useState("Veículo");
   const [tanques, setTanques] = useState<dadosAddEdicaoVeiculoTanqueType[]>([]);
+  const [dataCompra, setDataCompra] = useState("");
+  const [dataVenda, setDataVenda] = useState("");
 
   useEffect(() => {
     if (id) return
@@ -144,6 +149,7 @@ export default function VeiculoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getVeiculoPorId(Number(id));
+      setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
       setValue("descricao", item.descricao);
       setValue("placa", formatMaskPlaca(item.placa));
       setValue("renavam", item.renavam);
@@ -153,16 +159,16 @@ export default function VeiculoForm() {
       setValue("versao", item.versao);
       setValue("anoFabricacao", item.anoFabricacao?.toString());
       setValue("anoModelo", item.anoModelo?.toString());
-      setValue("cor", item.cor);
+      setValue("cor", item.cor ? { label: item.cor, value: item.cor } : undefined);
       setValue("ativo", item.ativo ? true : false);
       setValue("icone", item.icone);
       setValue("quilometragemInicial", item.quilometragemInicial?.toString());
       setValue("capacidadeCargaKg", item.capacidadeCargaKg?.toString());
       setValue("capacidadeVolumeM3", item.capacidadeVolumeM3?.toString());
       setValue("capacidadePassageiros", item.capacidadePassageiros?.toString());
-      setValue("dataAquisicao", formatarData(item.dataAquisicao ?? "", "yyyy-mm-dd"));
+      setDataCompra(item.dataAquisicao);
+      setDataVenda(item.dataVenda);
       setValue("valorCompra", String(currency(item.valorCompra)));
-      setValue("dataVenda", formatarData(item.dataVenda ?? "", "yyyy-mm-dd"));
       setValue("valorVenda", String(currency(item.valorVenda)));
       setValue("isVendido", item.valorVenda ? true : false);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
@@ -185,6 +191,7 @@ export default function VeiculoForm() {
     try {
       if (!id) {
         const post: dadosAddEdicaoVeiculoType = {
+          idFotoVeiculo: idArquivoFotoVeiculo,
           descricao: data.descricao,
           placa: data.placa?.replace('-', ""),
           renavam: data.renavam,
@@ -195,16 +202,16 @@ export default function VeiculoForm() {
           versao: data.versao,
           anoFabricacao: data.anoFabricacao,
           anoModelo: data.anoModelo,
-          cor: data.cor,
+          cor: data.cor ?? null,
           ativo: data.ativo ?? false,
           icone: data.icone,
-          quilometragemInicial: data.quilometragemInicial,
+          quilometragemInicial: isNaN(data.quilometragemInicial) ? 0 : Number(data.quilometragemInicial),
           capacidadeCargaKg: data.capacidadeCargaKg,
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
-          dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
+          dataAquisicao: dataCompra ? dataCompra.slice(0, 11).concat("00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
-          dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
+          dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
           veiculoTanques: tanques,
         }
@@ -213,6 +220,7 @@ export default function VeiculoForm() {
       }
       else {
         const put: dadosAddEdicaoVeiculoType = {
+          idFotoVeiculo: idArquivoFotoVeiculo,
           descricao: data.descricao,
           placa: data.placa?.replace('-', ""),
           renavam: data.renavam,
@@ -223,16 +231,16 @@ export default function VeiculoForm() {
           versao: data.versao,
           anoFabricacao: data.anoFabricacao,
           anoModelo: data.anoModelo,
-          cor: data.cor,
+          cor: data.cor ?? null,
           ativo: data.ativo ?? false,
           icone: data.icone,
-          quilometragemInicial: data.quilometragemInicial,
+          quilometragemInicial: isNaN(data.quilometragemInicial) ? 0 : Number(data.quilometragemInicial),
           capacidadeCargaKg: data.capacidadeCargaKg,
           capacidadeVolumeM3: data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
-          dataAquisicao: data.dataAquisicao ? data.dataAquisicao.slice(0, 11).concat("T00:00:00") : null,
+          dataAquisicao: dataCompra ? dataCompra.slice(0, 11).concat("00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
-          dataVenda: isVendido ? data.dataVenda ? data.dataVenda.slice(0, 11).concat("T00:00:00") : null : null,
+          dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
         }
         const res = await updateVeiculo(Number(id), put);
@@ -309,7 +317,11 @@ export default function VeiculoForm() {
           </TabsList>
         </DropdownMenu>
 
-        <TabsContent value='veiculo'>
+        <TabsContent value='veiculo' className="w-full flex flex-col lg:flex-row-reverse gap-4">
+          <div className="flex-1">
+            <UploadFoto referenciaTipo="Veiculo" idArquivo={idArquivoFotoVeiculo} changeIdArquivo={setIdArquivoFotoVeiculo} alt="Foto do Veículo" isDisabled={loading} />
+          </div>
+
           <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoVeiculoType))}>
             <FormContainer>
               <FormContainerHeader title="Informações Básicas" />
@@ -319,7 +331,7 @@ export default function VeiculoForm() {
                   <InputMaskLabel name='placa' title='Placa' mask={Masks.placa} value={watch("placa")} setValue={setValue} />
                   <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
                   <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
-                  <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} />
+                  <AsyncReactSelect name="cor" title="Cor" control={control} options={tiposCorVeiculo} isClearable size="w-full" />
                   <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
                 </div>
                 {(!id) && (
@@ -368,11 +380,11 @@ export default function VeiculoForm() {
               <FormContainerHeader title="Informações Comerciais" />
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-                  <InputDataAno title="Data Aquisição" id="dataAquisição" register={{ ...register("dataAquisicao") }} />
+                  <InputDataLabel name='dataAquisicao' title='Data Aquisição' date={dataCompra} setDate={setDataCompra} />
                   <InputMaskLabel name='valorCompra' title='Valor Compra' mask={Masks.dinheiro} setValue={setValue} value={watch("valorCompra")} />
                   {isVendido ?
                     <>
-                      <InputDataAno title="Data Venda" id="dataVenda" register={{ ...register("dataVenda") }} />
+                      <InputDataLabel name='dataVenda' title='Data Venda' date={dataVenda} setDate={setDataVenda} />
                       <InputMaskLabel name='valorVenda' title='Valor Venda' mask={Masks.dinheiro} setValue={setValue} value={watch("valorVenda")} />
                     </> : <></>}
                 </div>
