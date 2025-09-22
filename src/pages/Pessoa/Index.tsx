@@ -251,7 +251,7 @@ export default function Pessoa() {
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
       tipoPessoa ||
-      optionsSelected ||
+      optionsSelected.length > 0 ||
       uf ||
       municipio ||
       bairro ||
