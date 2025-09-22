@@ -207,7 +207,7 @@ export default function Configuracoes() {
             <div className="w-full space-y-1 p-2">
               <TabsTrigger
                 value="geral"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <Building className="h-4 w-4" />
@@ -218,7 +218,7 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="veiculoMarca"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <Car className="h-4 w-4" />
@@ -227,7 +227,7 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="veiculoModelo"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <CarFront className="h-4 w-4" />
