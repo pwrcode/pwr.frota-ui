@@ -5,7 +5,6 @@ import {
   Car,
   CarFront,
   Settings,
-  Users,
   Building
 } from "lucide-react";
 // import { getConfigType, getConfiguracoes, postConfigType, postConfiguracoes } from "@/services/configuracoesServices";
@@ -14,8 +13,6 @@ import VeiculoMarca from "../VeiculoMarca";
 import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
 import PageTitle from "@/ui/components/PageTitle";
-import Usuario from "../Usuario/Index";
-import PerfilAcesso from "../PerfilAcesso/Index";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -217,24 +214,6 @@ export default function Configuracoes() {
                 Configurações Gerais
               </TabsTrigger>
 
-              <TabsTrigger
-                value="usuarios"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
-                onClick={() => setDropTabActive(false)}
-              >
-                <Users className="h-4 w-4" />
-                Usuários
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="perfilAcesso"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
-                onClick={() => setDropTabActive(false)}
-              >
-                <Users className="h-4 w-4" />
-                Perfil Acesso
-              </TabsTrigger>
-
               <div className="border-t border-border my-2"></div>
 
               <TabsTrigger
@@ -262,14 +241,6 @@ export default function Configuracoes() {
           <FormContainer>
             <TabsContent value="geral" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
 
-            </TabsContent>
-
-            <TabsContent value="usuarios" className="p-6 bg-muted/30 rounded-lg border border-border">
-              <Usuario config />
-            </TabsContent>
-
-            <TabsContent value="perfilAcesso" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
-              <PerfilAcesso config />
             </TabsContent>
 
             <TabsContent value="veiculoMarca" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">

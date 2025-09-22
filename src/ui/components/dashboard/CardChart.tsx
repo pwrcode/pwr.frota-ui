@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToggleChart } from "./ToggleChart";
 import { currency } from "@/services/currency";
 import { DollarSign, Hash, TrendingUp } from "lucide-react";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 type TotalizadorData = {
   total: number;

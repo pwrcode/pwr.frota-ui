@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMobile } from '@/hooks/useMobile';
-import PageTitle from '@/ui/components/PageTitle';
-import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,8 +11,7 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { deleteVeiculoTanque, getVeiculoTanques, type postListagemVeiculoTanqueType } from '@/services/veiculoTanque';
-import { tiposTanque, type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import { tiposTanque } from '@/services/constants';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
@@ -32,8 +28,6 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-    const [tipoTanque, setTipoTanque] = useState<optionType>();
 
     const initialPostListagem: postListagemVeiculoTanqueType = {
         pageSize: pageSize,
@@ -49,22 +43,14 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
         if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
     }, [currentPage]);
 
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [tipoTanque]);
-
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
         setPostListagem({
             pageSize: pageSize,
             currentPage: page ?? 0,
-            pesquisa: pesquisa,
+            pesquisa: "",
             idVeiculo: idVeiculo ?? null,
-            tipoTanque: tipoTanque && tipoTanque.value ? tipoTanque.value : null
+            tipoTanque: null
         });
     }
 
@@ -142,23 +128,9 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
     return (
         <div className={`flex flex-col gap-8`}>
 
-            <PageTitle title="Tanques" />
-
-            {idVeiculo ? <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect
-                    name="tipoTanque"
-                    title="Tipo Tanque"
-                    options={tiposTanque}
-                    value={tipoTanque}
-                    setValue={setTipoTanque}
-                    isClearable
-                />
-            </Filters> : <></>}
-
             {(tanques.length > 0) && (
                 <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
-                    <TableTop>
+                    <TableTop title='Tanques'>
                         <Button type="button" variant="success" onClick={handleClickAdicionar}>Adicionar</Button>
                     </TableTop>
                     <hr />
@@ -166,10 +138,10 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                         <TableHeader>
                             <TableRow className="hidden sm:table-row">
                                 <TableHead className="w-16 text-center">Id</TableHead>
-                                <TableHead className='w-60'>Descrição</TableHead>
-                                <TableHead className='w-60'>Tipo</TableHead>
-                                <TableHead className='w-60'>Capacidade</TableHead>
-                                <TableHead className='w-60'>Número Tanque</TableHead>
+                                {idVeiculo ? <TableHead className='w-60'>Descrição</TableHead> : <></>}
+                                <TableHead className='w-40'>Tipo</TableHead>
+                                <TableHead className='w-40'>Capacidade</TableHead>
+                                {idVeiculo ? <TableHead className='w-40'>Número Tanque</TableHead> : <></>}
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -190,23 +162,23 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                                             {isMobile && "Id: "}{!idVeiculo ? (index + 1) : c.id}
                                         </TableCell>
 
-                                        <TableCell className={hiddenMobile + "sm:text-left font-medium"}>
+                                        {idVeiculo ? <TableCell className={hiddenMobile + "sm:text-left font-medium"}>
                                             {c.descricao}
-                                        </TableCell>
+                                        </TableCell> : <></>}
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "Tipo: "}{tiposTanque.find(t=> t.value === c.tipoTanque)?.label}
+                                            {isMobile && "Tipo: "}{idVeiculo ? c.tipoTanque : tiposTanque.find(t=> t.value === c.tipoTanque)?.label}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
                                             {isMobile && "Capacidade: "}{c.capacidade}
                                         </TableCell>
 
-                                        <TableCell className={cellStyle + " sm:text-left"}>
+                                        {idVeiculo ? <TableCell className={cellStyle + " sm:text-left"}>
                                             {isMobile && "Número Tanque: "}{c.numeroTanque}
-                                        </TableCell>
+                                        </TableCell> : <></>}
 
-                                        <TableCell className={hiddenMobile + "text-right w-[100px]"}>
+                                        <TableCell className={hiddenMobile + "text-right"}>
                                             <DropDownMenuItem
                                                 id={!idVeiculo ? index : c.id}
                                                 handleClickEditar={handleClickEditar}
@@ -237,7 +209,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="search-x" handleClickAdicionar={handleClickAdicionar} py='py-20'/>
+                    <TableEmpty title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar} py='py-20'/>
                 )}
             </>}
 

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, LabelList, ReferenceLine, Cell } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { currency } from "@/services/currency";
 import { toNumberLabel } from "@/services/utils";
 

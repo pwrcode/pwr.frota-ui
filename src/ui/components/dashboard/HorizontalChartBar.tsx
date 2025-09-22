@@ -1,7 +1,7 @@
 "use client"
 
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { currency } from "@/services/currency";
 import { toNumberLabel } from "@/services/utils";
 

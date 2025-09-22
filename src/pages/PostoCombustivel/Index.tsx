@@ -193,7 +193,7 @@ export default function PostoCombustivel() {
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
-      <PageTitle title="Posto Combustivel" />
+      <PageTitle title="Postos Combustivel" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
         <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />

@@ -29,9 +29,9 @@ export type postListagemVeiculoTanqueType = {
 }
 
 export type dadosAddEdicaoVeiculoTanqueType = {
-  descricao: string
+  descricao?: string
   idVeiculo: number
-  numeroTanque: number
+  numeroTanque?: number
   capacidade: number
   tipoTanque: number
 }

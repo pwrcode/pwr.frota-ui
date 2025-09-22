@@ -1,5 +1,5 @@
 import axios from "axios";
-import { listType } from "./constants";
+import { type listType } from "./constants";
 
 export const getCidadesUf = async (uf: string | number) => {
   if (!uf) throw new Error("Erro ao procurar municípios");

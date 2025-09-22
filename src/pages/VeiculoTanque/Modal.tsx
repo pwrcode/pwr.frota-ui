@@ -13,8 +13,6 @@ import z from 'zod';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { tiposTanque } from '@/services/constants';
-import InputLabel from '@/ui/components/forms/InputLabel';
-import { getVeiculoList } from '@/services/veiculo';
 
 type modalPropsType = {
     open: boolean,
@@ -27,7 +25,6 @@ type modalPropsType = {
 }
 
 const schema = z.object({
-    descricao: z.string().optional(),
     idVeiculo: z.object({
         label: z.string().optional(),
         value: z.number().optional().nullable()
@@ -37,33 +34,28 @@ const schema = z.object({
         value: z.number().optional()
     }, { message: "Selecione o tipo tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tipo tanque" }),
     capacidade: z.string().optional(),
-    numeroTanque: z.string().optional(),
 });
 
 export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanques, setTanques }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
+    const { handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
 
     const setValuesPerId = async () => {
         if (!idVeiculo) {
-            setValue("descricao", tanques[id].descricao ?? "");
             setValue("tipoTanque", { value: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.value, label: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.label });
             setValue("capacidade", tanques[id].capacidade.toString());
-            setValue("numeroTanque", String(tanques[id].numeroTanque));
             return
         }
         const process = toast.loading("Buscando item...");
         try {
             if (id === 0) return
             const item = await getVeiculoTanquePorId(Number(id));
-            setValue("descricao", item.descricao ?? "");
             if (idVeiculo) setValue("idVeiculo", { value: item.idVeiculo, label: item.descricaoVeiculo });
             setValue("tipoTanque", { value: tiposTanque.find(t => t.valueLabel === item.tipoTanque)?.value, label: tiposTanque.find(t => t.valueLabel === item.tipoTanque)?.label });
             setValue("capacidade", item.capacidade.toString());
-            setValue("numeroTanque", String(item.numeroTanque));
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -74,7 +66,6 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
     useEffect(() => {
         reset();
         if (!open) return
-        console.log(id)
         if (id >= 0) setValuesPerId();
     }, [id, open]);
 
@@ -89,26 +80,18 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
         });
     }, [errors]);
 
-    const getVeiculos = async (pesquisa?: string) => {
-        const data = await getVeiculoList(pesquisa, undefined, undefined, undefined);
-        return data;
-    }
-
     const submit = async (dados: dadosAddEdicaoVeiculoTanqueType) => {
         if (loading) return
         if (!idVeiculo) {
             if (id === -1) {
-                console.log(id)
                 let tan = tanques;
                 tan.push(dados)
                 setTanques(tan);
-                console.log(tan)
             }
             else {
                 let tan = tanques;
                 tan[id] = dados;
                 setTanques(tan);
-                console.log(tan)
             }
             reset();
             setOpen(false);
@@ -118,11 +101,9 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
         const process = toast.loading("Salvando item...");
         try {
             const postPut: dadosAddEdicaoVeiculoTanqueType = {
-                descricao: dados.descricao,
                 idVeiculo: Number(idVeiculo) ?? (dados.idVeiculo ?? null),
                 tipoTanque: (dados.tipoTanque ?? null),
                 capacidade: dados.capacidade,
-                numeroTanque: dados.numeroTanque,
             };
             if (id === -1) {
                 const response = await addVeiculoTanque(postPut);
@@ -149,15 +130,12 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
                 <form autoComplete='off' className='flex flex-col h-full'>
                     <SheetHeader className='p-6 rounded-t-lg border-b'>
-                        <SheetTitle>{id && id != -1 ? `Editar Entrada Combustivel #${id}` : "Cadastrar Entrada Combustivel"}</SheetTitle>
+                        <SheetTitle>{id && id != -1 ? `Editar Tanque #${id}` : "Cadastrar Tanque"}</SheetTitle>
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputLabel title="Descrição" name="descricao" register={{ ...register("descricao") }} />
-                        {!tanques ? <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="tipoTanque" title="Tipo Tanque" control={control} options={tiposTanque} isClearable />
                         <InputMaskLabel name='capacidade' title='Capacidade' mask={Masks.numerico} setValue={setValue} value={watch("capacidade")} />
-                        <InputMaskLabel name='numeroTanque' title='Número Tanque' mask={Masks.numerico} setValue={setValue} value={watch("numeroTanque")} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

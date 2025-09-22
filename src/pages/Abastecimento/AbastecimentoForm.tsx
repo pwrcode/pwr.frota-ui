@@ -130,7 +130,7 @@ export default function AbastecimentoForm() {
       setValue("quilometragem", item.quilometragem.toString())
       setValue("quantidadeAbastecida", item.quantidadeAbastecida.toString())
       setValue("valorUnitario", String(currency(item.valorUnitario)))
-      setValue("observacao", item.observacao)
+      setValue("observacao", item.observacao ?? "")
       setValue("tanqueCheio", item.tanqueCheio ? true : false)
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);

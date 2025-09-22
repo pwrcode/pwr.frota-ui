@@ -46,7 +46,7 @@ const selectColors = {
 };
 
 export const customSelectStyle = (isDarkMode: boolean, width: string) => {
-    const colors = isDarkMode ? selectColors.dark : selectColors.light;
+    const colors: any = isDarkMode ? selectColors.dark : selectColors.light;
 
     return {
         control: (provided: any, state: any) => ({

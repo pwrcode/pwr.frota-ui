@@ -2,14 +2,14 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, 
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useState } from "react";
-import { FieldValues, UseFormSetValue } from "react-hook-form";
+import { type FieldValues, type UseFormSetValue } from "react-hook-form";
 import { PlusButton } from "../buttons/PlusButton";
-import { listType } from "@/services/constants";
+import { type listType } from "@/services/constants";
 import InputLabelValue from "../forms/InputLabelValue";
 import AsyncReactSelect from "../forms/AsyncReactSelect";
 import { toast } from "react-toastify";
 import { errorMsg } from "@/services/api";
-import { addBairro, dadosAddEdicaoBairroType, getBairroPorId } from "@/services/bairro";
+import { addBairro, type dadosAddEdicaoBairroType, getBairroPorId } from "@/services/bairro";
 
 type paramsType = {
   municipios: listType,
