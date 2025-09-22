@@ -25,6 +25,10 @@ import { getMunicipioList } from '@/services/municipio';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
 import { getBairroList } from '@/services/bairro';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Filter, X } from 'lucide-react';
 
 const options = [
   { value: "isAjudante", label: "Ajudante" },
@@ -49,15 +53,17 @@ export default function Pessoa() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoPessoa, setTipoPessoa] = useState<optionType>();
+  const [tipoPessoa, setTipoPessoa] = useState<optionType | null>();
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
   const [optionsSelected, setOptionsSelected] = useState<listType>([]);
-  const [status, setStatus] = useState<optionType>();
-  const [uf, setUf] = useState<optionType>();
-  const [municipio, setMunicipio] = useState<optionType>();
-  const [bairro, setBairro] = useState<optionType>();
+  const [status, setStatus] = useState<optionType | null>();
+  const [uf, setUf] = useState<optionType | null>();
+  const [municipio, setMunicipio] = useState<optionType | null>();
+  const [bairro, setBairro] = useState<optionType | null>();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
   const initialPostListagem: postListagemPessoaType = {
     pageSize: pageSize,
@@ -94,7 +100,7 @@ export default function Pessoa() {
   const getMunicipios = async (pesquisa?: string) => {
     if (!uf) {
       setMunicipios([]);
-      setMunicipio(undefined);
+      setMunicipio(null);
       return [];
     };
     const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
@@ -105,7 +111,7 @@ export default function Pessoa() {
   const getBairros = async (pesquisa?: string) => {
     if (!municipio) {
       setBairros([]);
-      setBairro(undefined);
+      setBairro(null);
       return [];
     };
     const data = await getBairroList(pesquisa, municipio ? municipio.value : undefined);
@@ -231,6 +237,35 @@ export default function Pessoa() {
     }
   }
 
+  const clearFilters = () => {
+    setTipoPessoa(null);
+    setOptionsSelected([]);
+    setUf(null);
+    setMunicipio(null);
+    setBairro(null);
+    setDataInicio("");
+    setDataFim("");
+    setStatus(null);
+  }
+
+  const checkActiveFilters = () => {
+    const hasFilters = Boolean(
+      tipoPessoa ||
+      optionsSelected ||
+      uf ||
+      municipio ||
+      bairro ||
+      dataInicio ||
+      dataFim ||
+      status
+    );
+    setHasActiveFilters(hasFilters);
+  }
+
+  useEffect(() => {
+    checkActiveFilters();
+  }, [tipoPessoa, optionsSelected, uf, municipio, bairro, dataInicio, dataFim, status]);
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
@@ -238,19 +273,85 @@ export default function Pessoa() {
 
       <PageTitle title="Pessoas" />
 
-      <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
-        <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-          <AsyncReactSelect name="optionsSelected" title="Tipo Pessoa" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="flex-1">
+          <Filters grid={FiltersGrid.sm1_md1_lg1}>
+            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+          </Filters>
         </div>
-        <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
-        <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
-        <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-        <InputDataLabel name="dataInicio" title='Data Início (Validade CNH)' date={dataInicio} setDate={setDataInicio} />
-        <InputDataLabel name="dataFim" title='Data Fim (Validade CNH)' date={dataFim} setDate={setDataFim} />
-        <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} isClearable />
-      </Filters>
+
+        <div className="flex items-end h-fit">
+          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                className={`relative h-10 ${hasActiveFilters ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400' : ''}`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filtros Avançados
+                {hasActiveFilters && (
+                  <span className="absolute -top-2 -right-2 h-5 w-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                    !
+                  </span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className='p-0 gap-0 m-4 w-[400px] sm:w-[540px] h-[96%] rounded-lg border shadow-xl'>
+              <SheetHeader className="px-6">
+                <SheetTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filtros Avançados
+                </SheetTitle>
+                <SheetDescription>
+                  Configure filtros específicos para encontrar os veículos desejados.
+                </SheetDescription>
+              </SheetHeader>
+
+              <ModalFormBody>
+                <div className="space-y-4">
+                  <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
+                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
+                    <AsyncReactSelect name="optionsSelected" title="Tipo Pessoa" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
+                  </div>
+                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
+                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
+                  <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
+                  <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} isClearable />
+                </div>
+
+                <div className="border-t border-border pt-6">
+                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">
+                    Filtros por Data
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4">
+                    <InputDataLabel name="dataInicio" title='Data Início (Validade CNH)' date={dataInicio} setDate={setDataInicio} />
+                    <InputDataLabel name="dataFim" title='Data Fim (Validade CNH)' date={dataFim} setDate={setDataFim} />
+                  </div>
+                </div>
+
+              </ModalFormBody>
+              <ModalFormFooter>
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                  className="flex-1"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+                <Button
+                  onClick={() => setIsFiltersOpen(false)}
+                  className="flex-1"
+                  variant="success"
+                >
+                  Aplicar Filtros
+                </Button>
+              </ModalFormFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
 
       {(pessoas.length > 0) && (
         <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">

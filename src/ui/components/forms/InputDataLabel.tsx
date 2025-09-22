@@ -25,7 +25,7 @@ export default function InputDataLabel({ title, name, date, setDate, setValue, s
   return (
     <div className={`space-y-2 ${size ?? "w-full"}`}>
       {title && (
-        <Label htmlFor={name} className="text-right dark:text-foreground">
+        <Label htmlFor={name} className="text-left dark:text-foreground">
           {title}
         </Label>
       )}
