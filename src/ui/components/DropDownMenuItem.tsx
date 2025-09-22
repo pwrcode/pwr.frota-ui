@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PrinterCheck, EllipsisVertical, Pencil, Trash, X, DollarSign, History, MapPin, LockOpen, Lock, Eye, Banknote, Check } from "lucide-react";
+import { PrinterCheck, EllipsisVertical, Pencil, Trash, X, DollarSign, History, MapPin, LockOpen, Lock, Eye, Banknote, Check, SquarePen } from "lucide-react";
 
 type functionVoid = (id: any) => void;
 
@@ -32,6 +32,7 @@ interface propsInterface {
   handleClickVerPeriodos?: functionVoid,
   handleClickVerParcelas?: functionVoid,
   handleClickDeletar?: functionVoid,
+  handleClickEditarSenha?: functionVoid,
 }
 
 export default function DropDownMenuItem({
@@ -53,7 +54,8 @@ export default function DropDownMenuItem({
   handleClickConciliar,
   handleClickDesconciliar,
   handleClickVerPeriodos,
-  handleClickDeletar
+  handleClickDeletar,
+  handleClickEditarSenha
 }: propsInterface) {
   return (
     <DropdownMenu>
@@ -172,6 +174,12 @@ export default function DropDownMenuItem({
             <DropdownMenuItem onClick={() => handleClickDeletar(id)}>
               <Trash />
               <span>Excluir</span>
+            </DropdownMenuItem>
+          )}
+          {handleClickEditarSenha && (
+            <DropdownMenuItem onClick={() => handleClickEditarSenha(id)}>
+              <SquarePen />
+              <span>Alterar Senha</span>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>

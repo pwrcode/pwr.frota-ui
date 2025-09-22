@@ -205,9 +205,15 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
             <TableHeader>
               <TableRow className="hidden sm:table-row">
                 <TableHead className="w-16 text-center">Id</TableHead>
-                <TableHead className='w-50'>Quantidade Abastecida</TableHead>
-                <TableHead className='w-50'>Valor Unitário</TableHead>
-                <TableHead className='w-50'>Data Abastecimento</TableHead>
+                <TableHead className='w-80'>Veículo</TableHead>
+                <TableHead className='w-80'>Motorista</TableHead>
+                <TableHead className='w-80'>Posto Combustível</TableHead>
+                <TableHead className='w-80'>Produto Abastecimento</TableHead>
+                <TableHead className='w-30'>Data Abastecimento</TableHead>
+                <TableHead className='w-30'>Quilometragem</TableHead>
+                <TableHead className='w-30'>Quantidade Abastecida</TableHead>
+                <TableHead className='w-30'>Valor Unitário</TableHead>
+                <TableHead className='w-30'>Valor Total</TableHead>
                 <TableHead className='w-30'>Tanque Cheio</TableHead>
                 <TableHead></TableHead>
               </TableRow>
@@ -226,6 +232,30 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Veículo: "}{c.descricaoVeiculo}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Motorista: "}{c.razaoSocialPessoa}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Posto Combustível: "}{c.razaoSocialPostoCombustivel}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Produto Abastecimento: "}{c.descricaoProdutoAbastecimento}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Data Abastecimento: "}{formatarData(c.dataAbastecimento)}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
+                      {isMobile && "Quilomentragem: "}{c.quilometragem}
+                    </TableCell>
+
+                    <TableCell className={cellStyle + " sm:text-left"}>
                       {isMobile && "Quantidade Abastecida: "}{c.quantidadeAbastecida}
                     </TableCell>
 
@@ -234,7 +264,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Data Abastecimento: "}{formatarData(c.dataAbastecimento)}
+                      {isMobile && "Valor Total: "}{currency(c.valorTotal)}
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>

@@ -22,8 +22,9 @@ import { getPerfilAcessoList } from '@/services/perfilAcesso';
 import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import { ImageSrc } from '@/ui/components/ImageSrc';
+import ModalSenha from './ModalSenha';
 
-export default function Usuario({ config } : any) {
+export default function Usuario({ config }: any) {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,7 +32,9 @@ export default function Usuario({ config } : any) {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalRegisters, setTotalRegisters] = useState<number>(0);
   const [excluirId, setExcluirId] = useState<number>(0);
+  const [idAlterarSenha, setIdAlterarSenha] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
+  const [openModalSenha, setOpenModalSenha] = useState<boolean>(false);
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -48,15 +51,15 @@ export default function Usuario({ config } : any) {
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   useEffect(() => {
-    if(currentPage > 0 || filtersOn) changeListFilters(currentPage);
+    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
   }, [currentPage]);
 
   useEffect(() => {
-    if(pesquisa.length > 0 || filtersOn) changeListFilters();
+    if (pesquisa.length > 0 || filtersOn) changeListFilters();
   }, [pesquisa]);
 
   useEffect(() => {
-    if(perfilAcesso.value != undefined || filtersOn) changeListFilters();
+    if (perfilAcesso.value != undefined || filtersOn) changeListFilters();
   }, [perfilAcesso]);
 
   const changeListFilters = (page?: number) => {
@@ -98,9 +101,9 @@ export default function Usuario({ config } : any) {
       setLoading(false);
     }
   }
-  
+
   useEffect(() => {
-    if(postListagem !== initialPostListagem) debounceUpdate();
+    if (postListagem !== initialPostListagem) debounceUpdate();
   }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
@@ -118,6 +121,11 @@ export default function Usuario({ config } : any) {
     setOpenDialogExcluir(true);
   }
 
+  const handleClickEditarSenha = (id: number) => {
+    setIdAlterarSenha(id);
+    setOpenModalSenha(true);
+  }
+
   const deletar = async () => {
     const process = toast.loading("Excluindo item...");
     try {
@@ -131,7 +139,7 @@ export default function Usuario({ config } : any) {
       toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
     }
   }
-  
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
@@ -212,7 +220,7 @@ export default function Usuario({ config } : any) {
                     </TableCell>
 
                     <TableCell className={hiddenMobile + "text-right w-[100px]"}>
-                      <DropDownMenuItem id={c.id} handleClickEditar={handleClickEditar} handleClickDeletar={handleClickDeletar} />
+                      <DropDownMenuItem id={c.id} handleClickEditar={handleClickEditar} handleClickDeletar={handleClickDeletar} handleClickEditarSenha={handleClickEditarSenha} />
                     </TableCell>
 
                   </TableRow>
@@ -239,6 +247,8 @@ export default function Usuario({ config } : any) {
           <TableEmpty icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
+
+      <ModalSenha open={openModalSenha} setOpen={setOpenModalSenha} id={Number(idAlterarSenha)} />
 
       <AlertExcluir openDialog={openDialogExcluir} setOpenDialog={setOpenDialogExcluir} func={deletar} />
 
