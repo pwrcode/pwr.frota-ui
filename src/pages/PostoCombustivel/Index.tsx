@@ -24,6 +24,10 @@ import { getMunicipioList } from '@/services/municipio';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
 import { getBairroList } from '@/services/bairro';
 import { BadgeTrueFalse } from '@/ui/components/tables/BadgeAtivo';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Filter, X } from 'lucide-react';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 
 export default function PostoCombustivel() {
 
@@ -42,10 +46,12 @@ export default function PostoCombustivel() {
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
 
-  const [isInterno, setIsInterno] = useState<optionType>();
-  const [uf, setUf] = useState<optionType>();
-  const [municipio, setMunicipio] = useState<optionType>();
-  const [bairro, setBairro] = useState<optionType>();
+  const [isInterno, setIsInterno] = useState<optionType | null>();
+  const [uf, setUf] = useState<optionType | null>();
+  const [municipio, setMunicipio] = useState<optionType | null>();
+  const [bairro, setBairro] = useState<optionType | null>();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
   const initialPostListagem: postListagemPostoCombustivelType = {
     pageSize: pageSize,
@@ -75,7 +81,7 @@ export default function PostoCombustivel() {
   const getMunicipios = async (pesquisa?: string) => {
     if (!uf) {
       setMunicipios([]);
-      setMunicipio(undefined);
+      setMunicipio(null);
       return [];
     };
     const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
@@ -86,7 +92,7 @@ export default function PostoCombustivel() {
   const getBairros = async (pesquisa?: string) => {
     if (!municipio) {
       setBairros([]);
-      setBairro(undefined);
+      setBairro(null);
       return [];
     };
     const data = await getBairroList(pesquisa, municipio ? municipio.value : undefined);
@@ -190,18 +196,97 @@ export default function PostoCombustivel() {
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
+  const clearFilters = () => {
+    setUf(null)
+    setMunicipio(null)
+    setBairro(null)
+    setIsInterno(null)
+  }
+
+  const checkActiveFilters = () => {
+    const hasFilters = Boolean(
+      uf ||
+      municipio ||
+      bairro ||
+      isInterno
+    );
+    setHasActiveFilters(hasFilters);
+  }
+
+  useEffect(() => {
+    checkActiveFilters();
+  }, [uf, municipio, bairro, isInterno]);
+
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
       <PageTitle title="Postos Combustivel" />
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
 
-      <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
-        <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
-        <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-        <AsyncReactSelect name="isInterno" title="Interno" options={SimNaoOptions} value={isInterno} setValue={setIsInterno} isClearable />
-      </Filters>
+        <div className="flex-1">
+          <Filters grid={FiltersGrid.sm1_md1_lg1}>
+            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+          </Filters>
+        </div>
+
+        <div className="flex items-end h-fit">
+          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                className={`relative h-10 ${hasActiveFilters ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400' : ''}`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filtros Avançados
+                {hasActiveFilters && (
+                  <span className="absolute -top-2 -right-2 h-5 w-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                    !
+                  </span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className='p-0 gap-0 m-4 w-[400px] sm:w-[540px] h-[96%] rounded-lg border shadow-xl'>
+              <SheetHeader className="px-6">
+                <SheetTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filtros Avançados
+                </SheetTitle>
+                <SheetDescription>
+                  Configure filtros específicos para encontrar os veículos desejados.
+                </SheetDescription>
+              </SheetHeader>
+
+              <ModalFormBody>
+                <div className="space-y-4">
+                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
+                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
+                  <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
+                  <AsyncReactSelect name="isInterno" title="Interno" options={SimNaoOptions} value={isInterno} setValue={setIsInterno} isClearable />
+                </div>
+
+              </ModalFormBody>
+              <ModalFormFooter>
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                  className="flex-1"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+                <Button
+                  onClick={() => setIsFiltersOpen(false)}
+                  className="flex-1"
+                  variant="success"
+                >
+                  Aplicar Filtros
+                </Button>
+              </ModalFormFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
 
       {(postoCombustivels.length > 0) && (
         <div className="bg-card dark:bg-card py-1 rounded-md shadow-md">
@@ -218,7 +303,6 @@ export default function PostoCombustivel() {
                 <TableHead className='w-60'>Telefone Principal</TableHead>
                 <TableHead className='w-60'>Telefone Secundário</TableHead>
                 <TableHead className='w-60'>Interno</TableHead>
-                <TableHead></TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>

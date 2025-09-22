@@ -345,8 +345,6 @@ export default function VeiculoForm() {
                     <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarModelo} />
                   </div>
-                  {/* <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
-                <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} asyncFunction={getVeiculoModelos} options={veiculoModelos} filter isClearable /> */}
                   <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
                   <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
                   <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />

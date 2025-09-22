@@ -159,7 +159,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
     const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
     return (
-        <div className={`flex flex-col gap-8 ${!idPosto ? "mt-16" : "p-5"} min-h-[calc(100%-4rem)]`}>
+        <div className={`flex flex-col gap-8 ${idPosto ? "pt-2" : "mt-16"} min-h-[calc(100%-4rem)]`}>
 
             <PageTitle title="Entradas Combustível" />
 
