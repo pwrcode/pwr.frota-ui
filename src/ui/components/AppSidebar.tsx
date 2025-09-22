@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { errorMsg } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { renderIcon } from "./RenderIcon";
+import { Zap } from "lucide-react";
 
 interface SubmenuType {
   descricao: string;
@@ -101,8 +102,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarHeader className="bg-sidebar h-16 flex justify-center items-start text-md">
         <div className="flex items-center ml-1">
-          <div className="flex aspect-square size-7 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <img src="/logo.png" alt="Logo" />
+          <div className="flex aspect-square size-7 items-center justify-center rounded-sm bg-orange-600">
+            <Zap className="size-4 text-white" />
           </div>
           <span className="font-normal text-sidebar-foreground ml-4" translate="no">
             PWR Frota

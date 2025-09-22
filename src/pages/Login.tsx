@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Zap } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { logIn } from '@/services/auth';
 import { errorMsg } from '@/services/api';
@@ -74,7 +74,7 @@ export default function Login() {
 
           {/* LOGO NO MOBILE */}
           <div className="flex justify-center mb-4 lg:hidden">
-            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
+            <Zap className="w-24 h-24 text-orange-600" />
           </div>
 
           {/* Login Card Unificado */}
@@ -115,8 +115,8 @@ export default function Login() {
 
       {/* LOGO NO DESKTOP */}
       <div className="hidden bg-orange-700 lg:flex items-center justify-center">
-        <div className="w-2/5">
-          <img src="/logo.png" alt="logo" className='h-[30%]' />
+        <div className="flex items-center justify-center">
+          <Zap className="w-32 h-32 text-white" />
         </div>
       </div>
     </div>
