@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               <SidebarMenuButton
                                 key={submenu.link}
                                 asChild
-                                className={`pl-5 py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
+                                className={`pl-5 py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                                 onClick={() => setOpenMobile(false)}
                               >
                                 <Link to={submenu.link}>
@@ -172,7 +172,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ) : (
                     <SidebarMenuButton
                       asChild
-                      className={`py-5 ${menuIsActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
+                      className={`py-5 ${menuIsActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -202,7 +202,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       key={menu.link}
                       asChild
-                      className={`py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
+                      className={`py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
@@ -224,7 +224,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <SidebarMenuButton
                         key={submenu.link}
                         asChild
-                        className={`py-5 ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
+                        className={`py-5 ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                         onClick={() => setOpenMobile(false)}
                       >
                         <Link to={submenu.link} className="flex items-center">
