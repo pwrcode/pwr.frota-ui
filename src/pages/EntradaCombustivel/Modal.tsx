@@ -17,6 +17,7 @@ import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { toNumber } from '@/services/utils';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import InputLabel from '@/ui/components/forms/InputLabel';
 
 type modalPropsType = {
     open: boolean,
@@ -41,7 +42,7 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -64,6 +65,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     useEffect(() => {
+        setDataRecebimento("")
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
@@ -91,15 +93,16 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
+        console.log(dados)
         if (loading) return
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
             const postPut: dadosAddEdicaoEntradaCombustivelType = {
                 dataRecebimento: dataRecebimento ? dataRecebimento.slice(0, 11).concat("00:00:00") : "",
-                idPostoCombustivel: Number(idPosto) ?? (dados.idPostoCombustivel ?? null),
+                idPostoCombustivel: idPosto ? +idPosto : (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
-                quantidade: dados.quantidade,
+                quantidade: +dados.quantidade,
                 valorUnitario: toNumber(dados.valorUnitario) ?? 0,
             };
             if (id === 0) {
@@ -134,7 +137,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                         <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
-                        <InputMaskLabel name='quantidade' title='Quantidade' mask={Masks.numerico} setValue={setValue} value={watch("quantidade")} />
+                        <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01'/>
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
                     </ModalFormBody>
 

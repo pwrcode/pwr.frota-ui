@@ -29,6 +29,10 @@ import { Label } from '@/components/ui/label';
 import { currency } from '@/services/currency';
 import { toNumber } from '@/services/utils';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import { getVeiculoTanqueList } from '@/services/veiculoTanque';
+import type { listType, optionType } from '@/services/constants';
+import { PlusButton } from '@/ui/components/buttons/PlusButton';
+import Modal from '../VeiculoTanque/Modal';
 
 export const schema = z.object({
   idVeiculo: z.object({
@@ -47,6 +51,10 @@ export const schema = z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o produto abastecimento" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o produto abastecimento" }),
+  idVeiculoTanque: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tanque" }),
   quilometragem: z.string().optional(),
   quantidadeAbastecida: z.string().optional(),
   valorUnitario: z.string().optional(),
@@ -58,7 +66,7 @@ export const schema = z.object({
 
 export default function AbastecimentoForm() {
 
-  const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, resetField, setValue, watch, control, setFocus, formState: { errors } } = useForm({
     resolver: zodResolver(schema)
   });
 
@@ -66,11 +74,16 @@ export default function AbastecimentoForm() {
   const [searchParams] = useSearchParams();
   const idPosto = searchParams.get("idPosto");
   const idVeiculo = searchParams.get("idVeiculo");
+
+  const veiculo = watch("idVeiculo");
+  const tanque = watch("idVeiculoTanque.value");
+  const [tanques, setTanques] = useState<listType>([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
   const [dataAbastecimento, setDataAbastecimento] = useState("");
+  const [openModalFormTanque, setOpenModalFormTanque] = useState(false);
 
   const [idArquivoFotoPainelAntes, setIdArquivoFotoPainelAntes] = useState<number>(0);
   const [idArquivoFotoPainelDepois, setIdArquivoFotoPainelDepois] = useState<number>(0);
@@ -97,6 +110,22 @@ export default function AbastecimentoForm() {
 
   const getPessoas = async (pesquisa?: string) => {
     const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined);
+    return data;
+  }
+
+  useEffect(() => {
+    console.log("oi")
+    resetField("idVeiculoTanque")
+    getTanques();
+  }, [veiculo])
+
+  const getTanques = async (pesquisa?: string) => {
+    if (!veiculo) {
+      setTanques([]);
+      return [];
+    }
+    const data = await getVeiculoTanqueList(pesquisa, veiculo && veiculo.value ? veiculo.value : undefined, undefined);
+    setTanques([...data]);
     return data;
   }
 
@@ -132,6 +161,9 @@ export default function AbastecimentoForm() {
       setValue("valorUnitario", String(currency(item.valorUnitario)))
       setValue("observacao", item.observacao ?? "")
       setValue("tanqueCheio", item.tanqueCheio ? true : false)
+      setTimeout(() => {
+        setValue("idVeiculoTanque", { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque })
+      }, 500);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       toast.dismiss(process);
@@ -152,10 +184,11 @@ export default function AbastecimentoForm() {
           dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
+          idVeiculoTanque: data.idVeiculoTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
-          quilometragem: data.quilometragem,
-          quantidadeAbastecida: data.quantidadeAbastecida,
+          quilometragem: +data.quilometragem,
+          quantidadeAbastecida: +data.quantidadeAbastecida,
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
@@ -170,10 +203,11 @@ export default function AbastecimentoForm() {
           dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
+          idVeiculoTanque: data.idVeiculoTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
-          quilometragem: data.quilometragem,
-          quantidadeAbastecida: data.quantidadeAbastecida,
+          quilometragem: +data.quilometragem,
+          quantidadeAbastecida: +data.quantidadeAbastecida,
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
@@ -198,8 +232,20 @@ export default function AbastecimentoForm() {
     idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : idVeiculo ? navigate(`/veiculo/form/${idVeiculo}`) : navigate("/abastecimento");
   }
 
+  const handleClickAdicionarTanque = () => {
+    setOpenModalFormTanque(true);
+  }
+
+  const selecionarTanque = (tanque: optionType) => {
+    setValue("idVeiculoTanque", tanque);
+    getTanques();
+  }
+
   return (
     <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
+
+      <Modal id={tanque ?? -1} open={openModalFormTanque} setOpen={setOpenModalFormTanque} selecionarTanque={selecionarTanque} idVeiculo={veiculo && veiculo.value ? veiculo.value : undefined} />
+
       <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoAbastecimentoType))}>
 
         <FormContainer>
@@ -210,6 +256,10 @@ export default function AbastecimentoForm() {
               <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
               {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
               <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
+              <div className='col-span-1 flex justify-between items-end gap-2'>
+                <AsyncReactSelect name="idVeiculoTanque" title="Tanque" control={control} asyncFunction={getTanques} options={tanques} filter isClearable size="w-full" />
+                <PlusButton loading={loading} func={handleClickAdicionarTanque} />
+              </div>
             </div>
           </FormContainerBody>
         </FormContainer>
@@ -219,8 +269,8 @@ export default function AbastecimentoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
               <InputDataLabel title="Data Abastecimento" name="dataAbastecimento" date={dataAbastecimento} setDate={setDataAbastecimento} />
-              <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} />
-              <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} />
+              <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
+              <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
               <div className='lg:col-span-2'>
                 <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
