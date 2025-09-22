@@ -11,17 +11,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import { tiposTanque } from '@/services/constants';
+import { tiposTanque, type optionType } from '@/services/constants';
+import InputLabel from '@/ui/components/forms/InputLabel';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void,
+    updateList?: (filter: boolean) => void,
     idVeiculo?: number,
-    tanques: dadosAddEdicaoVeiculoTanqueType[],
-    setTanques: any
+    tanques?: dadosAddEdicaoVeiculoTanqueType[],
+    setTanques?: any,
+    selecionarTanque?: (tanque: optionType) => void,
 }
 
 const schema = z.object({
@@ -36,17 +37,17 @@ const schema = z.object({
     capacidade: z.string().optional(),
 });
 
-export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanques, setTanques }: modalPropsType) {
+export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanques, setTanques, selecionarTanque }: modalPropsType) {
 
-    const { handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
+    const { handleSubmit, setValue, reset, setFocus, register, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
 
     const setValuesPerId = async () => {
         if (!idVeiculo) {
-            setValue("tipoTanque", { value: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.value, label: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.label });
-            setValue("capacidade", tanques[id].capacidade.toString());
+            if(tanques) setValue("tipoTanque", { value: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.value, label: tiposTanque.find(t => t.value === tanques[id].tipoTanque)?.label });
+            if(tanques) setValue("capacidade", tanques[id].capacidade.toString());
             return
         }
         const process = toast.loading("Buscando item...");
@@ -85,12 +86,12 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
         if (!idVeiculo) {
             if (id === -1) {
                 let tan = tanques;
-                tan.push(dados)
+                if(tan) tan.push(dados)
                 setTanques(tan);
             }
             else {
                 let tan = tanques;
-                tan[id] = dados;
+                if(tan) tan[id] = dados;
                 setTanques(tan);
             }
             reset();
@@ -103,15 +104,19 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
             const postPut: dadosAddEdicaoVeiculoTanqueType = {
                 idVeiculo: Number(idVeiculo) ?? (dados.idVeiculo ?? null),
                 tipoTanque: (dados.tipoTanque ?? null),
-                capacidade: dados.capacidade,
+                capacidade: +dados.capacidade,
             };
             if (id === -1) {
                 const response = await addVeiculoTanque(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
+                const tan = await getVeiculoTanquePorId(response.id)
+                if (selecionarTanque) selecionarTanque({ label: tan.descricao, value: response.id });
             }
             else {
                 const response = await updateVeiculoTanque(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
+                const tan = await getVeiculoTanquePorId(id)
+                if (selecionarTanque) selecionarTanque({ label: tan.descricao, value: id });
             }
             if (updateList) updateList(true);
             reset();
@@ -135,7 +140,7 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
 
                     <ModalFormBody>
                         <AsyncReactSelect name="tipoTanque" title="Tipo Tanque" control={control} options={tiposTanque} isClearable />
-                        <InputMaskLabel name='capacidade' title='Capacidade' mask={Masks.numerico} setValue={setValue} value={watch("capacidade")} />
+                        <InputLabel name='capacidade' title='Capacidade' register={{...register("capacidade")}}  type='number' step='0.01'/>
                     </ModalFormBody>
 
                     <ModalFormFooter>
