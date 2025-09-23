@@ -160,7 +160,8 @@ interface AsyncSelectProps {
     filter?: boolean,
     isMulti?: boolean,
     width?: string,
-    isClearable?: boolean
+    isClearable?: boolean,
+    style?: string
 }
 
 export default function AsyncReactSelect({
@@ -178,7 +179,8 @@ export default function AsyncReactSelect({
     filter,
     isMulti,
     width,
-    isClearable
+    isClearable,
+    style
 }: AsyncSelectProps) {
 
     // @ts-ignore
@@ -209,7 +211,7 @@ export default function AsyncReactSelect({
     };
 
     return (
-        <div className={`space-y-2 ${size || "w-full"}`}>
+        <div className={`space-y-2 ${size || "w-full"} ${style}`}>
             {title && (
                 <Label htmlFor={name}>{title}</Label>
             )}
