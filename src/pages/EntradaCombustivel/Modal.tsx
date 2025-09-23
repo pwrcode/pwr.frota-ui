@@ -18,7 +18,7 @@ import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { toNumber } from '@/services/utils';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { getPessoaList, getPessoas } from '@/services/pessoa';
+import { getPessoaList } from '@/services/pessoa';
 import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 import type { listType } from '@/services/constants';
 
@@ -53,7 +53,7 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, watch, getValues, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, resetField, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -71,11 +71,15 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             const item = await getEntradaCombustivelPorId(Number(id));
             setDataRecebimento(item.dataRecebimento);
             setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
-            setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento });
             setValue("idPessoaFornecedor", { value: item.idPessoaFornecedor, label: item.razaoSocialPessoaFornecedor });
-            setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             setValue("quantidade", item.quantidade.toString());
             setValue("valorUnitario", String(currency(item.valorUnitario)));
+            setTimeout(() => {
+                setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
+            }, 250);
+            setTimeout(() => {
+                setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento });
+            }, 500);
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -101,17 +105,27 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         });
     }, [errors]);
 
+    // useEffect(() => {
+    //     const subscription = watch((_, field) => {
+    //         if (field.name == "idPostoCombustivel")
+    //             getPostoCombustivelTanques("");
+
+    //         if (field.name == "idPostoCombustivelTanque")
+    //             getProdutosAbastecimento("");
+    //     });
+
+    //     return () => subscription.unsubscribe();
+    // }, [watch]);
+
     useEffect(() => {
-        const subscription = watch((_, field) => {
-            if (field.name == "idPostoCombustivel")
-                getPostoCombustivelTanques("");
+        resetField("idPostoCombustivelTanque");
+        getPostoCombustivelTanques();
+    }, [idPostoCombustivel])
 
-            if (field.name == "idPostoCombustivelTanque")
-                getProdutosAbastecimento("");
-        });
-
-        return () => subscription.unsubscribe();
-    }, [watch]);
+    useEffect(() => {
+        resetField("idProdutoAbastecimento");
+        getProdutosAbastecimento();
+    }, [idPostoCombustivelTanque])
 
     const getPostosCombustivel = async (pesquisa?: string) => {
         const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
