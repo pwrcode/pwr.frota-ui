@@ -111,7 +111,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
     }
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value);
         return [...data];
     }
 

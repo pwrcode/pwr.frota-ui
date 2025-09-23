@@ -59,7 +59,11 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     const [loading, setLoading] = useState(false);
     const [dataRecebimento, setDataRecebimento] = useState("");
 
+    const idPostoCombustivel = watch("idPostoCombustivel");
+    const idPostoCombustivelTanque = watch("idPostoCombustivelTanque");
+
     const [postoCombustivelTanques, setPostoCombustivelTanques] = useState<listType>([])
+    const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
 
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
@@ -98,9 +102,12 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }, [errors]);
 
     useEffect(() => {
-        const subscription = watch((values, field) => {
+        const subscription = watch((_, field) => {
             if (field.name == "idPostoCombustivel")
-                getPostoCombustivelTanques("", values.idPostoCombustivel?.value);
+                getPostoCombustivelTanques("");
+
+            if (field.name == "idPostoCombustivelTanque")
+                getProdutosAbastecimento("");
         });
 
         return () => subscription.unsubscribe();
@@ -111,18 +118,24 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         return data;
     }
 
-    const getPostoCombustivelTanques = async (pesquisa?: string, idPostoCombustivel?: number) => {
+    const getPostoCombustivelTanques = async (pesquisa?: string) => {
         if (!idPostoCombustivel) {
             setPostoCombustivelTanques([]);
             return [];
         }
-        const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel, undefined);
+        const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel?.value, undefined);
         setPostoCombustivelTanques([...data]);
         return data;
     }
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+        console.log(idPostoCombustivelTanque)
+        if (!idPostoCombustivelTanque) {
+            setProdutosAbastecimento([]);
+            return [];
+        }
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value);
+        setProdutosAbastecimento([...data]);
         return data;
     }
 
@@ -177,7 +190,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                         <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" />
-                        <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
+                        <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
                         <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable />
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
