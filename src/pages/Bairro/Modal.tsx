@@ -134,9 +134,9 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
                         <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
                         <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                        <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

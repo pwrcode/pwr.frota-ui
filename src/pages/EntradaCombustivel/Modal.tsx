@@ -20,6 +20,7 @@ import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import InputLabel from '@/ui/components/forms/InputLabel';
 import { getPessoaList, getPessoas } from '@/services/pessoa';
 import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
+import type { listType } from '@/services/constants';
 
 type modalPropsType = {
     open: boolean,
@@ -58,6 +59,8 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     const [loading, setLoading] = useState(false);
     const [dataRecebimento, setDataRecebimento] = useState("");
 
+    const [postoCombustivelTanques, setPostoCombustivelTanques] = useState<listType>([])
+
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
@@ -94,8 +97,27 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         });
     }, [errors]);
 
+    useEffect(() => {
+        const subscription = watch((values, field) => {
+            if (field.name == "idPostoCombustivel")
+                getPostoCombustivelTanques("", values.idPostoCombustivel?.value);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
     const getPostosCombustivel = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelList(pesquisa, undefined, undefined, undefined, undefined);
+        const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
+        return data;
+    }
+
+    const getPostoCombustivelTanques = async (pesquisa?: string, idPostoCombustivel?: number) => {
+        if (!idPostoCombustivel) {
+            setPostoCombustivelTanques([]);
+            return [];
+        }
+        const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel, undefined);
+        setPostoCombustivelTanques([...data]);
         return data;
     }
 
@@ -106,11 +128,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
 
     const getPessoasFornecedor = async (pesquisa?: string) => {
         const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
-        return data;
-    }
-
-    const getPostoCombustivelTanques = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelTanqueList(pesquisa, getValues("idPostoCombustivel.value"), undefined);
         return data;
     }
 
@@ -159,9 +176,9 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     <ModalFormBody>
                         <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
+                        <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" />
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
                         <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable />
-                        <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} asyncFunction={getPostoCombustivelTanques} options={[]} isClearable />
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
                     </ModalFormBody>

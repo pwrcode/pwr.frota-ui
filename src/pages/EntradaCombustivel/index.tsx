@@ -191,9 +191,9 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
             <Filters grid={FiltersGrid.sm2_md3}>
                 <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
+                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={[]} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
                 {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable /> : <></>}
                 <AsyncReactSelect name="idPessoaFornecedor" title="Fornececdor" options={[]} value={pessoaFornecedor} setValue={setPessoaFornecedor} asyncFunction={getPessoasFornecedor} isClearable />
-                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={[]} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
                 <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
                 <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
             </Filters>

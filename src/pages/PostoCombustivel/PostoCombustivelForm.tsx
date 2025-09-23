@@ -380,7 +380,9 @@ export default function PostoCombustivelForm() {
                             </FormContainerBody>
                         </FormContainer>
 
-                        <PostoCombustivelTanque idPostoCombustivel={Number(id) !== 0 ? Number(id) : undefined} tanques={tanques} setTanques={setTanques} />
+                        {watch("isInterno") && (
+                            <PostoCombustivelTanque idPostoCombustivel={Number(id) !== 0 ? Number(id) : undefined} tanques={tanques} setTanques={setTanques} />
+                        )}
 
                         <FormContainer>
                             <FormContainerBody>
