@@ -13,6 +13,7 @@ import VeiculoMarca from "../VeiculoMarca";
 import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
 import PageTitle from "@/ui/components/PageTitle";
+import Bairro from "../Bairro/Index";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -233,6 +234,15 @@ export default function Configuracoes() {
                 <CarFront className="h-4 w-4" />
                 Modelos de Veículos
               </TabsTrigger>
+
+              <TabsTrigger
+                value="bairro"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
+                onClick={() => setDropTabActive(false)}
+              >
+                <CarFront className="h-4 w-4" />
+                Bairros
+              </TabsTrigger>
             </div>
           </TabsList>
         </div>
@@ -249,6 +259,10 @@ export default function Configuracoes() {
 
             <TabsContent value="veiculoModelo" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <VeiculoModelo />
+            </TabsContent>
+
+            <TabsContent value="bairro" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
+              <Bairro />
             </TabsContent>
           </FormContainer>
         </div>
