@@ -85,10 +85,6 @@ export const schema = z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o município" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o município" }),
-  idTipoMotor: z.object({
-    label: z.string().optional(),
-    value: z.number().optional()
-  }, { message: "Selecione um Tipo Motor" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tipo Motor" }),
 });
 
 export default function VeiculoForm() {
@@ -133,11 +129,6 @@ export default function VeiculoForm() {
     resetField("idVeiculoModelo")
     getVeiculoModelos();
   }, [idVeiculoMarca])
-
-  const getTiposMotor = async (pesquisa?: string) => {
-    const data = await getTipoMotorList(pesquisa);
-    return data;
-  }
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
@@ -193,7 +184,6 @@ export default function VeiculoForm() {
       setValue("renavam", item.renavam);
       setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
-      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
       if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       setValue("versao", item.versao);
@@ -237,7 +227,6 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
-          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           idTipoMotor: data.idTipoMotor ?? null,
@@ -270,7 +259,6 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
-          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           idTipoMotor: data.idTipoMotor ?? null,
@@ -437,7 +425,6 @@ export default function VeiculoForm() {
                     <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarModelo} />
                   </div>
-                  <AsyncReactSelect name="idTipoMotor" title="Tipo Motor" control={control} options={[]} asyncFunction={getTiposMotor} isClearable />
                   <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
                   <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
                   <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
