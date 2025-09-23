@@ -34,6 +34,7 @@ const options = [
   { value: "isAjudante", label: "Ajudante" },
   { value: "isMotorista", label: "Motorista" },
   { value: "isOficina", label: "Oficina" },
+  { value: "isFornecedor", label: "Fornecedor" },
 ];
 
 export default function Pessoa() {
@@ -76,6 +77,7 @@ export default function Pessoa() {
     isAjudante: false,
     isMotorista: false,
     isOficina: false,
+    isFornecedor: false,
     idUf: null,
     idMunicipio: null,
     idBairro: null,
@@ -174,6 +176,7 @@ export default function Pessoa() {
       isAjudante: list?.find(l => l.value === "isAjudante") ? true : null,
       isMotorista: list?.find(l => l.value === "isMotorista") ? true : null,
       isOficina: list?.find(l => l.value === "isOficina") ? true : null,
+      isFornecedor: list?.find(l => l.value === "isFornecedor") ? true : null,
       idUf: uf && uf.value ? uf.value : null,
       idMunicipio: municipio && municipio.value ? municipio.value : null,
       idBairro: bairro && bairro.value ? bairro.value : null,
@@ -267,6 +270,14 @@ export default function Pessoa() {
   }, [tipoPessoa, optionsSelected, uf, municipio, bairro, dataInicio, dataFim, status]);
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
+
+  const getPessoaFuncao = (pessoa: pessoaType) => {
+    if(pessoa.isAjudante) return "Ajudante";
+    if(pessoa.isMotorista) return "Motorista";
+    if(pessoa.isOficina) return "Oficina";
+    
+    return "Fornecedor";
+  }
 
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
@@ -407,7 +418,7 @@ export default function Pessoa() {
                     </TableCell>}
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Tipo Pessoa: "}{c.tipoPessoa}
+                      {isMobile && "Tipo Pessoa: "}{c.tipoPessoa} <span className='text-xs'>({getPessoaFuncao(c).toUpperCase()})</span>
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>

@@ -18,6 +18,8 @@ import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { toNumber } from '@/services/utils';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import InputLabel from '@/ui/components/forms/InputLabel';
+import { getPessoaList, getPessoas } from '@/services/pessoa';
+import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 
 type modalPropsType = {
     open: boolean,
@@ -36,13 +38,21 @@ const schema = z.object({
         label: z.string().optional(),
         value: z.number().optional()
     }, { message: "Selecione o produto abastecimento" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o produto abastecimento" }),
+    idPessoaFornecedor: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione um Fornecedor" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Fornecedor" }),
+    idPostoCombustivelTanque: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione um Tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tanque" }),
     quantidade: z.string().optional(),
     valorUnitario: z.string().optional(),
 });
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, setFocus, watch, getValues, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -55,6 +65,8 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             setDataRecebimento(item.dataRecebimento);
             setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
             setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento });
+            setValue("idPessoaFornecedor", { value: item.idPessoaFornecedor, label: item.razaoSocialPessoaFornecedor });
+            setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             setValue("quantidade", item.quantidade.toString());
             setValue("valorUnitario", String(currency(item.valorUnitario)));
             toast.dismiss(process);
@@ -92,6 +104,16 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         return data;
     }
 
+    const getPessoasFornecedor = async (pesquisa?: string) => {
+        const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
+        return data;
+    }
+
+    const getPostoCombustivelTanques = async (pesquisa?: string) => {
+        const data = await getPostoCombustivelTanqueList(pesquisa, getValues("idPostoCombustivel.value"), undefined);
+        return data;
+    }
+
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
         if (loading) return
         setLoading(true);
@@ -101,6 +123,8 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 dataRecebimento: dataRecebimento ? dataRecebimento.slice(0, 11).concat("00:00:00") : "",
                 idPostoCombustivel: idPosto ? +idPosto : (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
+                idPessoaFornecedor: dados.idPessoaFornecedor ?? null,
+                idPostoCombustivelTanque: dados.idPostoCombustivelTanque ?? null,
                 quantidade: +dados.quantidade,
                 valorUnitario: toNumber(dados.valorUnitario) ?? 0,
             };
@@ -136,7 +160,9 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                         <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
-                        <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01'/>
+                        <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable />
+                        <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} asyncFunction={getPostoCombustivelTanques} options={[]} isClearable />
+                        <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
                     </ModalFormBody>
 
