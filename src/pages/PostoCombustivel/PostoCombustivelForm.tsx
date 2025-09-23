@@ -29,7 +29,7 @@ import Modal from '../Bairro/Modal';
 import type { optionType } from '@/services/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Building2, Fuel, ArrowDownCircle } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import EntradaCombustivel from '../EntradaCombustivel';
 import PostoCombustivelTanque from '../PostoCombustivelTanque/Index';
@@ -225,39 +225,83 @@ export default function PostoCombustivelForm() {
 
             <Tabs defaultValue='postoCombustivel' className='w-full mt-16 flex flex-col gap-2'>
 
-                <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-0'>
-                    <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")}>
+                <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-1 bg-muted rounded-lg'>
+                    <TabsTrigger
+                        value='postoCombustivel'
+                        onClick={() => setTabNameMobile("Posto Combustível")}
+                        className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                    >
+                        <Building2 size={16} />
                         Posto Combustível
                     </TabsTrigger>
                     {id ? <>
-                        <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")}>
+                        <TabsTrigger
+                            value='abastecimento'
+                            onClick={() => setTabNameMobile("Abastecimentos")}
+                            className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                        >
+                            <Fuel size={16} />
                             Abastecimentos
                         </TabsTrigger>
-                        <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")}>
+                        <TabsTrigger
+                            value='entrada'
+                            onClick={() => setTabNameMobile("Entradas")}
+                            className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                        >
+                            <ArrowDownCircle size={16} />
                             Entradas
                         </TabsTrigger>
                     </> : <></>}
                 </TabsList>
 
                 <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)} open={id ? isDropDownTabsOpen : false}>
-                    <TabsList className='flex w-min px-0 md:hidden'>
+                    <TabsList className='flex w-full px-1 py-1 md:hidden bg-muted rounded-lg'>
                         <DropdownMenuTrigger asChild>
-                            <Button variant={"ghost"} className='text-black dark:text-white flex justify-between items-center gap-2 py-2'>
-                                {tabNameMobile} {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
+                            <Button variant={"ghost"} className='w-full text-foreground flex justify-between items-center gap-2 py-3 px-4 hover:bg-orange-50 hover:text-orange-600'>
+                                <div className='flex items-center gap-2'>
+                                    {tabNameMobile === "Posto Combustível" && <Building2 size={16} />}
+                                    {tabNameMobile === "Abastecimentos" && <Fuel size={16} />}
+                                    {tabNameMobile === "Entradas" && <ArrowDownCircle size={16} />}
+                                    {tabNameMobile}
+                                </div>
+                                {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className='md:hidden'>
-                            <DropdownMenuItem className='p-0 flex flex-col'>
-                                <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")} className='py-2'>
+                        <DropdownMenuContent className='md:hidden w-64 p-1'>
+                            <DropdownMenuItem className='p-0'>
+                                <TabsTrigger
+                                    value='postoCombustivel'
+                                    onClick={() => setTabNameMobile("Posto Combustível")}
+                                    className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                >
+                                    <Building2 size={16} />
                                     Posto Combustível
                                 </TabsTrigger>
-                                <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")} className='py-2'>
-                                    Abastecimentos
-                                </TabsTrigger>
-                                <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")} className='py-2'>
-                                    Entradas
-                                </TabsTrigger>
                             </DropdownMenuItem>
+                            {id && (
+                                <>
+                                    <DropdownMenuItem className='p-0'>
+                                        <TabsTrigger
+                                            value='abastecimento'
+                                            onClick={() => setTabNameMobile("Abastecimentos")}
+                                            className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                        >
+                                            <Fuel size={16} />
+                                            Abastecimentos
+                                        </TabsTrigger>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className='p-0'>
+                                        <TabsTrigger
+                                            value='entrada'
+                                            onClick={() => setTabNameMobile("Entradas")}
+                                            className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                        >
+                                            <ArrowDownCircle size={16} />
+                                            Entradas
+                                        </TabsTrigger>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </TabsList>
                 </DropdownMenu>
