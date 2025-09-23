@@ -55,8 +55,8 @@ export default function VeiculoModelo() {
     }, [pesquisa]);
 
     useEffect(() => {
-        if (veiculoMarca.value !== undefined || filtersOn) changeListFilters();
-    }, [veiculoMarca.value]);
+        if (veiculoMarca?.value !== undefined || filtersOn) changeListFilters();
+    }, [veiculoMarca?.value]);
 
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
@@ -82,7 +82,7 @@ export default function VeiculoModelo() {
         setLoading(true);
         try {
             const data = await getVeiculoModelos(postListagem);
-            // setVeiculoModelos(data.dados);
+            setVeiculoModelos(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
             setTotalRegisters(data.totalRegisters);
