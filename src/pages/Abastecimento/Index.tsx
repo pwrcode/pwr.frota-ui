@@ -107,7 +107,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   }, []);
 
   const getMotoristas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined);
+    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined, undefined);
     return [...data];
   }
 
@@ -122,7 +122,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   }
 
   const getVeiculos = async (pesquisa?: string) => {
-    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined);
+    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined);
     return [...data];
   }
 
@@ -296,7 +296,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="import" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="import" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

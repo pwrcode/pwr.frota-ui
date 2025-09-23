@@ -208,7 +208,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar} py='py-20'/>
+                    <TableEmpty  py='py-20' title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar}/>
                 )}
             </>}
 

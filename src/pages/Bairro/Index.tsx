@@ -259,7 +259,7 @@ export default function Bairro() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty  py='py-20' icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

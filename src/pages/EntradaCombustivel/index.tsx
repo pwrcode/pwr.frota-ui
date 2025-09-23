@@ -297,7 +297,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty  py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

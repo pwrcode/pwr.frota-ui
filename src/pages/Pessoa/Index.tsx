@@ -454,7 +454,7 @@ export default function Pessoa() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="users" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty  py='py-20' icon="users" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

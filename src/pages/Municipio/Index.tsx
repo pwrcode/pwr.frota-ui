@@ -179,7 +179,7 @@ export default function Municipio() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="map-pin" />
+          <TableEmpty  py='py-20' icon="map-pin" />
         )}
       </>}
 

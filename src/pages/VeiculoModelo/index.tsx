@@ -82,7 +82,7 @@ export default function VeiculoModelo() {
         setLoading(true);
         try {
             const data = await getVeiculoModelos(postListagem);
-            setVeiculoModelos(data.dados);
+            // setVeiculoModelos(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
             setTotalRegisters(data.totalRegisters);
@@ -141,7 +141,7 @@ export default function VeiculoModelo() {
 
             <PageTitle title="Veículo Modelo" />
 
-            <Filters grid={FiltersGrid.sm2_md3_lg4}>
+            <Filters grid={FiltersGrid.sm2}>
                 <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
                 <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable
                 />
@@ -216,7 +216,7 @@ export default function VeiculoModelo() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" />
+                    <TableEmpty  py='py-20' icon="car-front" />
                 )}
             </>}
 

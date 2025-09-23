@@ -205,7 +205,7 @@ export default function PerfilAcesso({ config }: any) {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="shield" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty  py='py-20' icon="shield" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>)}
 

@@ -194,7 +194,7 @@ export default function VeiculoMarca() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty  py='py-20' icon="car" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

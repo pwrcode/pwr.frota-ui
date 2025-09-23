@@ -166,7 +166,7 @@ export default function TipoVeiculo() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="map" />
+          <TableEmpty  py='py-20' icon="truck" />
         )}
       </>}
 
