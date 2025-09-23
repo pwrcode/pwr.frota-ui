@@ -166,7 +166,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                                         </TableCell> : <></>}
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "Tipo: "}{idVeiculo ? c.tipoTanque : tiposTanque.find(t=> t.value === c.tipoTanque)?.label}
+                                            {isMobile && "Tipo: "}{idVeiculo ? c.tipoTanque : tiposTanque.find(t => t.value === c.tipoTanque)?.label}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
@@ -208,7 +208,9 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar}/>
+                    <div className='bg-gray-100 dark:bg-muted border-dashed border-[2px] border-gray-300 rounded-md shadow-md'>
+                        <TableEmpty py='py-20' title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar} />
+                    </div>
                 )}
             </>}
 

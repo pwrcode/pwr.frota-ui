@@ -139,7 +139,6 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
                                 <TableHead className="w-16 text-center">Id</TableHead>
                                 {idPostoCombustivel ? <TableHead className='w-60'>Descrição</TableHead> : <></>}
                                 <TableHead className='w-40'>Produto Abastecimento</TableHead>
-                                <TableHead className='w-40'>Capacidade</TableHead>
                                 <TableHead className='w-40'>Capacidade Litros</TableHead>
                                 <TableHead className='w-40'>Estoque Mínimo Litros</TableHead>
                                 {idPostoCombustivel ? <TableHead className='w-40'>Número Tanque</TableHead> : <></>}
@@ -214,7 +213,9 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar} />
+                    <div className='bg-gray-100 dark:bg-muted border-dashed border-[2px] border-gray-300 rounded-md shadow-md'>
+                        <TableEmpty py='py-20' title='Nenhum tanque encontrado' icon="search-x" handleClickAdicionar={handleClickAdicionar} />
+                    </div>
                 )}
             </>}
 

@@ -35,7 +35,6 @@ const schema = z.object({
         label: z.string().optional(),
         value: z.number().optional()
     }, { message: "Selecione o tipo tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tipo tanque" }),
-    capacidade: z.string().optional(),
     capacidadeLitros: z.string().optional(),
     estoqueMinimoLitros: z.string().optional(),
 });
@@ -151,7 +150,6 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
 
                     <ModalFormBody>
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
-                        <InputLabel name='capacidade' title='Capacidade' register={{ ...register("capacidade") }} type='number' step='0.01' />
                         <InputLabel name='capacidadeLitros' title='Capacidade Litros' register={{ ...register("capacidadeLitros") }} type='number' step='0.01' />
                         <InputLabel name='estoqueMinimoLitros' title='Estoque Mínimo Litros' register={{ ...register("estoqueMinimoLitros") }} type='number' step='0.01' />
                     </ModalFormBody>

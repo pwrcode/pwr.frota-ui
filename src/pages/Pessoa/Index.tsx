@@ -272,10 +272,10 @@ export default function Pessoa() {
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   const getPessoaFuncao = (pessoa: pessoaType) => {
-    if(pessoa.isAjudante) return "Ajudante";
-    if(pessoa.isMotorista) return "Motorista";
-    if(pessoa.isOficina) return "Oficina";
-    
+    if (pessoa.isAjudante) return "Ajudante";
+    if (pessoa.isMotorista) return "Motorista";
+    if (pessoa.isOficina) return "Oficina";
+
     return "Fornecedor";
   }
 
@@ -322,7 +322,7 @@ export default function Pessoa() {
                 <div className="space-y-4">
                   <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
                   <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-                    <AsyncReactSelect name="optionsSelected" title="Tipo Pessoa" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
+                    <AsyncReactSelect name="optionsSelected" title="Função" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
                   </div>
                   <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
                   <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
@@ -454,7 +454,7 @@ export default function Pessoa() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="users" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="users" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 
