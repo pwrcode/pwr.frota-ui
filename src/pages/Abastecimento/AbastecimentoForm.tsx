@@ -82,10 +82,13 @@ export default function AbastecimentoForm() {
 
   const veiculo = watch("idVeiculo");
   const postoCombustivel = watch("idPostoCombustivel");
+  const postoCombustivelTanque = watch("idPostoCombustivelTanque");
   const [postoInterno, setPostoInterno] = useState(false);
 
   const [tanques, setTanques] = useState<listType>([]);
   const [tanquesPosto, setTanquesPosto] = useState<listType>([]);
+  const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
@@ -111,7 +114,12 @@ export default function AbastecimentoForm() {
   }
 
   const getProdutosAbastecimento = async (pesquisa?: string) => {
-    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+    if (!postoCombustivelTanque && !veiculo) {
+      setProdutosAbastecimento([]);
+      return [];
+    }
+    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value, veiculo?.value);
+    setProdutosAbastecimento([...data]);
     return data;
   }
 
@@ -130,6 +138,11 @@ export default function AbastecimentoForm() {
     getTanquesPosto();
     verificaPostoInterno();
   }, [postoCombustivel])
+
+  useEffect(() => {
+    resetField("idProdutoAbastecimento")
+    getProdutosAbastecimento();
+  }, [postoCombustivelTanque, veiculo])
 
   const getTanques = async (pesquisa?: string) => {
     if (!veiculo) {
@@ -277,7 +290,7 @@ export default function AbastecimentoForm() {
               {postoInterno ? <AsyncReactSelect style='2xl:col-span-2' name="idPostoCombustivelTanque" title="Tanque Posto" control={control} asyncFunction={getTanquesPosto} options={tanquesPosto} filter isClearable size="w-full" isDisabled={!postoInterno} /> : <></>}
               {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable /> : <></>}
               <AsyncReactSelect name="idVeiculoTanque" title="Tanque Veiculo" control={control} asyncFunction={getTanques} options={tanques} filter isClearable size="w-full" />
-              <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
+              <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
             </div>
           </FormContainerBody>
         </FormContainer>

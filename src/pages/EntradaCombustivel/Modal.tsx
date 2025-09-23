@@ -129,12 +129,11 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
-        console.log(idPostoCombustivelTanque)
         if (!idPostoCombustivelTanque) {
             setProdutosAbastecimento([]);
             return [];
         }
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value, undefined);
         setProdutosAbastecimento([...data]);
         return data;
     }
