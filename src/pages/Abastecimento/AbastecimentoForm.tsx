@@ -114,7 +114,6 @@ export default function AbastecimentoForm() {
   }
 
   useEffect(() => {
-    console.log("oi")
     resetField("idVeiculoTanque")
     getTanques();
   }, [veiculo])

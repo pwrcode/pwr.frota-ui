@@ -5,7 +5,8 @@ import {
   Car,
   CarFront,
   Settings,
-  Building
+  Building,
+  MapPin
 } from "lucide-react";
 // import { getConfigType, getConfiguracoes, postConfigType, postConfiguracoes } from "@/services/configuracoesServices";
 import { useState } from "react";
@@ -14,6 +15,7 @@ import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
 import PageTitle from "@/ui/components/PageTitle";
 import Bairro from "../Bairro/Index";
+import DadosEmpresa from "./DadosEmpresa";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -215,6 +217,15 @@ export default function Configuracoes() {
                 Configurações Gerais
               </TabsTrigger>
 
+              <TabsTrigger
+                value="empresa"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Building className="h-4 w-4" />
+                Configurações Empresa
+              </TabsTrigger>
+
               <div className="border-t border-border my-2"></div>
 
               <TabsTrigger
@@ -240,7 +251,7 @@ export default function Configuracoes() {
                 className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
-                <CarFront className="h-4 w-4" />
+                <MapPin className="h-4 w-4" />
                 Bairros
               </TabsTrigger>
             </div>
@@ -251,6 +262,10 @@ export default function Configuracoes() {
           <FormContainer>
             <TabsContent value="geral" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
 
+            </TabsContent>
+
+            <TabsContent value="empresa" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
+              <DadosEmpresa />
             </TabsContent>
 
             <TabsContent value="veiculoMarca" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">

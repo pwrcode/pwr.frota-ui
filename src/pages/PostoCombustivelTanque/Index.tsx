@@ -106,7 +106,6 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
 
     const deletar = async () => {
         if (!idPostoCombustivel) {
-            console.log("oi")
             const tan = tanques.filter((_t, index) => index !== idExcluir);
             setTanques(tan);
             return
@@ -149,7 +148,6 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
                         </TableHeader>
                         <TableBody>
                             {tanques.map((c, index) => {
-                                console.log(c);
                                 return (
                                     <TableRow key={c.id} className={rowStyle}>
 

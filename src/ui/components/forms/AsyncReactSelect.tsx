@@ -202,7 +202,6 @@ export default function AsyncReactSelect({
     };
 
     const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
-        console.log(actionMeta);
         if (newValue === "" && (actionMeta.action === "input-change" || actionMeta.action === "menu-close")) {
             loadOptions("", () => { });
         }
@@ -220,7 +219,6 @@ export default function AsyncReactSelect({
                     name={name}
                     //rules={{ required: "Selecione uma opção" }}
                     render={({ field }) => {
-                        //console.log(field.value);
                         return (
                             <AsyncSelect
                                 {...field}

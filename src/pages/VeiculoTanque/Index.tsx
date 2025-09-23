@@ -106,7 +106,6 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
 
     const deletar = async () => {
         if (!idVeiculo) {
-            console.log("oi")
             const tan = tanques.filter((_t, index) => index !== idExcluir);
             setTanques(tan);
             return

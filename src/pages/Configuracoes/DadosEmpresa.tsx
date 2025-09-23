@@ -1,214 +1,278 @@
-// import { listType } from '@/services/constants';
-// import FormContent from '@/ui/components/form/FormContent';
-// import FormHead from '@/ui/components/form/FormHead';
-// import FormLine from '@/ui/components/form/FormLine';
-// import InputLabel from '@/ui/components/form/InputLabel';
-// import ReactSelect from '@/ui/components/form/ReactSelect';
-// import { useEffect, useState } from 'react';
-// import { Control, FieldValues } from 'react-hook-form';
-// import { BairroModal } from '../../ui/components/dialog/BairroModal';
-// import { formatarCep } from '@/services/formatacao';
-// import { UploadFoto } from '@/ui/components/form/UploadFoto';
-// import { selectSetBairros } from '@/services/functions/selectSetBairros';
-// import { selectSetMunicipios } from '@/services/functions/selectSetMunicipios';
-// import { selectSetUfs } from '@/services/functions/selectSetUfs';
-// import { UfModal } from '@/ui/components/dialog/UfModal';
-// import { MunicipioModal } from '@/ui/components/dialog/MunicipioModal';
-// import { AddButton, SelectAddBox } from '@/ui/components/form/SelectAddBox';
-// import { SearchButton } from '@/ui/components/form/Buttons';
-// import { removeNonDigit } from '@/services/utils';
-// import { buscarCep } from '@/services/functions/buscarCep';
-// import { InputMaskLabel, InputMasks } from '@/ui/components/form/InputMaskLabel';
+import { tiposPessoa, type listType, type optionType } from '@/services/constants';
+import { formatarCelular, formatarCep, formatarCpfCnpj } from '@/services/formatacao';
+import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
+import { useEffect, useState } from 'react';
+import { useForm, type Control, type FieldValues } from 'react-hook-form';
+import Modal from '../Bairro/Modal';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
+import FormContainer from '@/ui/components/forms/FormContainer';
+import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
+import FormContainerBody from '@/ui/components/forms/FormContainerBody';
+import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import { useEndereco } from '@/hooks/useEndereco';
+import { getEmpresa, updateEmpresa, type dadosAddEdicaoEmpresaType } from '@/services/empresa';
+import { removeNonDigit } from '@/services/utils';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import InputLabel from '@/ui/components/forms/InputLabel';
+import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
+import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import { FormGrid, FormGridPair } from '@/ui/components/forms/FormGrid';
+import { ButtonSubmit, SearchButton } from '@/ui/components/buttons/FormButtons';
+import { PlusButton } from '@/ui/components/buttons/PlusButton';
+import FormLine from '@/ui/components/forms/FormLine';
+import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
+import { Button } from '@/components/ui/button';
+import { errorMsg } from '@/services/api';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import TextareaLabel from '@/ui/components/forms/TextareaLabel';
+import { ca } from 'date-fns/locale';
 
-// type propsType = {
-//   register: any,
-//   control: Control<FieldValues, any>,
-//   setFieldValue: (field: string, value: any) => void,
-//   cnpj: string,
-//   telefone: string,
-//   cep: string,
-//   idUf: number,
-//   codigoImg: number,
-//   setCodigoImg: React.Dispatch<React.SetStateAction<number>>
-//   idMunicipio: number,
-//   loading: boolean,
-//   setBuscandoCep: React.Dispatch<React.SetStateAction<boolean>>
-// }
+const schema = z.object({
+    tipoPessoa: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione o tipo pessoa" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tipo pessoa" }),
+    documento: z.string().optional(),
+    razaoSocial: z.string().min(1, { message: "Informe a Razão Social" }),
+    nomeFantasia: z.string().min(1, { message: "Informe o Nome Fantasia" }),
+    cep: z.string().optional(),
+    idUf: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione o UF" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o UF" }),
+    idMunicipio: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione o município" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o município" }),
+    idBairro: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }, { message: "Selecione o bairro" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o bairro" }).optional(),
+    logradouro: z.string().optional(),
+    numero: z.string().optional(),
+    complemento: z.string().optional(),
+    pontoReferencia: z.string().optional(),
+    telefonePrincipal: z.string().optional(),
+    telefoneSecundario: z.string().optional(),
+    observacao: z.string().optional().nullable(),
+})
 
-// export default function DadosEmpresa({ register, control, cnpj, telefone, codigoImg, setCodigoImg, setFieldValue, cep, idUf, idMunicipio, loading, setBuscandoCep }: propsType) {
+export default function DadosEmpresa() {
+    const navigate = useNavigate();
 
-//   const changeCodigoImg = (codigo: number) => {
-//     setCodigoImg(codigo);
-//   }
+    const formFunctions = useForm({
+        resolver: zodResolver(schema)
+    });
 
-//   const [canIdMunicipioGetClean, setCanIdMunicipioGetClean] = useState<boolean>(false);
-//   const [canIdBairroGetClean, setCanIdBairroGetClean] = useState<boolean>(false);
-//   const [blockUf, setBlockUf] = useState<boolean>(false);
-//   const [blockMunicipio, setBlockMunicipio] = useState<boolean>(false);
-//   const [blockBairro, setBlockBairro] = useState<boolean>(false);
-//   const [blockRua, setBlockRua] = useState<boolean>(false);
+    const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
 
-//   const [ufs, setUfs] = useState<listType>([]);
-//   const [municipios, setMunicipios] = useState<listType>([]);
-//   const [bairros, setBairros] = useState<listType>([]);
+    const {
+        cep,
+        getUfs, getMunicipios, getBairros, buscarCep, loadingCep,
+        ufs, municipios, bairros,
+    } = useEndereco(formFunctions);
 
-//   const setUfId = (id: number) => {
-//     if (id) setFieldValue("idUf", id);
-//   }
+    const [loading, setLoading] = useState(false);
+    const [cadInfo, setCadInfo] = useState<string>("");
+    const [edicaoInfo, setEdicaoInfo] = useState<string>("");
 
-//   const setMunicipioId = (id: number) => {
-//     if (id) setFieldValue("idMunicipio", id);
-//   }
+    const idBairro = watch("idBairro.value");
+    const idMunicipio = watch("idMunicipio.value");
 
-//   const setBairroId = (id: number) => {
-//     if (id) setFieldValue("idBairro", id);
-//   }
+    const tipoPessoa = watch("tipoPessoa");
+    const documento = watch("documento");
 
-//   useEffect(() => {
-//     setFieldValue("cep", formatarCep(cep));
-//     selectUfs();
-//   }, []);
+    const [idArquivoFotoEmpresa, setIdArquivoFotoEmpresa] = useState<number>(0);
 
-//   useEffect(() => {
-//     setMunicipios([]);
-//     setBairros([]);
-//     if (canIdMunicipioGetClean) setFieldValue("idMunicipio", 0);
-//     if (idUf && idUf > 0) selectMunicipios();
-//   }, [idUf]);
+    const [bairroModalOpen, setBairroModalOpen] = useState<boolean>(false);
 
-//   useEffect(() => {
-//     setBairros([]);
-//     if (canIdBairroGetClean) setFieldValue("idBairro", 0);
-//     if (idMunicipio && idMunicipio > 0) selectBairros();
-//   }, [idMunicipio]);
+    useEffect(() => {
+        carregaDadosEmpresa();
+    }, []);
 
-//   const selectUfs = async () => {
-//     selectSetUfs(setUfs);
-//   }
+    const carregaDadosEmpresa = async () => {
+        try {
+            const data = await getEmpresa();
+            reset({
+                tipoPessoa: {
+                    value: tiposPessoa.find(t => t.valueString == data.tipoPessoa.toString())?.value,
+                    label: tiposPessoa.find(t => t.valueString === data.tipoPessoa.toString())?.label
+                },
+                documento: formatarCpfCnpj(removeNonDigit(data.documento)),
+                razaoSocial: data.razaoSocial,
+                nomeFantasia: data.nomeFantasia,
+                cep: formatarCep(data.cep),
+                idUf: {
+                    value: data.idUf,
+                    label: data.descricaoUf
+                },
+                idMunicipio: {
+                    value: data.idMunicipio,
+                    label: data.descricaoMunicipio
+                },
+                idBairro: {
+                    value: data.idBairro,
+                    label: data.descricaoBairro
+                },
+                logradouro: data.logradouro,
+                numero: data.numero,
+                complemento: data.complemento,
+                pontoReferencia: data.pontoReferencia,
+                telefonePrincipal: formatarCelular(data.telefonePrincipal || ""),
+                telefoneSecundario: formatarCelular(data.telefoneSecundario || ""),
+                observacao: data.observacao,
+            });
 
-//   const selectMunicipios = async () => {
-//     setCanIdMunicipioGetClean(true);
-//     selectSetMunicipios(idUf, setMunicipios);
-//   }
+            if (data.idArquivoFoto)
+                setIdArquivoFotoEmpresa(data.idArquivoFoto);
+        } catch (ex) { }
+    }
 
-//   const selectBairros = async () => {
-//     setCanIdBairroGetClean(true);
-//     selectSetBairros(idMunicipio, setBairros);
-//   };
+    const submit = async (data: dadosAddEdicaoEmpresaType) => {
+        if (loading) return;
+        setLoading(true);
+        const process = toast.loading("Salvando item...")
+        try {
+            const postPut: dadosAddEdicaoEmpresaType = {
+                tipoPessoa: data.tipoPessoa ?? null,
+                documento: removeNonDigit(data.documento),
+                razaoSocial: data.razaoSocial,
+                nomeFantasia: data.nomeFantasia,
+                cep: removeNonDigit(data.cep),
+                idUf: data.idUf ?? null,
+                idMunicipio: data.idMunicipio ?? null,
+                idBairro: data.idBairro ?? null,
+                logradouro: data.logradouro,
+                numero: data.numero,
+                complemento: data.complemento,
+                pontoReferencia: data.pontoReferencia,
+                telefonePrincipal: data.telefonePrincipal ? removeNonDigit(data.telefonePrincipal) : "",
+                telefoneSecundario: data.telefoneSecundario ? removeNonDigit(data.telefoneSecundario) : "",
+                observacao: data.observacao,
+                idArquivoFoto: idArquivoFotoEmpresa,
+            }
 
-//   useEffect(() => {
-//     if ((removeNonDigit(cep).length < 8) && blockUf || blockMunicipio || blockBairro || blockRua) {
-//       unblockFields();
-//       cleanFields();
-//     }
-//   }, [cep]);
+            const res = await updateEmpresa(postPut);
+            toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
+        }
+        catch (error: Error | any) {
+            toast.update(process, { render: errorMsg(error), type: "error", isLoading: false, autoClose: 2000 });
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
-//   const buscarCepCall = async () => {
-//     setCanIdMunicipioGetClean(false);
-//     setCanIdBairroGetClean(false);
-//     await buscarCep(setBuscandoCep, cep, setFieldValue, unblockFields, cleanFields, setBlockUf, setBlockMunicipio, setBlockBairro, setBlockRua);
-//     selectUfs();
-//   }
+    const handleClickAdicionarBairro = () => {
+        setBairroModalOpen(true);
+    }
 
-//   const cleanFields = () => {
-//     setFieldValue("idUf", 0);
-//     setFieldValue("idMunicipio", 0);
-//     setFieldValue("idBairro", 0);
-//     setFieldValue("rua", "");
-//   }
+    const selecionarBairro = (bairro: optionType) => {
+        setValue("idBairro", bairro);
+        getBairros();
+    }
 
-//   const unblockFields = () => {
-//     setBlockUf(false);
-//     setBlockMunicipio(false);
-//     setBlockBairro(false);
-//     setBlockRua(false);
-//   }
+    return (
+        <>
+            <Modal open={bairroModalOpen} setOpen={setBairroModalOpen} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
-//   const [ufModalOpen, setUfModalOpen] = useState<boolean>(false);
-//   const [municipioModalOpen, setMunicipioModalOpen] = useState<boolean>(false);
-//   const [bairroModalOpen, setBairroModalOpen] = useState<boolean>(false);
+            <div className="w-full mt-16">
+                <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoEmpresaType))}>
 
-//   const handleClickAddUf = () => {
-//     setUfModalOpen(true);
-//   }
-//   const handleClickAddMunicipio = () => {
-//     setMunicipioModalOpen(true);
-//   }
-//   const handleClickAddBairro = () => {
-//     setBairroModalOpen(true);
-//   }
+                    <div className="flex-1">
+                        <UploadFoto referenciaTipo="Empresa" idArquivo={idArquivoFotoEmpresa} changeIdArquivo={setIdArquivoFotoEmpresa} alt="Foto Empresa" isDisabled={loading} />
+                    </div>
+                    <FormContainer>
+                        <FormContainerHeader title="Pessoa" />
+                        <FormContainerBody>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
+                                <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" control={control} options={tiposPessoa} />
+                                <InputMaskLabel
+                                    name="documento" title={tipoPessoa && tipoPessoa.value === 1 ? "CPF" : "CNPJ"}
+                                    mask={tipoPessoa && tipoPessoa.value == 1 ? Masks.cpf : Masks.cnpj}
+                                    register={{ ...register("documento") }} value={documento} setValue={setValue}
+                                />
+                                <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
+                                <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
+                            </div>
+                        </FormContainerBody>
+                    </FormContainer>
 
-//   return (
-//     <>
-//       <FormHead title="Dados da Empresa" subtitle="Taxa de Serviço, Nome Fantasia e outras configurações." />
+                    <FormContainer>
+                        <FormContainerHeader title="Contato" />
+                        <FormContainerBody>
+                            <FormGridPair>
+                                <InputMaskLabel
+                                    name="telefonePrincipal"
+                                    title="Telefone Principal"
+                                    mask={Masks.celular}
+                                    register={{ ...register("telefonePrincipal") }}
+                                    value={watch("telefonePrincipal")}
+                                    setValue={setValue}
+                                    style=' lg:col-span-2'
+                                />
+                                <InputMaskLabel
+                                    name="telefoneSecundario"
+                                    title="Telefone Secundário"
+                                    mask={Masks.celular}
+                                    register={{ ...register("telefoneSecundario") }}
+                                    value={watch("telefoneSecundario")}
+                                    setValue={setValue}
+                                    style=' lg:col-span-2'
+                                />
+                            </FormGridPair>
+                        </FormContainerBody>
+                    </FormContainer>
 
-//       <FormContent>
-//         <div className="flex-1">
-//           <UploadFoto descricao="LogoEmpresa" codigo={codigoImg} changeCodigo={changeCodigoImg} alt="Logo da Empresa" isDisabled={loading} />
-//         </div>
+                    <FormContainer>
+                        <FormContainerHeader title="Endereço" />
+                        <FormContainerBody>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-8 gap-2">
+                                {/* CEP e Buscar */}
+                                <div className="col-span-1 xl:col-span-2 flex flex-row items-end gap-1">
+                                    <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
+                                    <SearchButton func={buscarCep} disabled={loadingCep} />
+                                </div>
+                                <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                <span className='col-span-1 hidden lg:invisible'></span>
+                                <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
+                                    <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                    <PlusButton loading={loading} func={handleClickAdicionarBairro} />
+                                </div>
+                                {/* Bairro e Add */}
+                                <InputLabel name="logradouro" title="Logradouro" register={{ ...register("logradouro") }} size="xl:col-span-3" />
+                                <InputLabel name="numero" title="Número" register={{ ...register("numero") }} size="xl:col-span-1" />
+                                <InputLabel name="complemento" title="Complemento" register={{ ...register("complemento") }} size="xl:col-span-4" />
+                                <InputLabel name="pontoReferencia" title="Ponto Referência" register={{ ...register("pontoReferencia") }} size="xl:col-span-4" />
+                                <div className='xl:col-span-8'>
+                                    <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
+                                </div>
+                            </div>
+                        </FormContainerBody>
+                    </FormContainer>
 
-//         <FormLine cols={2}>
-//           <InputLabel id="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} isDisabled={loading} />
-//           <InputLabel id="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
-//           <InputMaskLabel
-//             name="cnpj" title="CNPJ" mask={InputMasks.cnpj} value={cnpj} setValue={setFieldValue} register={{ ...register("cnpj")}} disabled={loading}
-//           />
-//           <InputLabel id="inscricaoEstadual" title="Inscricão Estadual" register={{ ...register("inscricaoEstadual") }} isDisabled={loading} />
-//           <InputMaskLabel
-//             name="telefone" title="Telefone" mask={InputMasks.celular} value={telefone} setValue={setFieldValue} register={{ ...register("telefone")}} disabled={loading}
-//           />
-//         </FormLine>
+                    <FormContainer>
+                        <FormContainerBody>
+                            <FormLine>
+                                <FormLine justify="start">
+                                    <CadAlterInfo cadInfo={cadInfo} alterInfo={edicaoInfo} />
+                                </FormLine>
+                                <FormLine justify="end">
+                                    <Button variant="outline" type="button" onClick={() => navigate("/pessoa")} disabled={loading}>Cancelar</Button>
+                                    <ButtonSubmit loading={loading}>
+                                        Salvar
+                                    </ButtonSubmit>
+                                </FormLine>
+                            </FormLine>
+                        </FormContainerBody>
+                    </FormContainer>
 
-//         <FormLine cols={2}>
-//           <SelectAddBox>
-//             <InputMaskLabel
-//               name="cep" title="CEP" mask={InputMasks.cep} value={cep} setValue={setFieldValue} register={{ ...register("cep")}} disabled={loading}
-//             />
-//             <SearchButton func={buscarCepCall} loading={loading} />
-//           </SelectAddBox>
-//           <SelectAddBox>
-//             <ReactSelect id="idUf" title="UF" options={ufs} control={control} isDisabled={loading || blockUf} />
-//             <AddButton func={handleClickAddUf} loading={loading} />
-//           </SelectAddBox>
-//           <SelectAddBox>
-//             <ReactSelect id="idMunicipio" title="Município" options={municipios} control={control} isDisabled={loading || blockMunicipio} />
-//             <AddButton func={handleClickAddMunicipio} loading={loading} />
-//           </SelectAddBox>
-//           <SelectAddBox>
-//             <ReactSelect id="idBairro" title="Bairro" options={bairros} control={control} isDisabled={loading || blockBairro} />
-//             <AddButton func={handleClickAddBairro} loading={loading} />
-//           </SelectAddBox>
-//           <InputLabel id="rua" title="Rua" register={{ ...register("rua") }} isDisabled={loading || blockRua} />
-//           <InputLabel id="numero" title="Número" register={{ ...register("numero") }} isDisabled={loading} />
-//           <InputLabel id="complemento" title="Complemento" register={{ ...register("complemento") }} isDisabled={loading} />
-//         </FormLine>
-//       </FormContent>
-
-//       <UfModal
-//         open={ufModalOpen}
-//         setOpen={setUfModalOpen}
-//         setUfId={setUfId}
-//         update={selectUfs}
-//       />
-
-//       <MunicipioModal
-//         open={municipioModalOpen}
-//         setOpen={setMunicipioModalOpen}
-//         ufs={ufs}
-//         idUf={idUf}
-//         setMunicipioId={setMunicipioId}
-//         update={selectMunicipios}
-//       />
-
-//       <BairroModal
-//         open={bairroModalOpen}
-//         setOpen={setBairroModalOpen}
-//         ufs={ufs}
-//         idUf={idUf}
-//         idMunicipio={idMunicipio}
-//         setBairroId={setBairroId}
-//         update={selectBairros}
-//       />
-//     </>
-//   )
-// }
+                </form>
+            </div>
+        </>
+    )
+}

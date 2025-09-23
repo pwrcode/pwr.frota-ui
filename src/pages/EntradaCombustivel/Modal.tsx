@@ -93,7 +93,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
-        console.log(dados)
         if (loading) return
         setLoading(true);
         const process = toast.loading("Salvando item...");
