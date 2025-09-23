@@ -16,8 +16,8 @@ export const logIn = async (dados: dadosLoginType) => {
   const response = await axiosInstance.post(`${api}/login`, dados);
   if(response.data.sucesso) {
     const token = response.data.dados.token;
-    localStorage.setItem("authToken", JSON.stringify(token));
-    localStorage.setItem("nome", JSON.stringify(response.data.dados.nome));
+    localStorage.setItem("PWR_TOKEN", JSON.stringify(token));
+    localStorage.setItem("PRR_USER_NAME", JSON.stringify(response.data.dados.nome));
     return "Login feito com sucesso";
   } 
   else {
@@ -27,8 +27,8 @@ export const logIn = async (dados: dadosLoginType) => {
 
 export const logOut = (navigate: NavigateFunction) => {
   navigate("/login");
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("email");
+  localStorage.removeItem("PWR_TOKEN");
+  localStorage.removeItem("PWR_USER_EMAIL");
 }
 
 export const getAuthLogado = async () => {

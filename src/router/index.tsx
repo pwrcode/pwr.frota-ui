@@ -42,7 +42,7 @@ const PublicRoute = () => (
 );
 
 const PrivateRoute = () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("PWR_TOKEN");
 
   if (!token) {
     return <Navigate to="/login" replace />;

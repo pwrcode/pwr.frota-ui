@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const getAxiosArquivo = async () => {
-    const token = JSON.parse(localStorage.getItem("authToken") || 'null');
+    const token = JSON.parse(localStorage.getItem("PWR_TOKEN") || 'null');
     const instance = axios.create({
         // @ts-ignore
         baseURL: import.meta.env.VITE_API_URL,
@@ -15,7 +15,7 @@ const getAxiosArquivo = async () => {
         (response) => response,
         (error) => {
             if (error.response && error.response.status === 401) {
-                localStorage.removeItem("authToken");
+                localStorage.removeItem("PWR_TOKEN");
                 window.location.href = '/login';
             }
             return Promise.reject(error);
