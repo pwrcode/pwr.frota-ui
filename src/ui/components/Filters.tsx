@@ -2,6 +2,8 @@ export enum FiltersGrid {
   mb2_md3_lg4 = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
   mb2_md3_lg4_xl5 = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
   sm1_md1_lg1 = "grid grid-cols-1",
+  sm2 = "grid grid-cols-1 sm:grid-cols-2",
+  sm2_md3 = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
   sm2_md3_lg4 = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
   sm2_md3_lg4_xl5 = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
   sm2_md3_lg12_xl10 = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-12 xl:grid-cols-10",

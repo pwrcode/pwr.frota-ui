@@ -155,19 +155,17 @@ export default function Bairro() {
     const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
     return (
-        <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
+        <div className="flex flex-col gap-8 min-h-[calc(100%-4rem)]">
 
             <PageTitle title="Bairros" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect
-                    name="idMunicipio"
-                    title="Munícipio"
-                    options={[]}
-                    asyncFunction={getMunicipios}
-                    value={municipio}
-                    setValue={setMunicipio}
+                <InputLabelValue
+                    name="pesquisa"
+                    title="Pesquisar"
+                    value={pesquisa}
+                    setValue={setPesquisa}
+                    style='col-span-2 space-y-2'
                 />
                 <AsyncReactSelect
                     name="idUf"
@@ -176,6 +174,14 @@ export default function Bairro() {
                     asyncFunction={getUfs}
                     value={uf}
                     setValue={setUf}
+                />
+                <AsyncReactSelect
+                    name="idMunicipio"
+                    title="Munícipio"
+                    options={[]}
+                    asyncFunction={getMunicipios}
+                    value={municipio}
+                    setValue={setMunicipio}
                 />
             </Filters>
 
@@ -253,7 +259,7 @@ export default function Bairro() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty  py='py-20' icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

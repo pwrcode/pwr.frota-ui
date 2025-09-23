@@ -100,18 +100,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="bg-sidebar h-16 flex justify-center items-start text-md border-b border-border">
+      <SidebarHeader className="bg-background h-16 flex justify-center items-start text-md border-b border-border">
         <div className="flex items-center ml-1">
-          <div className="flex aspect-square size-7 items-center justify-center rounded-sm bg-orange-600">
-            <Zap className="size-4 text-white" />
+          <div className="flex aspect-square size-7 items-center justify-center rounded-sm bg-brand-primary">
+            <Zap className="size-4 text-brand-primary-foreground" />
           </div>
           <span className="font-normal text-sidebar-foreground ml-4" translate="no">
-            PWR Frota
+            <span className="font-bold">PWR</span> Frota
           </span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="bg-sidebar h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-500 scrollbar-track-gray-200 scrollbar-hide">
+      <SidebarContent className="bg-background h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-500 scrollbar-track-gray-200 scrollbar-hide">
         <div className="h-10 px-2 mt-3">
           <Input
             name="search"
@@ -141,7 +141,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <AccordionItem value={menu.descricao} className={`border-b-0 ${menuIsActive ? "open" : ""}`}>
                         <AccordionTrigger className={`text-sidebar-foreground hover:bg-sidebar-accent p-2 rounded-md`}>
                           <div className="flex items-center">
-                            {renderIcon(menu.icone, "size-5 mr-2")}
+                            <div className="w-5 h-5 mr-2 flex items-center justify-center flex-shrink-0">
+                              {renderIcon(menu.icone, "size-5")}
+                            </div>
                             <div className="ml-1 font-normal">{menu.descricao}</div>
                           </div>
                         </AccordionTrigger>
@@ -152,11 +154,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               <SidebarMenuButton
                                 key={submenu.link}
                                 asChild
-                                className={`pl-5 py-5 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
+                                className={`pl-5 py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                                 onClick={() => setOpenMobile(false)}
                               >
                                 <Link to={submenu.link}>
-                                  {renderIcon(submenu.icone, "size-5 mr-2")}
+                                  <div className="w-5 h-5 mr-2 flex items-center justify-center flex-shrink-0">
+                                    {renderIcon(submenu.icone, "size-5")}
+                                  </div>
                                   {submenu.descricao}
                                 </Link>
                               </SidebarMenuButton>
@@ -168,11 +172,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ) : (
                     <SidebarMenuButton
                       asChild
-                      className={`py-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${menuIsActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
+                      className={`py-5 ${menuIsActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
-                        {renderIcon(menu.icone, "size-5 mr-2")}
+                        <div className="w-5 h-5 mr-2 flex items-center justify-center flex-shrink-0">
+                          {renderIcon(menu.icone, "size-5")}
+                        </div>
                         {menu.descricao}
                       </Link>
                     </SidebarMenuButton>
@@ -196,11 +202,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       key={menu.link}
                       asChild
-                      className={`py-5 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
+                      className={`py-5 text-sm ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                       onClick={() => setOpenMobile(false)}
                     >
                       <Link to={menu.link} className="flex items-center">
-                        {renderIcon(menu.icone, "size-5 mr-2")}
+                        <div className="w-5 h-5 mr-2 flex items-center justify-center flex-shrink-0">
+                          {renderIcon(menu.icone, "size-5")}
+                        </div>
                         {menu.descricao}
                       </Link>
                     </SidebarMenuButton>
@@ -216,11 +224,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <SidebarMenuButton
                         key={submenu.link}
                         asChild
-                        className={`py-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${isSubmenuActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : ""}`}
+                        className={`py-5 ${isSubmenuActive ? "bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary-hover hover:text-brand-primary-foreground" : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                         onClick={() => setOpenMobile(false)}
                       >
                         <Link to={submenu.link} className="flex items-center">
-                          {renderIcon(submenu.icone, "size-5 mr-2")}
+                          <div className="w-5 h-5 mr-2 flex items-center justify-center flex-shrink-0">
+                            {renderIcon(submenu.icone, "size-5")}
+                          </div>
                           {submenu.descricao}
                         </Link>
                       </SidebarMenuButton>
@@ -232,7 +242,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         )}
       </SidebarContent>
-      <SidebarFooter className="bg-sidebar p-2 border-t border-border">
+      <SidebarFooter className="bg-background p-2 border-t border-border">
         <div className="flex items-center gap-2 pb-2 mt-1">
           <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
             <img src="/logo.png" alt="Logo" className="rounded-md p-1" />

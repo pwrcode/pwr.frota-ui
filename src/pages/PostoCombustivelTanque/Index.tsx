@@ -10,13 +10,13 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
-import { deleteVeiculoTanque, getVeiculoTanques, type postListagemVeiculoTanqueType } from '@/services/veiculoTanque';
+import { deletePostoCombustivelTanque, getPostoCombustivelTanques, type postListagemPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
 import { tiposTanque } from '@/services/constants';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 
-export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVeiculo?: number, tanques: any[], setTanques: any }) {
+export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, setTanques }: { idPostoCombustivel?: number, tanques: any[], setTanques: any }) {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [totalPages, setTotalPages] = useState<number>(0);
@@ -29,12 +29,12 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
 
-    const initialPostListagem: postListagemVeiculoTanqueType = {
+    const initialPostListagem: postListagemPostoCombustivelTanqueType = {
         pageSize: pageSize,
         currentPage: currentPage,
         pesquisa: "",
-        idVeiculo: idVeiculo ?? null,
-        tipoTanque: null
+        idPostoCombustivel: idPostoCombustivel ?? null,
+        idProdutoAbastecimento: null,
     };
     const [postListagem, setPostListagem] = useState(initialPostListagem);
     const [filtersOn, setFiltersOn] = useState<boolean>(false);
@@ -49,8 +49,8 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
             pageSize: pageSize,
             currentPage: page ?? 0,
             pesquisa: "",
-            idVeiculo: idVeiculo ?? null,
-            tipoTanque: null
+            idPostoCombustivel: idPostoCombustivel ?? null,
+            idProdutoAbastecimento: null
         });
     }
 
@@ -59,11 +59,11 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
     }, []);
 
     const updateList = async () => {
-        if (idVeiculo) {
+        if (idPostoCombustivel) {
             const process = toast.loading("Carregando...");
             setLoading(true);
             try {
-                const data = await getVeiculoTanques(postListagem);
+                const data = await getPostoCombustivelTanques(postListagem);
                 setTanques(data.dados);
                 setTotalPages(data.totalPages);
                 setPageSize(data.pageSize);
@@ -105,14 +105,14 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
     }
 
     const deletar = async () => {
-        if (!idVeiculo) {
+        if (!idPostoCombustivel) {
             const tan = tanques.filter((_t, index) => index !== idExcluir);
             setTanques(tan);
             return
         }
         const process = toast.loading("Excluindo item...");
         try {
-            const response = await deleteVeiculoTanque(idExcluir);
+            const response = await deletePostoCombustivelTanque(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             if (tanques?.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
@@ -137,10 +137,11 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                         <TableHeader>
                             <TableRow className="hidden sm:table-row">
                                 <TableHead className="w-16 text-center">Id</TableHead>
-                                {idVeiculo ? <TableHead className='w-60'>Descrição</TableHead> : <></>}
-                                <TableHead className='w-40'>Tipo</TableHead>
-                                <TableHead className='w-40'>Capacidade</TableHead>
-                                {idVeiculo ? <TableHead className='w-40'>Número Tanque</TableHead> : <></>}
+                                {idPostoCombustivel ? <TableHead className='w-60'>Descrição</TableHead> : <></>}
+                                <TableHead className='w-40'>Produto Abastecimento</TableHead>
+                                <TableHead className='w-40'>Capacidade Litros</TableHead>
+                                <TableHead className='w-40'>Estoque Mínimo Litros</TableHead>
+                                {idPostoCombustivel ? <TableHead className='w-40'>Número Tanque</TableHead> : <></>}
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -151,35 +152,39 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
 
                                         <TableCardHeader title={c.descricao}>
                                             <DropDownMenuItem
-                                                id={!idVeiculo ? index : c.id}
+                                                id={!idPostoCombustivel ? index : c.id}
                                                 handleClickEditar={handleClickEditar}
                                                 handleClickDeletar={handleClickDeletar}
                                             />
                                         </TableCardHeader>
 
                                         <TableCell className={cellStyle + "sm:text-center"}>
-                                            {isMobile && "Id: "}{!idVeiculo ? (index + 1) : c.id}
+                                            {isMobile && "Id: "}{!idPostoCombustivel ? (index + 1) : c.id}
                                         </TableCell>
 
-                                        {idVeiculo ? <TableCell className={hiddenMobile + "sm:text-left font-medium"}>
+                                        {idPostoCombustivel ? <TableCell className={hiddenMobile + "sm:text-left font-medium"}>
                                             {c.descricao}
                                         </TableCell> : <></>}
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "Tipo: "}{idVeiculo ? c.tipoTanque : tiposTanque.find(t => t.value === c.tipoTanque)?.label}
+                                            {isMobile && "Produto Abastecimento: "}{c.descricaoProdutoAbastecimento}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + " sm:text-left"}>
-                                            {isMobile && "Capacidade: "}{c.capacidade}
+                                            {isMobile && "Capacidade Litros: "}{c.capacidadeLitros}
                                         </TableCell>
 
-                                        {idVeiculo ? <TableCell className={cellStyle + " sm:text-left"}>
+                                        <TableCell className={cellStyle + " sm:text-left"}>
+                                            {isMobile && "Estoque Mínimo Litros: "}{c.estoqueMinimoLitros}
+                                        </TableCell>
+
+                                        {idPostoCombustivel ? <TableCell className={cellStyle + " sm:text-left"}>
                                             {isMobile && "Número Tanque: "}{c.numeroTanque}
                                         </TableCell> : <></>}
 
                                         <TableCell className={hiddenMobile + "text-right"}>
                                             <DropDownMenuItem
-                                                id={!idVeiculo ? index : c.id}
+                                                id={!idPostoCombustivel ? index : c.id}
                                                 handleClickEditar={handleClickEditar}
                                                 handleClickDeletar={handleClickDeletar}
                                             />
@@ -190,7 +195,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                             })}
                         </TableBody>
                     </Table>
-                    {idVeiculo ? <>
+                    {idPostoCombustivel ? <>
                         <hr />
                         <TableRodape
                             currentPage={currentPage}
@@ -214,7 +219,7 @@ export default function VeiculoTanque({ idVeiculo, tanques, setTanques }: { idVe
                 )}
             </>}
 
-            <Modal open={openModalForm} setOpen={setOpenModalForm} id={idEditar} updateList={updateList} idVeiculo={idVeiculo} tanques={tanques} setTanques={setTanques} />
+            <Modal open={openModalForm} setOpen={setOpenModalForm} id={idEditar} updateList={updateList} idPostoCombustivel={idPostoCombustivel} tanques={tanques} setTanques={setTanques} />
 
             <AlertExcluir openDialog={openDialogExcluir} setOpenDialog={setOpenDialogExcluir} func={deletar} />
 

@@ -5,7 +5,8 @@ import {
   Car,
   CarFront,
   Settings,
-  Building
+  Building,
+  MapPin
 } from "lucide-react";
 // import { getConfigType, getConfiguracoes, postConfigType, postConfiguracoes } from "@/services/configuracoesServices";
 import { useState } from "react";
@@ -13,6 +14,8 @@ import VeiculoMarca from "../VeiculoMarca";
 import VeiculoModelo from "../VeiculoModelo";
 import FormContainer from "@/ui/components/forms/FormContainer";
 import PageTitle from "@/ui/components/PageTitle";
+import Bairro from "../Bairro/Index";
+import DadosEmpresa from "./DadosEmpresa";
 
 // const schema = z.object({
 //   pathArquivos: z.string().optional(),
@@ -207,18 +210,27 @@ export default function Configuracoes() {
             <div className="w-full space-y-1 p-2">
               <TabsTrigger
                 value="geral"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-accent data-[state=active]:text-accent-foreground hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <Building className="h-4 w-4" />
                 Configurações Gerais
               </TabsTrigger>
 
+              <TabsTrigger
+                value="empresa"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
+                onClick={() => setDropTabActive(false)}
+              >
+                <Building className="h-4 w-4" />
+                Configurações Empresa
+              </TabsTrigger>
+
               <div className="border-t border-border my-2"></div>
 
               <TabsTrigger
                 value="veiculoMarca"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <Car className="h-4 w-4" />
@@ -227,11 +239,20 @@ export default function Configuracoes() {
 
               <TabsTrigger
                 value="veiculoModelo"
-                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/20 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 hover:bg-accent/50"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <CarFront className="h-4 w-4" />
                 Modelos de Veículos
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="bairro"
+                className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
+                onClick={() => setDropTabActive(false)}
+              >
+                <MapPin className="h-4 w-4" />
+                Bairros
               </TabsTrigger>
             </div>
           </TabsList>
@@ -243,12 +264,20 @@ export default function Configuracoes() {
 
             </TabsContent>
 
+            <TabsContent value="empresa" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
+              <DadosEmpresa />
+            </TabsContent>
+
             <TabsContent value="veiculoMarca" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <VeiculoMarca />
             </TabsContent>
 
             <TabsContent value="veiculoModelo" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <VeiculoModelo />
+            </TabsContent>
+
+            <TabsContent value="bairro" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
+              <Bairro />
             </TabsContent>
           </FormContainer>
         </div>

@@ -156,7 +156,7 @@ export default function Uf() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="map" />
+          <TableEmpty  py='py-20' icon="map" />
         )}
       </>}
 

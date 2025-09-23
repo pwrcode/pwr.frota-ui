@@ -29,7 +29,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("PWR_TOKEN");
   }, []);
 
   const { register, handleSubmit, formState: { errors } } = useForm<dadosType>({
@@ -74,7 +74,7 @@ export default function Login() {
 
           {/* LOGO NO MOBILE */}
           <div className="flex justify-center mb-4 lg:hidden">
-            <Zap className="w-24 h-24 text-orange-600" />
+            <Zap className="w-24 h-24 text-brand-primary" />
           </div>
 
           {/* Login Card Unificado */}
@@ -114,9 +114,9 @@ export default function Login() {
       </div>
 
       {/* LOGO NO DESKTOP */}
-      <div className="hidden bg-orange-700 lg:flex items-center justify-center">
+      <div className="hidden bg-brand-primary lg:flex items-center justify-center">
         <div className="flex items-center justify-center">
-          <Zap className="w-32 h-32 text-white" />
+          <Zap className="w-32 h-32 text-brand-primary-foreground" />
         </div>
       </div>
     </div>

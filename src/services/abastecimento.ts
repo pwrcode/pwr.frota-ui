@@ -12,6 +12,8 @@ export type abastecimentoType = {
   idVeiculo: number;
   idPessoa: number;
   idPostoCombustivel: number;
+  idPostoCombustivelTanque: number,
+  descricaoPostoCombustivelTanque: string,
   idProdutoAbastecimento: number;
   idVeiculoTanque: number,
   descricaoVeiculo: string;
@@ -49,6 +51,7 @@ export type dadosAddEdicaoAbastecimentoType = {
   idVeiculo: number | null;
   idPessoa: number | null;
   idPostoCombustivel: number | null;
+  idPostoCombustivelTanque: number | null;
   idProdutoAbastecimento: number | null;
   idVeiculoTanque: number | null;
   quilometragem: number;

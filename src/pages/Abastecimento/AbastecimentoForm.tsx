@@ -18,7 +18,7 @@ import { errorMsg } from '@/services/api';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import { getPostoCombustivelList } from '@/services/postoCombustivel';
+import { getPostoCombustivelList, getPostoCombustivelPorId } from '@/services/postoCombustivel';
 import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { getPessoaList } from '@/services/pessoa';
 import { addAbastecimento, getAbastecimentoPorId, updateAbastecimento, type dadosAddEdicaoAbastecimentoType } from '@/services/abastecimento';
@@ -33,6 +33,7 @@ import { getVeiculoTanqueList } from '@/services/veiculoTanque';
 import type { listType, optionType } from '@/services/constants';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import Modal from '../VeiculoTanque/Modal';
+import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 
 export const schema = z.object({
   idVeiculo: z.object({
@@ -47,6 +48,10 @@ export const schema = z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o posto de combustível" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o posto de combustível" }),
+  idPostoCombustivelTanque: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
   idProdutoAbastecimento: z.object({
     label: z.string().optional(),
     value: z.number().optional()
@@ -54,7 +59,7 @@ export const schema = z.object({
   idVeiculoTanque: z.object({
     label: z.string().optional(),
     value: z.number().optional()
-  }, { message: "Selecione o tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tanque" }),
+  }, { message: "Selecione o tanqu do veículo" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tanque do veículo" }),
   quilometragem: z.string().optional(),
   quantidadeAbastecida: z.string().optional(),
   valorUnitario: z.string().optional(),
@@ -76,14 +81,19 @@ export default function AbastecimentoForm() {
   const idVeiculo = searchParams.get("idVeiculo");
 
   const veiculo = watch("idVeiculo");
-  const tanque = watch("idVeiculoTanque.value");
+  const postoCombustivel = watch("idPostoCombustivel");
+  const postoCombustivelTanque = watch("idPostoCombustivelTanque");
+  const [postoInterno, setPostoInterno] = useState(false);
+
   const [tanques, setTanques] = useState<listType>([]);
+  const [tanquesPosto, setTanquesPosto] = useState<listType>([]);
+  const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
   const [dataAbastecimento, setDataAbastecimento] = useState("");
-  const [openModalFormTanque, setOpenModalFormTanque] = useState(false);
 
   const [idArquivoFotoPainelAntes, setIdArquivoFotoPainelAntes] = useState<number>(0);
   const [idArquivoFotoPainelDepois, setIdArquivoFotoPainelDepois] = useState<number>(0);
@@ -94,7 +104,7 @@ export default function AbastecimentoForm() {
   }, []);
 
   const getVeiculos = async (pesquisa?: string) => {
-    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined);
+    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined);
     return data;
   }
 
@@ -104,20 +114,35 @@ export default function AbastecimentoForm() {
   }
 
   const getProdutosAbastecimento = async (pesquisa?: string) => {
-    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+    if (!postoCombustivelTanque && !veiculo) {
+      setProdutosAbastecimento([]);
+      return [];
+    }
+    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value, veiculo?.value);
+    setProdutosAbastecimento([...data]);
     return data;
   }
 
   const getPessoas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined);
+    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined, undefined);
     return data;
   }
 
   useEffect(() => {
-    console.log("oi")
     resetField("idVeiculoTanque")
     getTanques();
   }, [veiculo])
+
+  useEffect(() => {
+    resetField("idPostoCombustivelTanque")
+    getTanquesPosto();
+    verificaPostoInterno();
+  }, [postoCombustivel])
+
+  useEffect(() => {
+    resetField("idProdutoAbastecimento")
+    getProdutosAbastecimento();
+  }, [postoCombustivelTanque, veiculo])
 
   const getTanques = async (pesquisa?: string) => {
     if (!veiculo) {
@@ -127,6 +152,22 @@ export default function AbastecimentoForm() {
     const data = await getVeiculoTanqueList(pesquisa, veiculo && veiculo.value ? veiculo.value : undefined, undefined);
     setTanques([...data]);
     return data;
+  }
+
+  const getTanquesPosto = async (pesquisa?: string) => {
+    if (!postoCombustivel) {
+      setTanquesPosto([]);
+      return [];
+    }
+    const data = await getPostoCombustivelTanqueList(pesquisa, postoCombustivel && postoCombustivel.value ? postoCombustivel.value : undefined, undefined);
+    setTanquesPosto([...data]);
+    return data;
+  }
+
+  const verificaPostoInterno = async () => {
+    if (!postoCombustivel) return;
+    const data = await getPostoCombustivelPorId(postoCombustivel.value || 0);
+    setPostoInterno(data.isInterno || false);
   }
 
   useEffect(() => {
@@ -164,6 +205,9 @@ export default function AbastecimentoForm() {
       setTimeout(() => {
         setValue("idVeiculoTanque", { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque })
       }, 500);
+      setTimeout(() => {
+        setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque })
+      }, 500);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       toast.dismiss(process);
@@ -186,6 +230,7 @@ export default function AbastecimentoForm() {
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
+          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
           quantidadeAbastecida: +data.quantidadeAbastecida,
@@ -204,6 +249,7 @@ export default function AbastecimentoForm() {
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
+          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
@@ -232,34 +278,19 @@ export default function AbastecimentoForm() {
     idPosto ? navigate(`/posto-combustivel/form/${idPosto}`) : idVeiculo ? navigate(`/veiculo/form/${idVeiculo}`) : navigate("/abastecimento");
   }
 
-  const handleClickAdicionarTanque = () => {
-    setOpenModalFormTanque(true);
-  }
-
-  const selecionarTanque = (tanque: optionType) => {
-    setValue("idVeiculoTanque", tanque);
-    getTanques();
-  }
-
   return (
     <div className="w-full mt-16 flex flex-col lg:flex-row gap-4">
-
-      <Modal id={tanque ?? -1} open={openModalFormTanque} setOpen={setOpenModalFormTanque} selecionarTanque={selecionarTanque} idVeiculo={veiculo && veiculo.value ? veiculo.value : undefined} />
-
       <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as unknown as dadosAddEdicaoAbastecimentoType))}>
 
         <FormContainer>
           <FormContainerHeader title="Abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
+              {!idPosto ? <AsyncReactSelect style='2xl:col-span-2' name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
+              {postoInterno ? <AsyncReactSelect style='2xl:col-span-2' name="idPostoCombustivelTanque" title="Tanque Posto" control={control} asyncFunction={getTanquesPosto} options={tanquesPosto} filter isClearable size="w-full" isDisabled={!postoInterno} /> : <></>}
               {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable /> : <></>}
-              <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
-              {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
-              <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
-              <div className='col-span-1 flex justify-between items-end gap-2'>
-                <AsyncReactSelect name="idVeiculoTanque" title="Tanque" control={control} asyncFunction={getTanques} options={tanques} filter isClearable size="w-full" />
-                <PlusButton loading={loading} func={handleClickAdicionarTanque} />
-              </div>
+              <AsyncReactSelect name="idVeiculoTanque" title="Tanque Veiculo" control={control} asyncFunction={getTanques} options={tanques} filter isClearable size="w-full" />
+              <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
             </div>
           </FormContainerBody>
         </FormContainer>
@@ -267,12 +298,13 @@ export default function AbastecimentoForm() {
         <FormContainer>
           <FormContainerHeader title="Informações abastecimento" />
           <FormContainerBody>
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
+              <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
               <InputDataLabel title="Data Abastecimento" name="dataAbastecimento" date={dataAbastecimento} setDate={setDataAbastecimento} />
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
-              <div className='lg:col-span-2'>
+              <div className='lg:col-span-3'>
                 <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
               </div>
               <DivCheckBox style="line">

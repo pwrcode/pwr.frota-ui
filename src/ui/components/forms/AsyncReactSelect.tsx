@@ -160,7 +160,8 @@ interface AsyncSelectProps {
     filter?: boolean,
     isMulti?: boolean,
     width?: string,
-    isClearable?: boolean
+    isClearable?: boolean,
+    style?: string
 }
 
 export default function AsyncReactSelect({
@@ -178,7 +179,8 @@ export default function AsyncReactSelect({
     filter,
     isMulti,
     width,
-    isClearable
+    isClearable,
+    style
 }: AsyncSelectProps) {
 
     // @ts-ignore
@@ -202,14 +204,14 @@ export default function AsyncReactSelect({
     };
 
     const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
-        if (newValue === "" && actionMeta.action === "input-change") {
+        if (newValue === "" && (actionMeta.action === "input-change" || actionMeta.action === "menu-close")) {
             loadOptions("", () => { });
         }
         return newValue;
     };
 
     return (
-        <div className={`space-y-2 ${size || "w-full"}`}>
+        <div className={`space-y-2 ${size || "w-full"} ${style}`}>
             {title && (
                 <Label htmlFor={name}>{title}</Label>
             )}
@@ -219,7 +221,6 @@ export default function AsyncReactSelect({
                     name={name}
                     //rules={{ required: "Selecione uma opção" }}
                     render={({ field }) => {
-                        //console.log(field.value);
                         return (
                             <AsyncSelect
                                 {...field}

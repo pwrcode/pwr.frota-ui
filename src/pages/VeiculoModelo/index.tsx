@@ -55,8 +55,8 @@ export default function VeiculoModelo() {
     }, [pesquisa]);
 
     useEffect(() => {
-        if (veiculoMarca.value !== undefined || filtersOn) changeListFilters();
-    }, [veiculoMarca.value]);
+        if (veiculoMarca?.value !== undefined || filtersOn) changeListFilters();
+    }, [veiculoMarca?.value]);
 
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
@@ -141,7 +141,7 @@ export default function VeiculoModelo() {
 
             <PageTitle title="Veículo Modelo" />
 
-            <Filters grid={FiltersGrid.sm2_md3_lg4}>
+            <Filters grid={FiltersGrid.sm2}>
                 <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
                 <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable
                 />
@@ -216,7 +216,7 @@ export default function VeiculoModelo() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="map-pin" />
+                    <TableEmpty  py='py-20' icon="car-front" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

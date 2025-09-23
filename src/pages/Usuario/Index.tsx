@@ -244,7 +244,7 @@ export default function Usuario({ config }: any) {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty  py='py-20' icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

@@ -34,6 +34,7 @@ const options = [
   { value: "isAjudante", label: "Ajudante" },
   { value: "isMotorista", label: "Motorista" },
   { value: "isOficina", label: "Oficina" },
+  { value: "isFornecedor", label: "Fornecedor" },
 ];
 
 export default function Pessoa() {
@@ -76,6 +77,7 @@ export default function Pessoa() {
     isAjudante: false,
     isMotorista: false,
     isOficina: false,
+    isFornecedor: false,
     idUf: null,
     idMunicipio: null,
     idBairro: null,
@@ -174,6 +176,7 @@ export default function Pessoa() {
       isAjudante: list?.find(l => l.value === "isAjudante") ? true : null,
       isMotorista: list?.find(l => l.value === "isMotorista") ? true : null,
       isOficina: list?.find(l => l.value === "isOficina") ? true : null,
+      isFornecedor: list?.find(l => l.value === "isFornecedor") ? true : null,
       idUf: uf && uf.value ? uf.value : null,
       idMunicipio: municipio && municipio.value ? municipio.value : null,
       idBairro: bairro && bairro.value ? bairro.value : null,
@@ -268,6 +271,17 @@ export default function Pessoa() {
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
+  const getPessoaFuncao = (pessoa: pessoaType) => {
+    var listaFuncoes = [];
+
+    if (pessoa.isAjudante) listaFuncoes.push("Ajudante");
+    if (pessoa.isMotorista) listaFuncoes.push("Motorista");
+    if (pessoa.isOficina) listaFuncoes.push("Oficina");
+    if (pessoa.isFornecedor) listaFuncoes.push("Fornecedor");
+
+    return listaFuncoes.join(", ");
+  }
+
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
@@ -311,7 +325,7 @@ export default function Pessoa() {
                 <div className="space-y-4">
                   <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
                   <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-                    <AsyncReactSelect name="optionsSelected" title="Tipo Pessoa" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
+                    <AsyncReactSelect name="optionsSelected" title="Função" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
                   </div>
                   <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
                   <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
@@ -407,7 +421,7 @@ export default function Pessoa() {
                     </TableCell>}
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Tipo Pessoa: "}{c.tipoPessoa}
+                      {isMobile && "Tipo Pessoa: "}{c.tipoPessoa} <span className='text-xs'>({getPessoaFuncao(c).toUpperCase()})</span>
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
@@ -443,7 +457,7 @@ export default function Pessoa() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="users" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="users" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

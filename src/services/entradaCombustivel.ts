@@ -13,6 +13,10 @@ export type entradaCombustivelType = {
   razaoSocialPostoCombustivel: string;
   idProdutoAbastecimento: number;
   descricaoProdutoAbastecimento: string;
+  idPessoaFornecedor: number;
+  razaoSocialPessoaFornecedor: string;
+  idPostoCombustivelTanque: number;
+  descricaoPostoCombustivelTanque: string;
   quantidade: number;
   valorUnitario: number;
   valorTotal: number;
@@ -28,13 +32,17 @@ export type postListagemEntradaCombustivelType = {
   dataInicio: string,
   dataFim: string,
   idPostoCombustivel: number | null,
-  idProdutoAbastecimento: number | null
+  idProdutoAbastecimento: number | null,
+  idPessoaFornecedor: number | null,
+  idPostoCombustivelTanque: number | null
 }
 
 export type dadosAddEdicaoEntradaCombustivelType = {
   dataRecebimento: string,
   idPostoCombustivel: number | null,
   idProdutoAbastecimento: number | null,
+  idPessoaFornecedor: number | null,
+  idPostoCombustivelTanque: number | null,
   quantidade: number,
   valorUnitario: number,
 }
@@ -85,6 +93,8 @@ export const deleteEntradaCombustivel = async (id: number) => {
 export const getEntradaCombustivelList = async (
   idPostoCombustivel: boolean | undefined,
   idProdutoAbastecimento: number | undefined,
+  idPessoaFornecedor: number | undefined,
+  idPostoCombustivelTanque: number | undefined,
 ) => {
   try {
     const axiosInstance = await getAxios();
@@ -92,6 +102,8 @@ export const getEntradaCombustivelList = async (
       params: {
         idPostoCombustivel,
         idProdutoAbastecimento,
+        idPessoaFornecedor,
+        idPostoCombustivelTanque,
       }
     });
     if (response.data.sucesso) {

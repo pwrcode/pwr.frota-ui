@@ -23,6 +23,8 @@ import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { formatarData } from '@/services/date';
 import { currency } from '@/services/currency';
 import type { optionType } from '@/services/constants';
+import { getPessoaList } from '@/services/pessoa';
+import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 
 export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
@@ -41,6 +43,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
     const [dataFim, setDataFim] = useState("");
     const [postoCombustivel, setPostoCombustivel] = useState<optionType>();
     const [produtoAbastecimento, setProdutoAbastecimento] = useState<optionType>();
+    const [pessoaFornecedor, setPessoaFornecedor] = useState<optionType>();
+    const [postoCombustivelTanque, setPostoCombustivelTanque] = useState<optionType>();
 
     const initialPostListagem: postListagemEntradaCombustivelType = {
         pageSize: pageSize,
@@ -49,6 +53,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
         dataFim: "",
         idPostoCombustivel: idPosto ?? null,
         idProdutoAbastecimento: null,
+        idPessoaFornecedor: null,
+        idPostoCombustivelTanque: null,
     };
     const [postListagem, setPostListagem] = useState(initialPostListagem);
     const [filtersOn, setFiltersOn] = useState<boolean>(false);
@@ -73,6 +79,14 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
         changeListFilters();
     }, [produtoAbastecimento]);
 
+    useEffect(() => {
+        changeListFilters();
+    }, [pessoaFornecedor]);
+
+    useEffect(() => {
+        changeListFilters();
+    }, [postoCombustivelTanque]);
+
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
         setPostListagem({
@@ -82,6 +96,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
             idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
             idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
+            idPessoaFornecedor: pessoaFornecedor && pessoaFornecedor.value ? pessoaFornecedor.value : null,
+            idPostoCombustivelTanque: postoCombustivelTanque && postoCombustivelTanque.value ? postoCombustivelTanque.value : null,
         });
     }
 
@@ -95,7 +111,17 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
     }
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value);
+        return [...data];
+    }
+
+    const getPessoasFornecedor = async (pesquisa?: string) => {
+        const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
+        return [...data];
+    }
+
+    const getTanques = async (pesquisa?: string) => {
+        const data = await getPostoCombustivelTanqueList(pesquisa, postoCombustivel?.value, undefined);
         return [...data];
     }
 
@@ -163,9 +189,11 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
             <PageTitle title="Entradas Combustível" />
 
-            <Filters grid={FiltersGrid.sm2_md3_lg4}>
+            <Filters grid={FiltersGrid.sm2_md3}>
                 <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
+                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={[]} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
                 {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable /> : <></>}
+                <AsyncReactSelect name="idPessoaFornecedor" title="Fornececdor" options={[]} value={pessoaFornecedor} setValue={setPessoaFornecedor} asyncFunction={getPessoasFornecedor} isClearable />
                 <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
                 <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
             </Filters>
@@ -182,6 +210,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                                 <TableHead className="w-16 text-center">Id</TableHead>
                                 <TableHead className='w-100'>Posto Combustível</TableHead>
                                 <TableHead className='w-50'>Produto Abastecimento</TableHead>
+                                <TableHead className='w-50'>Fornecedor</TableHead>
+                                <TableHead className='w-50'>Tanque</TableHead>
                                 <TableHead className='w-50'>Data Recebimento</TableHead>
                                 <TableHead className='w-50'>Quantidade</TableHead>
                                 <TableHead className='w-50'>Valor Unitário</TableHead>
@@ -212,6 +242,14 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
                                             {isMobile && "Produto Abastecimento: "}{c.descricaoProdutoAbastecimento}
+                                        </TableCell>
+
+                                        <TableCell className={cellStyle + "sm:text-left"}>
+                                            {isMobile && "Fornecedor: "}{c.razaoSocialPessoaFornecedor}
+                                        </TableCell>
+
+                                        <TableCell className={cellStyle + "sm:text-left"}>
+                                            {isMobile && "Tanque: "}{c.descricaoPostoCombustivelTanque}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
@@ -259,7 +297,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty  py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

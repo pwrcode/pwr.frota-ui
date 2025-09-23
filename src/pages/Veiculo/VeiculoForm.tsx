@@ -31,12 +31,13 @@ import ModalMarca from '../VeiculoMarca/Modal';
 import ModalModelo from '../VeiculoModelo/Modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Car, Fuel } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
 import VeiculoTanque from '../VeiculoTanque/Index';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import { useEndereco } from '@/hooks/useEndereco';
 import { getTipoMotorList } from '@/services/tipoMotor';
 
 export const schema = z.object({
@@ -76,13 +77,32 @@ export const schema = z.object({
   capacidadePassageiros: z.string().optional()/*.min(1, {message: "Informe a capacidadePassageiros"})*/,
   valorCompra: z.string().optional()/*.min(1, {message: "Informe o valorCompra"})*/,
   valorVenda: z.string().optional()/*.min(1, {message: "Informe o valorVenda"})*/,
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o UF" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o UF" }),
+  idMunicipio: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o município" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o município" }),
+  idTipoMotor: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione um Tipo Motor" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tipo Motor" }),
 });
 
 export default function VeiculoForm() {
 
-  const { register, handleSubmit, reset, resetField, setValue, watch, control, setFocus, formState: { errors } } = useForm({
+  const formFunctions = useForm({
     resolver: zodResolver(schema)
   });
+  const { register, handleSubmit, reset, setValue, watch, resetField, control, setFocus, formState: { errors } } = formFunctions;
+
+  const {
+    getUfs, getMunicipios,
+    ufs, municipios,
+    setIdUf, setIdMunicipio,
+  } = useEndereco(formFunctions);
 
   const { id } = useParams();
   const [idArquivoFotoVeiculo, setIdArquivoFotoVeiculo] = useState<number>(0);
@@ -106,6 +126,7 @@ export default function VeiculoForm() {
     if (id) return
     getTipoVeiculos();
     getVeiculoMarcas();
+    getUfs();
   }, []);
 
   useEffect(() => {
@@ -120,6 +141,11 @@ export default function VeiculoForm() {
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
+    return data;
+  }
+
+  const getTiposMotor = async (pesquisa?: string) => {
+    const data = await getTipoMotorList(pesquisa);
     return data;
   }
 
@@ -159,12 +185,15 @@ export default function VeiculoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getVeiculoPorId(Number(id));
+      if (item.idUf) setIdUf(item.idUf);
+      if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
       setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
       setValue("descricao", item.descricao);
       setValue("placa", formatMaskPlaca(item.placa));
       setValue("renavam", item.renavam);
       setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
+      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
       if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       setValue("versao", item.versao);
@@ -208,6 +237,7 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           idTipoMotor: data.idTipoMotor ?? null,
@@ -226,6 +256,8 @@ export default function VeiculoForm() {
           dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
           veiculoTanques: tanques,
+          idUf: data.idUf ?? null,
+          idMunicipio: data.idMunicipio ?? null,
         }
         const res = await addVeiculo(post);
         toast.update(process, { render: res.mensagem, type: "success", isLoading: false, autoClose: 2000 });
@@ -238,6 +270,7 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           idTipoMotor: data.idTipoMotor ?? null,
@@ -255,6 +288,8 @@ export default function VeiculoForm() {
           valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
+          idUf: data.idUf ?? null,
+          idMunicipio: data.idMunicipio ?? null,
         }
         const res = await updateVeiculo(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
@@ -296,36 +331,65 @@ export default function VeiculoForm() {
 
       <Tabs defaultValue='veiculo' className='w-full mt-16 flex flex-col gap-2'>
 
-        <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-0'>
-          <TabsTrigger value='veiculo' onClick={() => setTabNameMobile("Veículo")}>
+        <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-1 bg-muted rounded-lg'>
+          <TabsTrigger
+            value='veiculo'
+            onClick={() => setTabNameMobile("Veículo")}
+            className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+          >
+            <Car size={16} />
             Veículo
           </TabsTrigger>
           {id ? <>
-            <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")}>
+            <TabsTrigger
+              value='abastecimento'
+              onClick={() => setTabNameMobile("Abastecimentos")}
+              className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+            >
+              <Fuel size={16} />
               Abastecimentos
             </TabsTrigger>
           </> : <></>}
         </TabsList>
 
         <DropdownMenu onOpenChange={(open) => setIsDropDownTabsOpen(open)} open={id ? isDropDownTabsOpen : false}>
-          <TabsList className='flex w-min px-0 md:hidden'>
+          <TabsList className='flex w-full px-1 py-1 md:hidden bg-muted rounded-lg'>
             <DropdownMenuTrigger asChild>
-              <Button variant={"ghost"} className='text-black dark:text-white flex justify-between items-center gap-2 py-2'>
-                {tabNameMobile} {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
+              <Button
+                variant="ghost"
+                className='w-full text-foreground flex justify-between items-center gap-2 py-3 px-4 hover:bg-orange-50 hover:text-orange-600'
+              >
+                <div className='flex items-center gap-2'>
+                  {tabNameMobile === "Veículo" && <Car size={16} />}
+                  {tabNameMobile === "Abastecimentos" && <Fuel size={16} />}
+                  {tabNameMobile}
+                </div>
+                {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='md:hidden'>
-              <DropdownMenuItem className='p-0 flex flex-col'>
-                <TabsTrigger value='postoCombustivel' onClick={() => setTabNameMobile("Posto Combustível")} className='py-2'>
-                  Posto Combustível
-                </TabsTrigger>
-                <TabsTrigger value='abastecimento' onClick={() => setTabNameMobile("Abastecimentos")} className='py-2'>
-                  Abastecimentos
-                </TabsTrigger>
-                <TabsTrigger value='entrada' onClick={() => setTabNameMobile("Entradas")} className='py-2'>
-                  Entradas
+            <DropdownMenuContent className='md:hidden w-64 p-1'>
+              <DropdownMenuItem className='p-0'>
+                <TabsTrigger
+                  value='veiculo'
+                  onClick={() => setTabNameMobile("Veículo")}
+                  className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                >
+                  <Car size={16} />
+                  Veículo
                 </TabsTrigger>
               </DropdownMenuItem>
+              {id && (
+                <DropdownMenuItem className='p-0'>
+                  <TabsTrigger
+                    value='abastecimento'
+                    onClick={() => setTabNameMobile("Abastecimentos")}
+                    className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                  >
+                    <Fuel size={16} />
+                    Abastecimentos
+                  </TabsTrigger>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </TabsList>
         </DropdownMenu>
@@ -346,6 +410,8 @@ export default function VeiculoForm() {
                   <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
                   <AsyncReactSelect name="cor" title="Cor" control={control} options={tiposCorVeiculo} isClearable size="w-full" />
                   <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
+                  <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1" filter={true} isClearable />
+                  <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1" />
                 </div>
                 {(!id) && (
                   <div className="mt-6">
@@ -362,6 +428,7 @@ export default function VeiculoForm() {
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
+                  <AsyncReactSelect name="idTipoMotor" title="Tipo Motor" control={control} asyncFunction={getTiposMotor} options={[]} isClearable />
                   <div className='flex justify-between items-end gap-2'>
                     <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={[]} asyncFunction={getVeiculoMarcas} isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarMarca} />

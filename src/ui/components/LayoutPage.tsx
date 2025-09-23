@@ -89,7 +89,7 @@ export default function LayoutPage() {
         <AppSidebar />
 
         <SidebarInset className="overflow-hidden">
-          <header className="fixed top-0 z-10 flex h-16 w-[100vw] items-center justify-between gap-2 border-b border-border px-4 bg-background shadow-md">
+          <header className="fixed top-0 z-10 flex h-16 w-[100vw] items-center justify-between gap-2 border-b border-border px-4 bg-background">
             <SidebarTrigger className="-ml-1 text-foreground hover:bg-accent" />
             <Separator orientation="vertical" className="mx-6 h-4 " />
             <Breadcrumb className="fixed right-3">

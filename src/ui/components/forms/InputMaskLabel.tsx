@@ -25,10 +25,11 @@ interface InputInterface {
   register?: any,
   type?: string,
   size?: string,
-  placeholder?: string
+  placeholder?: string,
+  style?: string
 }
 
-export const InputMaskLabel = ({name, title, type, size, disabled, register, mask, value, setValue, placeholder}: InputInterface) => {
+export const InputMaskLabel = ({name, title, type, size, disabled, register, mask, value, setValue, placeholder, style}: InputInterface) => {
   
   // @ts-ignore
   const [valueInput, setValueInput] = useState<string>();
@@ -88,7 +89,7 @@ export const InputMaskLabel = ({name, title, type, size, disabled, register, mas
   const sizeDiv = size && size !== "" ? size : 'w-full';
 
   return (
-    <div className={`space-y-2 ${sizeDiv}`}>
+    <div className={`space-y-2 ${sizeDiv} ${style}`}>
       {title && (
         <Label htmlFor={name}>
           {title}

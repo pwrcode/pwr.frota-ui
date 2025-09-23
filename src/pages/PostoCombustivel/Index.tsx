@@ -380,7 +380,7 @@ export default function PostoCombustivel() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty icon="fuel" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty  py='py-20' icon="fuel" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 
