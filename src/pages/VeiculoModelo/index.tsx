@@ -216,7 +216,7 @@ export default function VeiculoModelo() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="car-front" />
+                    <TableEmpty  py='py-20' icon="car-front" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 
