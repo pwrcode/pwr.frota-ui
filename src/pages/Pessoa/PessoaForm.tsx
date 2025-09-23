@@ -59,6 +59,7 @@ const schema = z.object({
     isMotorista: z.boolean().optional(),
     isAjudante: z.boolean().optional(),
     isOficina: z.boolean().optional(),
+    isFornecedor: z.boolean().optional(),
     cnhNumero: z.string().optional(),
     cnhCategoria: z.object({
         label: z.string().optional().nullable(),
@@ -149,6 +150,7 @@ export default function PessoaForm() {
             setValue("isMotorista", item.isMotorista ? true : false);
             setValue("isAjudante", item.isAjudante ? true : false);
             setValue("isOficina", item.isOficina ? true : false);
+            setValue("isFornecedor", item.isFornecedor ? true : false);
             setValue("cnhNumero", item.cnhNumero ?? "");
             setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
             setDataCnhValidade(item.cnhValidade ?? "")
@@ -190,6 +192,7 @@ export default function PessoaForm() {
                 isMotorista: data.isMotorista ?? false,
                 isAjudante: data.isAjudante ?? false,
                 isOficina: data.isOficina ?? false,
+                isFornecedor: data.isFornecedor ?? false,
                 cnhNumero: data.cnhNumero,
                 cnhCategoria: data.cnhCategoria ?? null,
                 cnhValidade: dataCnhValidade ? dataCnhValidade?.slice(0, 11).concat("00:00:00") : null,
@@ -272,6 +275,9 @@ export default function PessoaForm() {
                                 </DivCheckBox>
                                 <DivCheckBox style="micro">
                                     <CheckBoxLabel name="isOficina" title="Oficina" register={{ ...register("isOficina") }} />
+                                </DivCheckBox>
+                                <DivCheckBox style="micro">
+                                    <CheckBoxLabel name="isFornecedor" title="Fornecedor" register={{ ...register("isFornecedor") }} />
                                 </DivCheckBox>
                             </FormGrid>
                         </FormContainerBody>
