@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { Outlet, type RouteObject, Navigate } from "react-router-dom";
 
 const LayoutPage = lazy(() => import("@/ui/components/LayoutPage"));
@@ -27,6 +27,7 @@ const Abastecimento = lazy(() => import("@/pages/Abastecimento/Index"));
 const AbastecimentoForm = lazy(() => import("@/pages/Abastecimento/AbastecimentoForm"));
 const Configuracoes = lazy(() => import("@/pages/Configuracoes/Index"));
 const EntradaCombustivel = lazy(() => import("@/pages/EntradaCombustivel/"));
+const MotivoParada = lazy(() => import("@/pages/MotivoParada/"));
 
 const PublicRoute = () => (
   <Suspense fallback={
@@ -76,6 +77,7 @@ const routeList = [
   { path: "/abastecimento/form/:id?", element: <AbastecimentoForm />, label: "invisible" },
   { path: "/configuracoes", element: <Configuracoes />, label: "Configurações" },
   { path: "/entrada-combustivel", element: <EntradaCombustivel />, label: "Entrada Combustível" },
+  { path: "/motivo-parada", element: <MotivoParada/>, label: "Motivo Parada" },
 ]
 
 const routeObjects: RouteObject[] = routeList.map(({ label, ...route }) => ({

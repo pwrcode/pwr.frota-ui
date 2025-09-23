@@ -21,6 +21,12 @@ export type itemSelectType = {
     descricao: string
 };
 
+export const tiposParada = [
+    { value: 1, label: "Planejada", valueLabel: "Planejada"},
+    { value: 2, label: "Não Planejada", valueLabel: "NaoPlanejada"},
+    { value: 3, label: "Legal", valueString: "Legal"}
+]
+
 export const tiposCorVeiculo = [
     { value: "Amarelo", label: "Amarelo" },
     { value: "Azul", label: "Azul" },
