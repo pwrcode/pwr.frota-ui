@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { lazy, Suspense } from "react";
-import { Outlet, type RouteObject } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Outlet, type RouteObject, Navigate } from "react-router-dom";
 
 const LayoutPage = lazy(() => import("@/ui/components/LayoutPage"));
 const PaginaError = lazy(() => import("@/pages/PaginaError"));
@@ -42,6 +42,12 @@ const PublicRoute = () => (
 );
 
 const PrivateRoute = () => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   return <Outlet />
 };
 
