@@ -106,6 +106,11 @@ export default function PostoCombustivelForm() {
         if (id) setValuesPorId();
     }, [id]);
 
+    useEffect(() => {
+        getUfs();
+    }, [])
+
+
     const setValuesPorId = async () => {
         const process = toast.loading("Buscando item...");
         try {

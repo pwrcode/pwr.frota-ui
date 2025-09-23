@@ -202,7 +202,8 @@ export default function AsyncReactSelect({
     };
 
     const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
-        if (newValue === "" && actionMeta.action === "input-change") {
+        console.log(actionMeta);
+        if (newValue === "" && (actionMeta.action === "input-change" || actionMeta.action === "menu-close")) {
             loadOptions("", () => { });
         }
         return newValue;
