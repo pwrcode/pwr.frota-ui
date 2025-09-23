@@ -272,11 +272,14 @@ export default function Pessoa() {
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   const getPessoaFuncao = (pessoa: pessoaType) => {
-    if (pessoa.isAjudante) return "Ajudante";
-    if (pessoa.isMotorista) return "Motorista";
-    if (pessoa.isOficina) return "Oficina";
+    var listaFuncoes = [];
 
-    return "Fornecedor";
+    if (pessoa.isAjudante) listaFuncoes.push("Ajudante");
+    if (pessoa.isMotorista) listaFuncoes.push("Motorista");
+    if (pessoa.isOficina) listaFuncoes.push("Oficina");
+    if (pessoa.isFornecedor) listaFuncoes.push("Fornecedor");
+
+    return listaFuncoes.join(", ");
   }
 
   return (
