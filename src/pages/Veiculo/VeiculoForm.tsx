@@ -57,6 +57,10 @@ export const schema = z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o modelo" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o modelo" }),
+  idTipoMotor: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o tipo do motor" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tipo do motor" }),
   versao: z.string().optional()/*.min(1, {message: "Informe a versão"})*/,
   anoFabricacao: z.string().optional()/*.min(1, {message: "Informe o ano de fabricação"})*/,
   anoModelo: z.string().optional()/*.min(1, {message: "Informe o ano do modelo"})*/,
@@ -130,6 +134,11 @@ export default function VeiculoForm() {
     getVeiculoModelos();
   }, [idVeiculoMarca])
 
+  const getTiposMotor = async (pesquisa?: string) => {
+    const data = await getTipoMotorList(pesquisa);
+    return data;
+  }
+
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
     return data;
@@ -186,6 +195,7 @@ export default function VeiculoForm() {
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
       if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
+      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       setValue("versao", item.versao);
       setValue("anoFabricacao", item.anoFabricacao?.toString());
       setValue("anoModelo", item.anoModelo?.toString());
@@ -230,16 +240,17 @@ export default function VeiculoForm() {
           idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           versao: data.versao,
           anoFabricacao: data.anoFabricacao,
           anoModelo: data.anoModelo,
           cor: data.cor ?? null,
           ativo: data.ativo ?? false,
           icone: data.icone,
-          quilometragemInicial: isNaN(data.quilometragemInicial) ? 0 : Number(data.quilometragemInicial),
-          capacidadeCargaKg: data.capacidadeCargaKg,
-          capacidadeVolumeM3: data.capacidadeVolumeM3,
-          capacidadePassageiros: data.capacidadePassageiros,
+          quilometragemInicial: +data.quilometragemInicial,
+          capacidadeCargaKg: +data.capacidadeCargaKg,
+          capacidadeVolumeM3: +data.capacidadeVolumeM3,
+          capacidadePassageiros: +data.capacidadePassageiros,
           dataAquisicao: dataCompra ? dataCompra.slice(0, 11).concat("00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
@@ -262,15 +273,16 @@ export default function VeiculoForm() {
           idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           versao: data.versao,
           anoFabricacao: data.anoFabricacao,
           anoModelo: data.anoModelo,
           cor: data.cor ?? null,
           ativo: data.ativo ?? false,
           icone: data.icone,
-          quilometragemInicial: isNaN(data.quilometragemInicial) ? 0 : Number(data.quilometragemInicial),
-          capacidadeCargaKg: data.capacidadeCargaKg,
-          capacidadeVolumeM3: data.capacidadeVolumeM3,
+          quilometragemInicial: +data.quilometragemInicial,
+          capacidadeCargaKg: +data.capacidadeCargaKg,
+          capacidadeVolumeM3: +data.capacidadeVolumeM3,
           capacidadePassageiros: data.capacidadePassageiros,
           dataAquisicao: dataCompra ? dataCompra.slice(0, 11).concat("00:00:00") : null,
           valorCompra: toNumber(data.valorCompra) ?? 0,
@@ -425,6 +437,7 @@ export default function VeiculoForm() {
                     <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarModelo} />
                   </div>
+                  <AsyncReactSelect name="idTipoMotor" title="Tipo Motor" control={control} options={[]} asyncFunction={getTiposMotor} isClearable />
                   <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
                   <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
                   <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
@@ -436,9 +449,9 @@ export default function VeiculoForm() {
               <FormContainerHeader title="Capacidades e Especificações" />
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  <InputMaskLabel name='quilometragemInicial' title='Quilometragem Inicial' mask={Masks.numerico} value={watch("quilometragemInicial")} setValue={setValue} />
-                  <InputMaskLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' mask={Masks.numerico} value={watch("capacidadeCargaKg")} setValue={setValue} />
-                  <InputMaskLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' mask={Masks.numerico} value={watch("capacidadeVolumeM3")} setValue={setValue} />
+                  <InputLabel name='quilometragemInicial' title='Quilometragem Inicial' register={{ ...register("quilometragemInicial") }} type='number' step='0.01' />
+                  <InputLabel name='capacidadeCargaKg' title='Capacidade Carga (Kg)' register={{ ...register("capacidadeCargaKg") }} type='number' step='0.01' />
+                  <InputLabel name='capacidadeVolumeM3' title='Capacidade Volume (m³)' register={{ ...register("capacidadeVolumeM3") }} type='number' step='0.01' />
                   <InputMaskLabel name='capacidadePassageiros' title='Capacidade Passageiros' mask={Masks.numerico} value={watch("capacidadePassageiros")} setValue={setValue} />
                 </div>
               </FormContainerBody>
