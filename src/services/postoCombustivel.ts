@@ -2,6 +2,7 @@ import getAxios from "@/axios/configAxios";
 import { toast } from "react-toastify";
 import { errorMsg } from "./api";
 import { type itemSelectType } from "./constants";
+import type { dadosAddEdicaoPostoCombustivelTanqueType } from "./postoCombustivelTanque";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/posto-combustivel";
@@ -57,6 +58,7 @@ export type dadosAddEdicaoPostoCombustivelType = {
   telefoneSecundario: string,
   observacao: string,
   isInterno: boolean | null,
+  postoCombustivelTanques?: dadosAddEdicaoPostoCombustivelTanqueType[]
 }
 
 export const getPostoCombustivels = async (dados: postListagemPostoCombustivelType) => {

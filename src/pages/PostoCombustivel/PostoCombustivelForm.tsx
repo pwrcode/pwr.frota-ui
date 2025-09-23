@@ -32,6 +32,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import EntradaCombustivel from '../EntradaCombustivel';
+import PostoCombustivelTanque from '../PostoCombustivelTanque/Index';
+import type { dadosAddEdicaoPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -80,6 +82,8 @@ export default function PostoCombustivelForm() {
 
     const [isDropDownTabsOpen, setIsDropDownTabsOpen] = useState(false);
     const [tabNameMobile, setTabNameMobile] = useState("Posto Combustível");
+
+    const [tanques, setTanques] = useState<dadosAddEdicaoPostoCombustivelTanqueType[]>([]);
 
     const {
         cep,
@@ -149,30 +153,49 @@ export default function PostoCombustivelForm() {
         setLoading(true);
         const process = toast.loading("Salvando item...")
         try {
-            const postPut: dadosAddEdicaoPostoCombustivelType = {
-                cnpj: removeNonDigit(data.cnpj),
-                razaoSocial: data.razaoSocial,
-                nomeFantasia: data.nomeFantasia,
-                bandeira: data.bandeira,
-                cep: removeNonDigit(data.cep),
-                idUf: data.idUf ?? null,
-                idMunicipio: data.idMunicipio ?? null,
-                idBairro: data.idBairro ?? null,
-                logradouro: data.logradouro,
-                numero: data.numero,
-                complemento: data.complemento,
-                pontoReferencia: data.pontoReferencia,
-                telefonePrincipal: removeNonDigit(data.telefonePrincipal),
-                telefoneSecundario: removeNonDigit(data.telefoneSecundario),
-                observacao: data.observacao,
-                isInterno: data.isInterno ?? false,
-            }
             if (!id) {
-                const res = await addPostoCombustivel(postPut);
+                const post: dadosAddEdicaoPostoCombustivelType = {
+                    cnpj: removeNonDigit(data.cnpj),
+                    razaoSocial: data.razaoSocial,
+                    nomeFantasia: data.nomeFantasia,
+                    bandeira: data.bandeira,
+                    cep: removeNonDigit(data.cep),
+                    idUf: data.idUf ?? null,
+                    idMunicipio: data.idMunicipio ?? null,
+                    idBairro: data.idBairro ?? null,
+                    logradouro: data.logradouro,
+                    numero: data.numero,
+                    complemento: data.complemento,
+                    pontoReferencia: data.pontoReferencia,
+                    telefonePrincipal: removeNonDigit(data.telefonePrincipal),
+                    telefoneSecundario: removeNonDigit(data.telefoneSecundario),
+                    observacao: data.observacao,
+                    isInterno: data.isInterno ?? false,
+                    postoCombustivelTanques: tanques,
+                }
+                const res = await addPostoCombustivel(post);
                 toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const res = await updatePostoCombustivel(Number(id), postPut);
+                const put: dadosAddEdicaoPostoCombustivelType = {
+                    cnpj: removeNonDigit(data.cnpj),
+                    razaoSocial: data.razaoSocial,
+                    nomeFantasia: data.nomeFantasia,
+                    bandeira: data.bandeira,
+                    cep: removeNonDigit(data.cep),
+                    idUf: data.idUf ?? null,
+                    idMunicipio: data.idMunicipio ?? null,
+                    idBairro: data.idBairro ?? null,
+                    logradouro: data.logradouro,
+                    numero: data.numero,
+                    complemento: data.complemento,
+                    pontoReferencia: data.pontoReferencia,
+                    telefonePrincipal: removeNonDigit(data.telefonePrincipal),
+                    telefoneSecundario: removeNonDigit(data.telefoneSecundario),
+                    observacao: data.observacao,
+                    isInterno: data.isInterno ?? false
+                }
+                const res = await updatePostoCombustivel(Number(id), put);
                 toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
             }
             reset();
@@ -253,7 +276,7 @@ export default function PostoCombustivelForm() {
                                     />
                                     <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                     <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
-                                    <InputMaskLabel name='bandeira' title='Bandeira' mask={Masks.numerico} value={watch("bandeira")} setValue={setValue} />
+                                    <InputLabel name="bandeira" title="Bandeira" register={{ ...register("bandeira") }} />
                                     <div className='lg:col-span-2'>
                                         <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
                                     </div>
@@ -313,6 +336,8 @@ export default function PostoCombustivelForm() {
                             </FormContainerBody>
                         </FormContainer>
 
+                        <PostoCombustivelTanque idPostoCombustivel={Number(id) !== 0 ? Number(id) : undefined} tanques={tanques} setTanques={setTanques} />
+
                         <FormContainer>
                             <FormContainerBody>
                                 <FormLine>
@@ -337,7 +362,7 @@ export default function PostoCombustivelForm() {
                 </TabsContent>
 
                 <TabsContent value='entrada'>
-                    <EntradaCombustivel idPosto={Number(id)}/>
+                    <EntradaCombustivel idPosto={Number(id)} />
                 </TabsContent>
 
             </Tabs >
