@@ -29,7 +29,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("PWR_TOKEN");
   }, []);
 
   const { register, handleSubmit, formState: { errors } } = useForm<dadosType>({
