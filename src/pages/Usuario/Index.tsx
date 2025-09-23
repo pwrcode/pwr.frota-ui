@@ -16,13 +16,13 @@ import { toast } from 'react-toastify';
 import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { todosOption } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getPerfilAcessoList } from '@/services/perfilAcesso';
 import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import { ImageSrc } from '@/ui/components/ImageSrc';
 import ModalSenha from './ModalSenha';
+import type { optionType } from '@/services/constants';
 
 export default function Usuario({ config }: any) {
 
@@ -39,7 +39,7 @@ export default function Usuario({ config }: any) {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [perfilAcesso, setPerfilAcesso] = useState(todosOption);
+  const [perfilAcesso, setPerfilAcesso] = useState<optionType>();
 
   const initialPostListagem: postListagemUsuarioType = {
     pageSize: pageSize,
@@ -59,7 +59,7 @@ export default function Usuario({ config }: any) {
   }, [pesquisa]);
 
   useEffect(() => {
-    if (perfilAcesso.value != undefined || filtersOn) changeListFilters();
+    changeListFilters();
   }, [perfilAcesso]);
 
   const changeListFilters = (page?: number) => {
@@ -68,7 +68,7 @@ export default function Usuario({ config }: any) {
       pageSize: pageSize,
       currentPage: page ?? 0,
       pesquisa: pesquisa,
-      idPerfilAcesso: perfilAcesso.value != undefined ? perfilAcesso.value : null
+      idPerfilAcesso: perfilAcesso && perfilAcesso.value ? perfilAcesso.value : null
     });
   }
 
@@ -79,7 +79,7 @@ export default function Usuario({ config }: any) {
 
   const getPerfis = async (pesquisa?: string) => {
     const data = await getPerfilAcessoList(pesquisa);
-    return [todosOption, ...data];
+    return [...data];
   }
 
   const updateList = async () => {
@@ -156,6 +156,7 @@ export default function Usuario({ config }: any) {
           asyncFunction={getPerfis}
           value={perfilAcesso}
           setValue={setPerfilAcesso}
+          isClearable
         />
       </Filters>
 

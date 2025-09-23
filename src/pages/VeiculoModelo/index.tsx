@@ -17,7 +17,7 @@ import { deleteVeiculoModelo, getVeiculoModelos, type veiculoModeloType, type po
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { todosOption } from '@/services/constants';
+import { type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 
@@ -35,7 +35,7 @@ export default function VeiculoModelo() {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [pesquisa, setPesquisa] = useState<string>("");
-    const [veiculoMarca, setVeiculoMarca] = useState(todosOption);
+    const [veiculoMarca, setVeiculoMarca] = useState<optionType>();
 
     const initialPostListagem: postListagemVeiculoModeloType = {
         pageSize: pageSize,
@@ -55,8 +55,8 @@ export default function VeiculoModelo() {
     }, [pesquisa]);
 
     useEffect(() => {
-        if (veiculoMarca?.value !== undefined || filtersOn) changeListFilters();
-    }, [veiculoMarca?.value]);
+        changeListFilters();
+    }, [veiculoMarca]);
 
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
@@ -74,7 +74,7 @@ export default function VeiculoModelo() {
 
     const getVeiculoMarcas = async (pesquisa?: string) => {
         const data = await getVeiculoMarcaList(pesquisa);
-        return [todosOption, ...data];
+        return [...data];
     }
 
     const updateList = async () => {
@@ -216,7 +216,7 @@ export default function VeiculoModelo() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="car-front" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty py='py-20' icon="car-front" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

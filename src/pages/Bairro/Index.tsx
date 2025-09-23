@@ -14,7 +14,7 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { deleteBairro, getBairros, type bairroType, type postListagemBairroType } from '@/services/bairro';
-import { todosOption } from '@/services/constants';
+import { type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getUfList } from '@/services/uf';
 import { getMunicipioList } from '@/services/municipio';
@@ -36,22 +36,22 @@ export default function Bairro() {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [pesquisa, setPesquisa] = useState<string>("");
-    const [municipio, setMunicipio] = useState(todosOption);
-    const [uf, setUf] = useState(todosOption);
+    const [municipio, setMunicipio] = useState<optionType>();
+    const [uf, setUf] = useState<optionType>();
 
     useEffect(() => {
-        if (uf.value) getMunicipios();
-    }, [uf.value])
+        if (uf && uf.value) getMunicipios();
+    }, [uf])
 
 
     const getMunicipios = async (pesquisa?: string) => {
-        const data = await getMunicipioList(pesquisa, uf.value ?? undefined);
-        return [todosOption, ...data];
+        const data = await getMunicipioList(pesquisa, uf && uf.value ? uf.value : undefined);
+        return [...data];
     }
 
     const getUfs = async (pesquisa?: string) => {
         const data = await getUfList(pesquisa);
-        return [todosOption, ...data];
+        return [...data];
     }
 
     const initialPostListagem: postListagemBairroType = {
@@ -73,12 +73,12 @@ export default function Bairro() {
     }, [pesquisa]);
 
     useEffect(() => {
-        if (municipio.value !== undefined || filtersOn) changeListFilters();
-    }, [municipio.value]);
+        changeListFilters();
+    }, [municipio]);
 
     useEffect(() => {
-        if (uf.value !== undefined || filtersOn) changeListFilters();
-    }, [uf.value]);
+        changeListFilters();
+    }, [uf]);
 
     const changeListFilters = (page?: number) => {
         setFiltersOn(true);
@@ -174,6 +174,7 @@ export default function Bairro() {
                     asyncFunction={getUfs}
                     value={uf}
                     setValue={setUf}
+                    isClearable
                 />
                 <AsyncReactSelect
                     name="idMunicipio"
@@ -182,6 +183,7 @@ export default function Bairro() {
                     asyncFunction={getMunicipios}
                     value={municipio}
                     setValue={setMunicipio}
+                    isClearable
                 />
             </Filters>
 

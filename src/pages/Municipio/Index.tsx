@@ -14,7 +14,7 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { getMunicipios, type municipioType, type postListagemMunicipioType } from '@/services/municipio';
-import { todosOption } from '@/services/constants';
+import { type optionType } from '@/services/constants';
 import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { getUfList } from '@/services/uf';
 
@@ -30,11 +30,11 @@ export default function Municipio() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
-  const [uf, setUf] = useState(todosOption);
+  const [uf, setUf] = useState<optionType>();
 
   const getUfs = async (pesquisa?: string) => {
     const data = await getUfList(pesquisa);
-    return [todosOption, ...data];
+    return [...data];
   }
 
   const initialPostListagem: postListagemMunicipioType = {
@@ -55,8 +55,8 @@ export default function Municipio() {
   }, [pesquisa]);
 
   useEffect(() => {
-    if(uf.value !== undefined || filtersOn) changeListFilters();
-  }, [uf.value]);
+    changeListFilters();
+  }, [uf]);
 
   const changeListFilters = (page?: number) => {
     setFiltersOn(true);
@@ -119,6 +119,7 @@ export default function Municipio() {
           asyncFunction={getUfs}
           value={uf}
           setValue={setUf}
+          isClearable
         />
       </Filters>
 
