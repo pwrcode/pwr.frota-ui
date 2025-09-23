@@ -18,6 +18,8 @@ import { errorMsg } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { renderIcon } from "./RenderIcon";
 import { Zap } from "lucide-react";
+import { getEmpresa, type empresaType } from "@/services/empresa";
+import { ImageSrc } from "./ImageSrc";
 
 interface SubmenuType {
   descricao: string;
@@ -38,7 +40,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [menuActiveStates, setMenuActiveStates] = useState<Record<string, boolean>>({});
   const [currentAccordion, setCurrentAccordion] = useState<string | undefined>(undefined);
 
+  const [dadosEmpresa, setDadosEmpresa] = useState<empresaType>();
+
   const { setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    getDadosEmpresa();
+  }, []);
+
+  const getDadosEmpresa = async () => {
+    const data = await getEmpresa();
+    setDadosEmpresa(data);
+  }
 
   useEffect(() => {
     if (acessos) {
@@ -244,10 +257,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="bg-background p-2 border-t border-border">
         <div className="flex items-center gap-2 pb-2 mt-1">
-          <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
-            <img src="/logo.png" alt="Logo" className="rounded-md p-1" />
-          </div>
-          <span className="font-normal text-sidebar-foreground ml-2">Cliente</span>
+          {dadosEmpresa
+            ? (
+              <div className="flex size-15 items-center justify-center rounded-lg">
+                <ImageSrc idArquivo={dadosEmpresa.idArquivoFoto} style="w-full object-contain" alt={"Logo da Empresa"} typeImg={1} />
+              </div>
+            ) : (
+              <div className="flex aspect-square size-11 items-center justify-center rounded-lg bg-[#fafafa80]">
+                <img src="/logo.png" alt="Logo" className="rounded-md p-1" />
+              </div>
+            )}
+          <span className="font-normal text-sidebar-foreground ml-2">{dadosEmpresa?.nomeFantasia}</span>
         </div>
       </SidebarFooter>
     </Sidebar>
