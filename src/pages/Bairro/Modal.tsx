@@ -12,7 +12,7 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getMunicipioList, getMunicipioPorId } from '@/services/municipio';
+import { getMunicipioPorId } from '@/services/municipio';
 import type { optionType } from '@/services/constants';
 import { useEndereco } from '@/hooks/useEndereco';
 
@@ -41,7 +41,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
     const formFunctions = useForm({
         resolver: zodResolver(schema)
     });
-    const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
+    const { register, handleSubmit, reset, setValue, control, setFocus, formState: { errors } } = formFunctions;
 
     const {
         getUfs, getMunicipios,
@@ -55,6 +55,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
         try {
             const item = await getBairroPorId(Number(id));
             setValue("descricao", item.descricao);
+            if (item.idUf) setValue("idUf", { value: item.idUf, label: item.siglaUf });
             if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
             toast.dismiss(process);
         }
