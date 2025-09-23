@@ -208,14 +208,14 @@ export default function Configuracoes() {
             </div>
 
             <div className="w-full space-y-1 p-2">
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="geral"
                 className="w-full justify-start gap-3 px-4 py-3 text-[15px] data-[state=active]:bg-brand-primary data-[state=active]:text-brand-primary-foreground hover:bg-accent/50 cursor-pointer"
                 onClick={() => setDropTabActive(false)}
               >
                 <Building className="h-4 w-4" />
                 Configurações Gerais
-              </TabsTrigger>
+              </TabsTrigger> */}
 
               <TabsTrigger
                 value="empresa"
@@ -260,9 +260,9 @@ export default function Configuracoes() {
 
         <div className="flex-1">
           <FormContainer>
-            <TabsContent value="geral" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
+            {/* <TabsContent value="geral" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
 
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="empresa" className="p-6 bg-muted/30 rounded-lg border border-border mt-0">
               <DadosEmpresa />
