@@ -15,6 +15,8 @@ export type veiculoType = {
   chassi: string,
   idTipoVeiculo: number,
   descricaoTipoVeiculo: string,
+  idTipoMotor: number,
+  descricaoTipoMotor: string,
   idVeiculoMarca: number,
   descricaoVeiculoMarca: string,
   idVeiculoModelo: number,
@@ -34,7 +36,9 @@ export type veiculoType = {
   dataAquisicao: string,
   valorCompra: number,
   dataVenda: string,
-  valorVenda: number
+  valorVenda: number,
+  idUf: number | null,
+  idMunicipio: number | null,
   usuarioCadastro: string,
   dataCadastro: string,
   usuarioEdicao: string | null,
@@ -49,9 +53,12 @@ export type postListagemVeiculoType = {
   dataInicio: string | undefined,
   dataFim: string | undefined,
   idTipoVeiculo: number | null,
+  idTipoMotor: number | null,
   idVeiculoMarca: number | null,
   idVeiculoModelo: number | null,
   ativo: boolean | null,
+  idUf: number | null,
+  idMunicipio: number | null,
 }
 
 export type dadosAddEdicaoVeiculoType = {
@@ -60,6 +67,7 @@ export type dadosAddEdicaoVeiculoType = {
   renavam: string,
   chassi: string,
   idTipoVeiculo: number,
+  idTipoMotor: number,
   idVeiculoMarca: number,
   idVeiculoModelo: number,
   versao: string,
@@ -78,6 +86,8 @@ export type dadosAddEdicaoVeiculoType = {
   dataVenda: string | null | undefined,
   valorVenda: number | null,
   veiculoTanques?: dadosAddEdicaoVeiculoTanqueType[],
+  idUf: number | null,
+  idMunicipio: number | null,
 }
 
 export const getVeiculos = async (dados: postListagemVeiculoType) => {
@@ -126,10 +136,18 @@ export const deleteVeiculo = async (id: number) => {
   else throw new Error(response.data.mensagem);
 }
 
-export const getVeiculoList = async (pesquisa: string | undefined, idTipoVeiculo: number | undefined, idVeiculoMarca: number | undefined, idVeiculoModelo: number | undefined) => {
+export const getVeiculoList = async (
+  pesquisa: string | undefined,
+  idTipoVeiculo: number | undefined,
+  idTipoMotor: number | undefined,
+  idVeiculoMarca: number | undefined,
+  idVeiculoModelo: number | undefined,
+  idUf: number | undefined,
+  idMunicipio: number | undefined
+) => {
   try {
     const axiosInstance = await getAxios();
-    const response = await axiosInstance.get(`${api}/select`, { params: { pesquisa, idTipoVeiculo, idVeiculoMarca, idVeiculoModelo } });
+    const response = await axiosInstance.get(`${api}/select`, { params: { pesquisa, idTipoVeiculo, idTipoMotor, idVeiculoMarca, idVeiculoModelo, idUf, idMunicipio } });
     if (response.data.sucesso) {
       if (response.data.dados.length == 0) return [];
       return response.data.dados.map((l: itemSelectType) => ({ value: l.id, label: l.descricao }));

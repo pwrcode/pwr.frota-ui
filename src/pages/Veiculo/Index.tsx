@@ -37,6 +37,9 @@ import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 import { Badge } from '@/components/ui/badge';
 import { capitalizeText } from '@/services/utils';
+import { getTipoMotorList } from '@/services/tipoMotor';
+import { getUfList } from '@/services/uf';
+import { getMunicipioList } from '@/services/municipio';
 
 export default function Veiculo() {
 
@@ -54,14 +57,17 @@ export default function Veiculo() {
   const [pageSize, setPageSize] = useState<number>(10);
   const [pesquisa, setPesquisa] = useState<string>("");
   const [tipoVeiculo, setTipoVeiculo] = useState<optionType | null>();
-  const [veiculoMarca, setVeiculoMarca] = useState<optionType  | null>();
+  const [tipoMotor, setTipoMotor] = useState<optionType | null>();
+  const [veiculoMarca, setVeiculoMarca] = useState<optionType | null>();
   const [veiculoModelo, setVeiculoModelo] = useState<optionType | null>();
-  const [tipoData, setTipoData] = useState<optionType  | null>();
+  const [tipoData, setTipoData] = useState<optionType | null>();
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [status, setStatus] = useState<optionType  | null>();
+  const [status, setStatus] = useState<optionType | null>();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
+  const [uf, setUf] = useState<optionType | null>();
+  const [municipio, setMunicipio] = useState<optionType | null>();
 
   const initialPostListagem: postListagemVeiculoType = {
     pageSize: pageSize,
@@ -71,16 +77,42 @@ export default function Veiculo() {
     dataInicio: "",
     dataFim: "",
     idTipoVeiculo: null,
+    idTipoMotor: null,
     idVeiculoMarca: null,
     idVeiculoModelo: null,
     ativo: null,
+    idUf: null,
+    idMunicipio: null,
   };
   const [postListagem, setPostListagem] = useState(initialPostListagem);
   const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
+  const [municipios, setMunicipios] = useState<listType>([]);
+  
+  const getUfs = async (pesquisa?: string) => {
+    const data = await getUfList(pesquisa);
+    // setUfs([...data]);
+    return [...data];
+  }
+
+  useEffect(() => {
+    getMunicipios();
+  }, [uf]);
+
   useEffect(() => {
     if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
   }, [currentPage]);
+
+  const getMunicipios = async (pesquisa?: string) => {
+    if (!uf) {
+      setMunicipios([]);
+      setMunicipio(null);
+      return [];
+    };
+    const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
+    setMunicipios([...data]);
+    return [...data];
+  }
 
   useEffect(() => {
     if (pesquisa.length > 0 || filtersOn) changeListFilters();
@@ -89,6 +121,14 @@ export default function Veiculo() {
   useEffect(() => {
     changeListFilters();
   }, [tipoVeiculo]);
+
+  useEffect(() => {
+    changeListFilters();
+  }, [tipoMotor]);
+
+  useEffect(() => {
+    changeListFilters();
+  }, [uf]);
 
   useEffect(() => {
     changeListFilters();
@@ -118,6 +158,14 @@ export default function Veiculo() {
     changeListFilters();
   }, [status]);
 
+  useEffect(() => {
+    changeListFilters();
+  }, [uf]);
+
+  useEffect(() => {
+    changeListFilters();
+  }, [municipio]);
+
   const changeListFilters = (page?: number) => {
     setFiltersOn(true);
     setPostListagem({
@@ -128,9 +176,12 @@ export default function Veiculo() {
       dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
       dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
       idTipoVeiculo: tipoVeiculo && tipoVeiculo.value ? tipoVeiculo.value : null,
+      idTipoMotor: tipoMotor && tipoMotor.value ? tipoMotor.value : null,
       idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
       idVeiculoModelo: veiculoModelo && veiculoModelo.value ? veiculoModelo.value : null,
       ativo: status ? status.value : null,
+      idUf: uf && uf.value ? uf.value : null,
+      idMunicipio: municipio && municipio.value ? municipio.value : null,
     });
   }
 
@@ -155,6 +206,11 @@ export default function Veiculo() {
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
+    return [...data];
+  }
+
+  const getTiposMotor = async (pesquisa?: string) => {
+    const data = await getTipoMotorList(pesquisa);
     return [...data];
   }
 
@@ -218,22 +274,28 @@ export default function Veiculo() {
 
   const clearFilters = () => {
     setTipoVeiculo(null);
+    setTipoMotor(null);
     setVeiculoMarca(null);
     setVeiculoModelo(null);
     setTipoData(null);
     setDataInicio("");
     setDataFim("");
     setStatus(null);
+    setUf(null);
+    setMunicipio(null);
   }
 
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
       tipoVeiculo ||
+      tipoMotor ||
       veiculoMarca ||
       veiculoModelo ||
       tipoData ||
       dataInicio ||
       dataFim ||
+      uf ||
+      municipio ||
       status
     );
     setHasActiveFilters(hasFilters);
@@ -241,7 +303,7 @@ export default function Veiculo() {
 
   useEffect(() => {
     checkActiveFilters();
-  }, [tipoVeiculo, veiculoMarca, veiculoModelo, tipoData, dataInicio, dataFim, status]);
+  }, [tipoVeiculo, tipoMotor, veiculoMarca, veiculoModelo, tipoData, dataInicio, dataFim, status, uf, municipio]);
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
@@ -303,6 +365,15 @@ export default function Veiculo() {
                     setValue={setTipoVeiculo}
                     isClearable
                   />
+                  <AsyncReactSelect
+                    name="tipoMotor"
+                    title='Tipo Motor'
+                    options={[]}
+                    asyncFunction={getTiposMotor}
+                    value={tipoMotor}
+                    setValue={setTipoMotor}
+                    isClearable
+                  />
 
                   <AsyncReactSelect
                     name="veiculoMarca"
@@ -333,6 +404,8 @@ export default function Veiculo() {
                     setValue={setStatus}
                     isClearable
                   />
+                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
+                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
                 </div>
 
                 <div className="border-t border-border pt-6">

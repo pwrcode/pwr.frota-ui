@@ -37,6 +37,8 @@ import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
 import VeiculoTanque from '../VeiculoTanque/Index';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import { useEndereco } from '@/hooks/useEndereco';
+import { getTipoMotorList } from '@/services/tipoMotor';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -71,13 +73,32 @@ export const schema = z.object({
   capacidadePassageiros: z.string().optional()/*.min(1, {message: "Informe a capacidadePassageiros"})*/,
   valorCompra: z.string().optional()/*.min(1, {message: "Informe o valorCompra"})*/,
   valorVenda: z.string().optional()/*.min(1, {message: "Informe o valorVenda"})*/,
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o UF" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o UF" }),
+  idMunicipio: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione o município" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o município" }),
+  idTipoMotor: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }, { message: "Selecione um Tipo Motor" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tipo Motor" }),
 });
 
 export default function VeiculoForm() {
 
-  const { register, handleSubmit, reset, resetField, setValue, watch, control, setFocus, formState: { errors } } = useForm({
+  const formFunctions = useForm({
     resolver: zodResolver(schema)
   });
+  const { register, handleSubmit, reset, setValue, watch, resetField, control, setFocus, formState: { errors } } = formFunctions;
+
+  const {
+    getUfs, getMunicipios,
+    ufs, municipios,
+    setIdUf, setIdMunicipio,
+  } = useEndereco(formFunctions);
 
   const { id } = useParams();
   const [idArquivoFotoVeiculo, setIdArquivoFotoVeiculo] = useState<number>(0);
@@ -101,6 +122,7 @@ export default function VeiculoForm() {
     if (id) return
     getTipoVeiculos();
     getVeiculoMarcas();
+    getUfs();
   }, []);
 
   useEffect(() => {
@@ -110,6 +132,11 @@ export default function VeiculoForm() {
 
   const getTipoVeiculos = async (pesquisa?: string) => {
     const data = await getTipoVeiculoList(pesquisa, undefined);
+    return data;
+  }
+
+  const getTiposMotor = async (pesquisa?: string) => {
+    const data = await getTipoMotorList(pesquisa);
     return data;
   }
 
@@ -149,12 +176,15 @@ export default function VeiculoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getVeiculoPorId(Number(id));
+      if (item.idUf) setIdUf(item.idUf);
+      if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
       setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
       setValue("descricao", item.descricao);
       setValue("placa", formatMaskPlaca(item.placa));
       setValue("renavam", item.renavam);
       setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
+      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
       setValue("versao", item.versao);
       setValue("anoFabricacao", item.anoFabricacao?.toString());
@@ -197,6 +227,7 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           versao: data.versao,
@@ -214,6 +245,8 @@ export default function VeiculoForm() {
           dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
           veiculoTanques: tanques,
+          idUf: data.idUf ?? null,
+          idMunicipio: data.idMunicipio ?? null,
         }
         const res = await addVeiculo(post);
         toast.update(process, { render: res.mensagem, type: "success", isLoading: false, autoClose: 2000 });
@@ -226,6 +259,7 @@ export default function VeiculoForm() {
           renavam: data.renavam,
           chassi: data.chassi,
           idTipoVeiculo: data.idTipoVeiculo ?? null,
+          idTipoMotor: data.idTipoMotor ?? null,
           idVeiculoMarca: data.idVeiculoMarca ?? null,
           idVeiculoModelo: data.idVeiculoModelo ?? null,
           versao: data.versao,
@@ -242,6 +276,8 @@ export default function VeiculoForm() {
           valorCompra: toNumber(data.valorCompra) ?? 0,
           dataVenda: isVendido ? dataVenda ? dataVenda.slice(0, 11).concat("00:00:00") : null : null,
           valorVenda: isVendido ? toNumber(data.valorVenda) ?? 0 : null,
+          idUf: data.idUf ?? null,
+          idMunicipio: data.idMunicipio ?? null,
         }
         const res = await updateVeiculo(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
@@ -333,6 +369,8 @@ export default function VeiculoForm() {
                   <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
                   <AsyncReactSelect name="cor" title="Cor" control={control} options={tiposCorVeiculo} isClearable size="w-full" />
                   <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
+                  <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1" filter={true} isClearable />
+                  <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1" />
                 </div>
                 {(!id) && (
                   <div className="mt-6">
@@ -349,6 +387,7 @@ export default function VeiculoForm() {
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                   <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
+                  <AsyncReactSelect name="idTipoMotor" title="Tipo Motor" control={control} asyncFunction={getTiposMotor} options={[]} isClearable />
                   <div className='flex justify-between items-end gap-2'>
                     <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={[]} asyncFunction={getVeiculoMarcas} isClearable size="w-full" />
                     <PlusButton loading={loading} func={handleClickAdicionarMarca} />
