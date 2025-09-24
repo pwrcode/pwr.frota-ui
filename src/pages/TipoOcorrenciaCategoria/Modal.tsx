@@ -5,14 +5,12 @@ import { Button } from '@/components/ui/button';
 import { errorMsg } from '@/services/api';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
-import { addMotivoParada, getMotivoParadaPorId, updateMotivoParada, type dadosAddEdicaoMotivoParadaType } from '@/services/motivoParada';
+import { addTipoOcorrenciaCategoria, getTipoOcorrenciaCategoriaPorId, updateTipoOcorrenciaCategoria, type dadosAddEdicaoTipoOcorrenciaCategoriaType } from '@/services/tipoOcorrenciaCategoria';
 import InputLabel from '@/ui/components/forms/InputLabel';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { tiposParada } from '@/services/constants';
 
 type modalPropsType = {
     open: boolean,
@@ -23,15 +21,11 @@ type modalPropsType = {
 
 const schema = z.object({
     descricao: z.string().min(1, { message: "Informe a descrição" }),
-    tipo: z.object({
-        value: z.number().optional(),
-        label: z.string().optional()
-    }, { error: "Selecione o tipo parada" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { error: "Selecione o tipo parada" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, setFocus, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -39,12 +33,8 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
-            const item = await getMotivoParadaPorId(Number(id));
+            const item = await getTipoOcorrenciaCategoriaPorId(Number(id));
             setValue("descricao", item.descricao);
-            setValue("tipo", {
-                value: tiposParada.find(t => t.valueLabel === item.tipo)?.value,
-                label: tiposParada.find(t => t.valueLabel === item.tipo)?.label
-            })
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -69,21 +59,20 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         });
     }, [errors]);
 
-    const submit = async (dados: dadosAddEdicaoMotivoParadaType) => {
+    const submit = async (dados: dadosAddEdicaoTipoOcorrenciaCategoriaType) => {
         if (loading) return
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoMotivoParadaType = {
+            const postPut: dadosAddEdicaoTipoOcorrenciaCategoriaType = {
                 descricao: dados.descricao,
-                tipo: dados.tipo ?? null
             };
             if (id === 0) {
-                const response = await addMotivoParada(postPut);
+                const response = await addTipoOcorrenciaCategoria(postPut);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const response = await updateMotivoParada(id, postPut);
+                const response = await updateTipoOcorrenciaCategoria(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
             if (updateList) updateList(true);
@@ -101,14 +90,13 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
-                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoMotivoParadaType))} className='flex flex-col h-full'>
+                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoTipoOcorrenciaCategoriaType))} className='flex flex-col h-full'>
                     <SheetHeader className='p-6 rounded-t-lg border-b'>
-                        <SheetTitle>{id ? `Editar Tipo Parada #${id}` : "Cadastrar Tipo Parada"}</SheetTitle>
+                        <SheetTitle>{id ? `Editar Tipo Ocorrência Categoria #${id}` : "Cadastrar Tipo Ocorrência Categoria"}</SheetTitle>
                     </SheetHeader>
 
                     <ModalFormBody>
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
-                        <AsyncReactSelect name='tipo' title='Tipo Parada' options={tiposParada} control={control} isClearable />
                     </ModalFormBody>
 
                     <ModalFormFooter>
