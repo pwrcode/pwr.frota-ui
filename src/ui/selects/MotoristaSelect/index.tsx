@@ -11,7 +11,7 @@ type Props = {
 
 const SelectMotorista = (props: Props) => {
     const {
-        name = "motorista",
+        name = "idMotorista",
         title = "Motorista",
         control
     } = props;

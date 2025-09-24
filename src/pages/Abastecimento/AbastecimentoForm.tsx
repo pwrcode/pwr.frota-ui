@@ -33,27 +33,27 @@ import SelectMotorista from '@/ui/selects/MotoristaSelect';
 import InputDataControl from '@/ui/components/forms/InputDataControl';
 
 export const schema = z.object({
-  veiculo: z.object({
+  idVeiculo: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o veículo" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o veículo" }),
-  pessoa: z.object({
+  idPessoa: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o motorista" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o motorista" }),
-  postoCombustivel: z.object({
+  idPostoCombustivel: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o posto de combustível" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o posto de combustível" }),
-  postoCombustivelTanque: z.object({
+  idPostoCombustivelTanque: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional(),
-  produtoAbastecimento: z.object({
+  idProdutoAbastecimento: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o produto abastecimento" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o produto abastecimento" }),
-  veiculoTanque: z.object({
+  idVeiculoTanque: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }, { message: "Selecione o tanqu do veículo" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o tanque do veículo" }),
@@ -104,8 +104,8 @@ export default function AbastecimentoForm() {
 
   useEffect(() => {
     const subscription = watch((values, field) => {
-      if (field.name == "postoCombustivel")
-        verificaPostoInterno(values.postoCombustivel?.value)
+      if (field.name == "idPostoCombustivel")
+        verificaPostoInterno(values.idPostoCombustivel?.value)
     });
 
     return () => subscription.unsubscribe();
@@ -124,17 +124,17 @@ export default function AbastecimentoForm() {
       const item = await getAbastecimentoPorId(Number(id));
 
       reset({
-        veiculo: { value: item.idVeiculo, label: item.descricaoVeiculo },
-        pessoa: { value: item.idPessoa, label: item.razaoSocialPessoa },
-        produtoAbastecimento: { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento },
-        postoCombustivel: { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel },
+        idVeiculo: { value: item.idVeiculo, label: item.descricaoVeiculo },
+        idPessoa: { value: item.idPessoa, label: item.razaoSocialPessoa },
+        idProdutoAbastecimento: { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento },
+        idPostoCombustivel: { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel },
         quilometragem: item.quilometragem.toString(),
         quantidadeAbastecida: item.quantidadeAbastecida.toString(),
         valorUnitario: String(currency(item.valorUnitario)),
         observacao: item.observacao ?? "",
         tanqueCheio: item.tanqueCheio ? true : false,
-        veiculoTanque: { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque },
-        postoCombustivelTanque: { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque },
+        idVeiculoTanque: { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque },
+        idPostoCombustivelTanque: { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque },
         dataAbastecimento: item.dataAbastecimento ?? "",
         idArquivoFotoPainelAntes: item.idArquivoFotoPainelAntes ?? 0,
         idArquivoFotoPainelDepois: item.idArquivoFotoPainelDepois ?? 0,
@@ -155,13 +155,14 @@ export default function AbastecimentoForm() {
     setLoading(true);
     const process = toast.loading("Salvando item...")
     try {
+      console.log(data)
       if (!id) {
         const post: dadosAddEdicaoAbastecimentoType = {
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
-          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
+          idPostoCombustivelTanque: (data.idPostoCombustivelTanque as any)?.value ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
           quantidadeAbastecida: +data.quantidadeAbastecida,
@@ -180,8 +181,8 @@ export default function AbastecimentoForm() {
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
-          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
+          idPostoCombustivelTanque: (data.idPostoCombustivelTanque as any)?.value ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
           quantidadeAbastecida: +data.quantidadeAbastecida,
@@ -219,10 +220,10 @@ export default function AbastecimentoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
               {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-              {postoInterno ? <SelectPostoCombustivelTanque control={control} idPostoCombustivel={watch("postoCombustivel")?.value} /> : <></>}
+              {postoInterno ? <SelectPostoCombustivelTanque control={control} idPostoCombustivel={watch("idPostoCombustivel")?.value} /> : <></>}
               {!idVeiculo ? <SelectVeiculo control={control} /> : <></>}
-              <SelectVeiculoTanque control={control} idVeiculo={watch("veiculo")?.value} />
-              <SelectProdutoAbastecimento control={control} idPostoCombustivelTanque={watch("postoCombustivelTanque")?.value} idVeiculo={watch("veiculo")?.value} />
+              <SelectVeiculoTanque control={control} idVeiculo={watch("idVeiculo")?.value} />
+              <SelectProdutoAbastecimento control={control} idPostoCombustivelTanque={watch("idPostoCombustivelTanque")?.value} idVeiculo={watch("idVeiculo")?.value} />
             </div>
           </FormContainerBody>
         </FormContainer>
@@ -231,7 +232,7 @@ export default function AbastecimentoForm() {
           <FormContainerHeader title="Informações abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
-              <SelectMotorista control={control} />
+              <SelectMotorista name='idPessoa' control={control} />
               <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} />
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />

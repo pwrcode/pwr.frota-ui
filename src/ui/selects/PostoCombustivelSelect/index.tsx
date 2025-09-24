@@ -11,7 +11,7 @@ type Props = {
 
 const SelectPostoCombustivel = (props: Props) => {
     const {
-        name = "postoCombustivel",
+        name = "idPostoCombustivel",
         title = "Posto Combustível",
         control
     } = props;

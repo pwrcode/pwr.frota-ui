@@ -29,11 +29,12 @@ import Modal from '../Bairro/Modal';
 import type { optionType } from '@/services/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronUp, Building2, Fuel, ArrowDownCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Building2, Fuel, ArrowDownCircle, History } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import EntradaCombustivel from '../EntradaCombustivel';
 import PostoCombustivelTanque from '../PostoCombustivelTanque/Index';
 import type { dadosAddEdicaoPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
+import PostoCombustivelHistorico from '../PostoCombustivelHistorico/Index';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -243,14 +244,26 @@ export default function PostoCombustivelForm() {
                             <Fuel size={16} />
                             Abastecimentos
                         </TabsTrigger>
-                        <TabsTrigger
-                            value='entrada'
-                            onClick={() => setTabNameMobile("Entradas")}
-                            className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
-                        >
-                            <ArrowDownCircle size={16} />
-                            Entradas
-                        </TabsTrigger>
+                        {watch("isInterno") ? (
+                            <TabsTrigger
+                                value='entrada'
+                                onClick={() => setTabNameMobile("Entradas")}
+                                className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                            >
+                                <ArrowDownCircle size={16} />
+                                Entradas
+                            </TabsTrigger>
+                        ) : <></>}
+                        {watch("isInterno") ? (
+                            <TabsTrigger
+                                value='historico'
+                                onClick={() => setTabNameMobile("Histórico")}
+                                className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                            >
+                                <History size={16} />
+                                Histórico
+                            </TabsTrigger>
+                        ) : <></>}
                     </> : <></>}
                 </TabsList>
 
@@ -262,6 +275,7 @@ export default function PostoCombustivelForm() {
                                     {tabNameMobile === "Posto Combustível" && <Building2 size={16} />}
                                     {tabNameMobile === "Abastecimentos" && <Fuel size={16} />}
                                     {tabNameMobile === "Entradas" && <ArrowDownCircle size={16} />}
+                                    {tabNameMobile === "Histórico" && <ArrowDownCircle size={16} />}
                                     {tabNameMobile}
                                 </div>
                                 {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
@@ -290,16 +304,32 @@ export default function PostoCombustivelForm() {
                                             Abastecimentos
                                         </TabsTrigger>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem className='p-0'>
-                                        <TabsTrigger
-                                            value='entrada'
-                                            onClick={() => setTabNameMobile("Entradas")}
-                                            className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
-                                        >
-                                            <ArrowDownCircle size={16} />
-                                            Entradas
-                                        </TabsTrigger>
-                                    </DropdownMenuItem>
+
+                                    {watch("isInterno") ? (
+                                        <DropdownMenuItem className='p-0'>
+                                            <TabsTrigger
+                                                value='entrada'
+                                                onClick={() => setTabNameMobile("Entradas")}
+                                                className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                            >
+                                                <ArrowDownCircle size={16} />
+                                                Entradas
+                                            </TabsTrigger>
+                                        </DropdownMenuItem>
+                                    ) : <></>}
+
+                                    {watch("isInterno") ? (
+                                        <DropdownMenuItem className='p-0'>
+                                            <TabsTrigger
+                                                value='historico'
+                                                onClick={() => setTabNameMobile("Histórico")}
+                                                className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                            >
+                                                <History size={16} />
+                                                Histórico
+                                            </TabsTrigger>
+                                        </DropdownMenuItem>
+                                    ) : <></>}
                                 </>
                             )}
                         </DropdownMenuContent>
@@ -409,6 +439,10 @@ export default function PostoCombustivelForm() {
 
                 <TabsContent value='entrada'>
                     <EntradaCombustivel idPosto={Number(id)} />
+                </TabsContent>
+
+                <TabsContent value='historico'>
+                    <PostoCombustivelHistorico idPostoCombustivel={Number(id)} />
                 </TabsContent>
 
             </Tabs >

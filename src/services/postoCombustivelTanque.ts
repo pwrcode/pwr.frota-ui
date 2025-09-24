@@ -39,6 +39,13 @@ export type dadosAddEdicaoPostoCombustivelTanqueType = {
   estoqueMinimoLitros: number
 }
 
+export type dadosHistoricoPostoCombustivelTanqueType = {
+  descricao: string,
+  descricaoProdutoAbastecimento: string,
+  descricaoTanque: string,
+  data: string,
+}
+
 export const getPostoCombustivelTanques = async (dados: postListagemPostoCombustivelTanqueType) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.post(`${api}/listagem`, dados);
@@ -92,6 +99,22 @@ export const getPostoCombustivelTanqueList = async (pesquisa: string | undefined
     if (response.data.sucesso) {
       if (response.data.dados.length == 0) return [];
       return response.data.dados.map((l: itemSelectType) => ({ value: l.id, label: l.descricao }));
+    }
+    else return [];
+  }
+  catch (error: Error | any) {
+    toast.error(errorMsg(error, null));
+    return [];
+  }
+}
+
+export const getPostoCombustivelTanqueHistorico = async (id: number) => {
+  try {
+    const axiosInstance = await getAxios();
+    const response = await axiosInstance.get(`${api}/historico/${id}`);
+    if (response.data.sucesso) {
+      if (response.data.dados.length == 0) return [];
+      return response.data.dados;
     }
     else return [];
   }

@@ -69,7 +69,7 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
     }
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, undefined, undefined);
         return data;
     }
 
