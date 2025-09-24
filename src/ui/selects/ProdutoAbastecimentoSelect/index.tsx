@@ -9,6 +9,7 @@ type Props = {
     control: Control<any>;
     idPostoCombustivelTanque?: number;
     idVeiculo?: number;
+    idVeiculoTanque?: number;
 }
 
 const SelectProdutoAbastecimento = (props: Props) => {
@@ -17,7 +18,8 @@ const SelectProdutoAbastecimento = (props: Props) => {
         title = "Produto Abastecimento",
         control,
         idPostoCombustivelTanque,
-        idVeiculo
+        idVeiculo,
+        idVeiculoTanque
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -25,15 +27,15 @@ const SelectProdutoAbastecimento = (props: Props) => {
 
     useEffect(() => {
         getProdutosAbastecimento();
-    }, [idPostoCombustivelTanque, idVeiculo]);
+    }, [idPostoCombustivelTanque, idVeiculo, idVeiculoTanque]);
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
         setOpcoesProdutoAbastecimento([]);
 
-        if (!idPostoCombustivelTanque && !idVeiculo)
+        if(!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque)
             return [];
 
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque, idVeiculo);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque, idVeiculo, idVeiculoTanque);
         setOpcoesProdutoAbastecimento([...data]);
         return data;
     }

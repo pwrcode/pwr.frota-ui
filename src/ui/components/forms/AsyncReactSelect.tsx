@@ -227,7 +227,7 @@ export default function AsyncReactSelect({
                                 id={id}
                                 name={name}
                                 isDisabled={isDisabled}
-                                defaultOptions={filter ? options : true}
+                                defaultOptions={filter || options?.length ? options : true}
                                 cacheOptions
                                 loadOptions={loadOptions}
                                 onInputChange={handleInputChange}

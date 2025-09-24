@@ -223,7 +223,12 @@ export default function AbastecimentoForm() {
               {postoInterno ? <SelectPostoCombustivelTanque control={control} idPostoCombustivel={watch("idPostoCombustivel")?.value} /> : <></>}
               {!idVeiculo ? <SelectVeiculo control={control} /> : <></>}
               <SelectVeiculoTanque control={control} idVeiculo={watch("idVeiculo")?.value} />
-              <SelectProdutoAbastecimento control={control} idPostoCombustivelTanque={watch("idPostoCombustivelTanque")?.value} idVeiculo={watch("idVeiculo")?.value} />
+              <SelectProdutoAbastecimento
+                control={control}
+                idPostoCombustivelTanque={watch("idPostoCombustivelTanque")?.value}
+                idVeiculo={watch("idVeiculo")?.value}
+                idVeiculoTanque={watch("idVeiculoTanque")?.value}
+              />
             </div>
           </FormContainerBody>
         </FormContainer>
