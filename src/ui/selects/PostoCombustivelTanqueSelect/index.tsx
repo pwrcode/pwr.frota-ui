@@ -22,12 +22,12 @@ const SelectPostoCombustivelTanque = (props: Props) => {
     const [opcoesPostoCombustivelTanque, setOpcoesPostoCombustivelTanque] = useState<Array<any>>([]);
 
     useEffect(() => {
+        onChange(null)
         getPostoCombustivelTanques();
     }, [idPostoCombustivel]);
 
     const getPostoCombustivelTanques = async (pesquisa?: string) => {
         setOpcoesPostoCombustivelTanque([]);
-        
         if (!idPostoCombustivel)
             return [];
 

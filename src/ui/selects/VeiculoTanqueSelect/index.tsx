@@ -22,6 +22,7 @@ const SelectVeiculoTanque = (props: Props) => {
     const [opcoesVeiculoTanque, setOpcoesVeiculoTanque] = useState<Array<any>>([]);
 
     useEffect(() => {
+        onChange(null)
         getVeiculoTanques();
     }, [idVeiculo]);
 

@@ -26,6 +26,7 @@ const SelectProdutoAbastecimento = (props: Props) => {
     const [opcoesProdutoAbastecimento, setOpcoesProdutoAbastecimento] = useState<Array<any>>([]);
 
     useEffect(() => {
+        onChange(null)
         getProdutosAbastecimento();
     }, [idPostoCombustivelTanque, idVeiculo, idVeiculoTanque]);
 

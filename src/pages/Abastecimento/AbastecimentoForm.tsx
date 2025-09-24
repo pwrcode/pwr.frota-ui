@@ -112,8 +112,12 @@ export default function AbastecimentoForm() {
   }, [watch])
 
   const verificaPostoInterno = async (idPostoCombustivel?: number) => {
-    if (!idPostoCombustivel) return;
+    if (!idPostoCombustivel) {
+      setPostoInterno(false);
+      return;
+    }
     const data = await getPostoCombustivelPorId(idPostoCombustivel || 0);
+    console.log(data.isInterno)
     setPostoInterno(data.isInterno || false);
   }
 
