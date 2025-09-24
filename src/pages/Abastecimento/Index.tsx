@@ -12,22 +12,58 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import { deleteAbastecimento, getAbastecimentos, type postListagemAbastecimentoType, type abastecimentoType } from '@/services/abastecimento';
-import { type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { BadgeSimNao } from '@/ui/components/tables/BadgeAtivo';
 import { formatarData } from '@/services/date';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { getPessoaList } from '@/services/pessoa';
-import { getPostoCombustivelList } from '@/services/postoCombustivel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
-import { getVeiculoList } from '@/services/veiculo';
 import { currency } from '@/services/currency';
+import VeiculoSelect from '@/ui/selects/VeiculoSelect';
+import SelectMotorista from '@/ui/selects/MotoristaSelect';
+import SelectPostoCombustivel from '@/ui/selects/PostoCombustivelSelect';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+export const schema = z.object({
+  motorista: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
+  postoCombustivel: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
+  produtoAbastecimento: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
+  veiculo: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
+  dataInicio: z.string().optional(),
+  dataFim: z.string().optional(),
+});
 
 export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number, idVeiculo?: number }) {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, _] = useState(10);
+
+  const { getValues, watch, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      dataInicio: "",
+      dataFim: "",
+      motorista: undefined,
+      postoCombustivel: undefined,
+      produtoAbastecimento: undefined,
+      veiculo: undefined,
+    }
+  });
 
   const navigate = useNavigate();
 
@@ -38,104 +74,37 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [motorista, setMotorista] = useState<optionType>();
-  const [postoCombustivel, setPostoCombustivel] = useState<optionType>();
-  const [produtoAbastecimento, setProdutoAbastecimento] = useState<optionType>();
-  const [veiculo, setVeiculo] = useState<optionType>();
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
-
-  const initialPostListagem: postListagemAbastecimentoType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    dataInicio: "",
-    dataFim: "",
-    idMotorista: null,
-    idPostoCombustivel: idPosto ?? null,
-    idProdutoAbastecimento: null,
-    idVeiculo: idVeiculo ?? null,
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [motorista]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [postoCombustivel]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [produtoAbastecimento]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [veiculo]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [dataInicio]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [dataFim]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
-      dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-      idMotorista: motorista && motorista.value ? motorista.value : null,
-      idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
-      idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
-      idVeiculo: idVeiculo ?? (veiculo && veiculo.value ? veiculo.value : null),
-    });
-  }
-
   useEffect(() => {
     updateList();
   }, []);
 
-  const getMotoristas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined, undefined);
-    return [...data];
-  }
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+    });
 
-  const getPostosCombustivel = async (pesquisa?: string) => {
-    const data = await getPostoCombustivelList(pesquisa, undefined, undefined, undefined, undefined);
-    return [...data];
-  }
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
-  const getProdutosAbastecimento = async (pesquisa?: string) => {
-    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
-    return [...data];
-  }
-
-  const getVeiculos = async (pesquisa?: string) => {
-    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined);
-    return [...data];
-  }
-
-  const updateList = async () => {
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getAbastecimentos(postListagem);
+      const filtros: postListagemAbastecimentoType = {
+        pageSize: pageSize,
+        currentPage: paginaAtual,
+        dataInicio: getValues("dataInicio") || "",
+        dataFim: getValues("dataFim") || "",
+        idVeiculo: getValues("veiculo")?.value || null,
+        idMotorista: getValues("motorista")?.value || null,
+        idPostoCombustivel: getValues("postoCombustivel")?.value || null,
+        idProdutoAbastecimento: getValues("produtoAbastecimento")?.value || null,
+      }
+
+      const data = await getAbastecimentos(filtros);
       setAbastecimentos(data.dados);
       setTotalPages(data.totalPages);
-      setPageSize(data.pageSize);
       setTotalRegisters(data.totalRegisters);
-      setCurrentPage(data.currentPage);
       toast.dismiss(process);
     }
     catch (error: Error | any) {
@@ -145,10 +114,6 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -171,7 +136,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       const response = await deleteAbastecimento(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (abastecimentos.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (abastecimentos.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -187,12 +152,12 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       <PageTitle title="Abastecimentos" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title='Veículo' options={[]} asyncFunction={getVeiculos} value={veiculo} setValue={setVeiculo} isClearable /> : <></>}
-        <AsyncReactSelect name="idMotorista" title='Motorista' options={[]} asyncFunction={getMotoristas} value={motorista} setValue={setMotorista} isClearable />
-        {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable /> : <></>}
-        <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable />
-        <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
-        <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
+        {!idVeiculo ? <VeiculoSelect control={control} /> : <></>}
+        <SelectMotorista control={control} />
+        {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
+        <SelectProdutoAbastecimento control={control} />
+        <InputDataControl name="dataInicio" title='Data Início' control={control} />
+        <InputDataControl name="dataFim" title='Data Fim' control={control} />
       </Filters>
 
       {(abastecimentos.length > 0) && (

@@ -7,42 +7,42 @@ import { useTheme } from "@/components/ui/theme-provider";
 
 // Configuração centralizada das cores do select
 const selectColors = {
-  light: {
-    background: "#FFFFFF",
-    backgroundHover: "#F5F5F5",
-    text: "#000000",
-    border: "rgba(229, 229, 229, 1)",
-    borderHover: "rgba(229, 229, 229, 1)",
-    borderFocus: "#3b82f6",
-    optionBackground: "#FFFFFF",
-    optionBackgroundHover: "#f1f5f9",
-    optionBackgroundSelected: "#3b82f6",
-    optionText: "black",
-    optionTextSelected: "white",
-    multiValueBackground: "#f1f5f9",
-    multiValueRemoveHover: "#e2e8f0",
-    menuBorder: "#E5E7EB",
-    menuShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
-  },
-  dark: {
-    background: "#0c0c0d",
-    backgroundHover: "#0c0c0d",
-    text: "#fafafa",
-    border: "#27272a",
-    borderHover: "#71717a",
-    borderFocus: "#71717a",
-    optionBackground: "#0c0c0d",
-    optionBackgroundHover: "#18181b",
-    optionBackgroundSelected: "#27272a",
-    optionText: "#fafafa",
-    optionTextSelected: "#fafafa",
-    multiValueBackground: "#18181b",
-    multiValueText: "#fafafa",
-    multiValueRemove: "#a1a1aa",
-    multiValueRemoveHover: "#27272a",
-    menuBorder: "#27272a",
-    menuShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)"
-  }
+    light: {
+        background: "#FFFFFF",
+        backgroundHover: "#F5F5F5",
+        text: "#000000",
+        border: "rgba(229, 229, 229, 1)",
+        borderHover: "rgba(229, 229, 229, 1)",
+        borderFocus: "#3b82f6",
+        optionBackground: "#FFFFFF",
+        optionBackgroundHover: "#f1f5f9",
+        optionBackgroundSelected: "#3b82f6",
+        optionText: "black",
+        optionTextSelected: "white",
+        multiValueBackground: "#f1f5f9",
+        multiValueRemoveHover: "#e2e8f0",
+        menuBorder: "#E5E7EB",
+        menuShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+    },
+    dark: {
+        background: "#0c0c0d",
+        backgroundHover: "#0c0c0d",
+        text: "#fafafa",
+        border: "#27272a",
+        borderHover: "#71717a",
+        borderFocus: "#71717a",
+        optionBackground: "#0c0c0d",
+        optionBackgroundHover: "#18181b",
+        optionBackgroundSelected: "#27272a",
+        optionText: "#fafafa",
+        optionTextSelected: "#fafafa",
+        multiValueBackground: "#18181b",
+        multiValueText: "#fafafa",
+        multiValueRemove: "#a1a1aa",
+        multiValueRemoveHover: "#27272a",
+        menuBorder: "#27272a",
+        menuShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)"
+    }
 };
 
 export const customSelectStyle = (isDarkMode: boolean, width: string) => {
@@ -189,7 +189,7 @@ export default function AsyncReactSelect({
     const isDarkMode = theme === "dark";
 
     const filterOptions = (inputValue: string) => {
-        if (options) return [...options.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()) )];
+        if (options) return [...options.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()))];
         return [];
     };
 
@@ -202,7 +202,7 @@ export default function AsyncReactSelect({
             callback(result);
         }, 500);
     };
-
+    
     const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
         if (newValue === "" && (actionMeta.action === "input-change" || actionMeta.action === "menu-close")) {
             loadOptions("", () => { });
@@ -248,7 +248,7 @@ export default function AsyncReactSelect({
                     id={id}
                     name={name}
                     isDisabled={isDisabled}
-                    defaultOptions={filter ? options : true}
+                    defaultOptions={filter || options?.length ? options : true}
                     loadOptions={loadOptions}
                     onInputChange={handleInputChange}
                     placeholder={placeholder ?? "Selecione"}
