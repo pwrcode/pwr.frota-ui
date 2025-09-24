@@ -22,7 +22,7 @@ import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { formatarData } from '@/services/date';
 import { currency } from '@/services/currency';
-import type { optionType } from '@/services/constants';
+import type { listType, optionType } from '@/services/constants';
 import { getPessoaList } from '@/services/pessoa';
 import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 
@@ -42,9 +42,12 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState("");
     const [postoCombustivel, setPostoCombustivel] = useState<optionType>();
-    const [produtoAbastecimento, setProdutoAbastecimento] = useState<optionType>();
+    const [produtoAbastecimento, setProdutoAbastecimento] = useState<optionType | null>();
     const [pessoaFornecedor, setPessoaFornecedor] = useState<optionType>();
-    const [postoCombustivelTanque, setPostoCombustivelTanque] = useState<optionType>();
+    const [postoCombustivelTanque, setPostoCombustivelTanque] = useState<optionType | null>();
+    
+    const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
+    const [postoCombustivelTanques, setPostoCombustivelTanques] = useState<listType>([])
 
     const initialPostListagem: postListagemEntradaCombustivelType = {
         pageSize: pageSize,
@@ -105,23 +108,44 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
         updateList();
     }, []);
 
+    useEffect(() => {
+        setPostoCombustivelTanque(null);
+        getTanques();
+    }, [postoCombustivel]);
+
+    useEffect(() => {
+        setProdutoAbastecimento(null);
+        getProdutosAbastecimento();
+    }, [postoCombustivelTanque]);
+
     const getPostosCombustivel = async (pesquisa?: string) => {
         const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
         return [...data];
     }
 
-    const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value);
+    const getTanques = async (pesquisa?: string) => {
+        setPostoCombustivelTanques([]);
+
+        if(!postoCombustivel && !idPosto)
+            return [];
+
+        const data = await getPostoCombustivelTanqueList(pesquisa, idPosto || postoCombustivel?.value, undefined);
+        setPostoCombustivelTanques([...data]);
         return [...data];
+    }
+
+    const getProdutosAbastecimento = async (pesquisa?: string) => {
+        if (!postoCombustivelTanque) {
+            setProdutosAbastecimento([]);
+            return [];
+        }
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value, undefined);
+        setProdutosAbastecimento([...data]);
+        return data;
     }
 
     const getPessoasFornecedor = async (pesquisa?: string) => {
         const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
-        return [...data];
-    }
-
-    const getTanques = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelTanqueList(pesquisa, postoCombustivel?.value, undefined);
         return [...data];
     }
 
@@ -190,9 +214,9 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             <PageTitle title="Entradas Combustível" />
 
             <Filters grid={FiltersGrid.sm2_md3}>
-                <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
-                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={[]} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
-                {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable /> : <></>}
+                {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable /> : <></>}
+                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={postoCombustivelTanques} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
+                {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={produtosAbastecimento} value={produtoAbastecimento} setValue={setProdutoAbastecimento} isClearable /> : <></>}
                 <AsyncReactSelect name="idPessoaFornecedor" title="Fornececdor" options={[]} value={pessoaFornecedor} setValue={setPessoaFornecedor} asyncFunction={getPessoasFornecedor} isClearable />
                 <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
                 <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
@@ -297,7 +321,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 
