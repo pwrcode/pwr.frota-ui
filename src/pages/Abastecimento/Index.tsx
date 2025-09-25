@@ -53,7 +53,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, _] = useState(10);
 
-  const { getValues, watch, control } = useForm({
+  const { getValues, watch, setValue, control } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       dataInicio: "",
@@ -79,7 +79,8 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   }, []);
 
   useEffect(() => {
-    const subscription = watch(() => {
+    const subscription = watch((_values, field) => {
+      if(field.name === "veiculo") setValue("produtoAbastecimento", undefined);
       debounceUpdate();
     });
 
@@ -155,7 +156,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
         {!idVeiculo ? <VeiculoSelect control={control} /> : <></>}
         <SelectMotorista control={control} />
         {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-        <SelectProdutoAbastecimento control={control} />
+        <SelectProdutoAbastecimento  control={control} />
         <InputDataControl name="dataInicio" title='Data Início' control={control} />
         <InputDataControl name="dataFim" title='Data Fim' control={control} />
       </Filters>

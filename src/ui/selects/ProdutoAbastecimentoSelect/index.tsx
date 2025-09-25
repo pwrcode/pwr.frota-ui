@@ -1,15 +1,12 @@
 import { getProdutoAbastecimentoList } from "@/services/produtoAbastecimento";
 import AsyncReactSelect from "@/ui/components/forms/AsyncReactSelect"
 import { useEffect, useState } from "react";
-import { useController, type Control } from "react-hook-form";
+import { useController, useWatch, type Control } from "react-hook-form";
 
 type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
-    idPostoCombustivelTanque?: number;
-    idVeiculo?: number;
-    idVeiculoTanque?: number;
 }
 
 const SelectProdutoAbastecimento = (props: Props) => {
@@ -17,13 +14,15 @@ const SelectProdutoAbastecimento = (props: Props) => {
         name = "idProdutoAbastecimento",
         title = "Produto Abastecimento",
         control,
-        idPostoCombustivelTanque,
-        idVeiculo,
-        idVeiculoTanque
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesProdutoAbastecimento, setOpcoesProdutoAbastecimento] = useState<Array<any>>([]);
+
+    const [idVeiculo, idPostoCombustivelTanque, idVeiculoTanque] = useWatch({
+        control: control,
+        name: ["idVeiculo.value", "idPostoCombustivelTanque.value", "idVeiculoTanque.value"],
+    }) 
 
     useEffect(() => {
         onChange(null)

@@ -1,13 +1,12 @@
 import { getPostoCombustivelTanqueList } from "@/services/postoCombustivelTanque";
 import AsyncReactSelect from "@/ui/components/forms/AsyncReactSelect"
 import { useEffect, useState } from "react";
-import { useController, type Control } from "react-hook-form";
+import { useController, useWatch, type Control } from "react-hook-form";
 
 type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
-    idPostoCombustivel?: number;
 }
 
 const SelectPostoCombustivelTanque = (props: Props) => {
@@ -15,11 +14,15 @@ const SelectPostoCombustivelTanque = (props: Props) => {
         name = "idPostoCombustivelTanque",
         title = "Posto Tanque",
         control,
-        idPostoCombustivel
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesPostoCombustivelTanque, setOpcoesPostoCombustivelTanque] = useState<Array<any>>([]);
+
+    const [idPostoCombustivel] = useWatch({
+        control: control,
+        name: "idPostoCombustivel.value",
+    })
 
     useEffect(() => {
         onChange(null)

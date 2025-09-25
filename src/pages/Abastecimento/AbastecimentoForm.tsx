@@ -83,9 +83,9 @@ export default function AbastecimentoForm() {
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
   const [postoInterno, setPostoInterno] = useState(false);
 
-  useEffect(() => {
-    if (id) return
-  }, []);
+  // useEffect(() => {
+  //   // if (id) return
+  // }, []);
 
   useEffect(() => {
     Object.entries(errors).forEach(([key, error]) => {
@@ -117,7 +117,6 @@ export default function AbastecimentoForm() {
       return;
     }
     const data = await getPostoCombustivelPorId(idPostoCombustivel || 0);
-    console.log(data.isInterno)
     setPostoInterno(data.isInterno || false);
   }
 
@@ -126,11 +125,10 @@ export default function AbastecimentoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getAbastecimentoPorId(Number(id));
-
+      verificaPostoInterno(item.idPostoCombustivel)
       reset({
         idVeiculo: { value: item.idVeiculo, label: item.descricaoVeiculo },
         idPessoa: { value: item.idPessoa, label: item.razaoSocialPessoa },
-        idProdutoAbastecimento: { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento },
         idPostoCombustivel: { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel },
         quilometragem: item.quilometragem.toString(),
         quantidadeAbastecida: item.quantidadeAbastecida.toString(),
@@ -138,11 +136,15 @@ export default function AbastecimentoForm() {
         observacao: item.observacao ?? "",
         tanqueCheio: item.tanqueCheio ? true : false,
         idVeiculoTanque: { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque },
-        idPostoCombustivelTanque: { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque },
         dataAbastecimento: item.dataAbastecimento ?? "",
         idArquivoFotoPainelAntes: item.idArquivoFotoPainelAntes ?? 0,
         idArquivoFotoPainelDepois: item.idArquivoFotoPainelDepois ?? 0,
       })
+
+      setTimeout(() => {
+        setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque })
+        setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento })
+      }, 500);
 
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
@@ -224,15 +226,10 @@ export default function AbastecimentoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
               {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-              {postoInterno ? <SelectPostoCombustivelTanque control={control} idPostoCombustivel={watch("idPostoCombustivel")?.value} /> : <></>}
+              {postoInterno ? <SelectPostoCombustivelTanque control={control} /> : <></>}
               {!idVeiculo ? <SelectVeiculo control={control} /> : <></>}
-              <SelectVeiculoTanque control={control} idVeiculo={watch("idVeiculo")?.value} />
-              <SelectProdutoAbastecimento
-                control={control}
-                idPostoCombustivelTanque={watch("idPostoCombustivelTanque")?.value}
-                idVeiculo={watch("idVeiculo")?.value}
-                idVeiculoTanque={watch("idVeiculoTanque")?.value}
-              />
+              <SelectVeiculoTanque control={control} />
+              <SelectProdutoAbastecimento control={control} />
             </div>
           </FormContainerBody>
         </FormContainer>
