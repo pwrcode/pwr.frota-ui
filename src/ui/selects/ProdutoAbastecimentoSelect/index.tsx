@@ -7,6 +7,7 @@ type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
+    ignoreFiltros?: boolean;
 }
 
 const SelectProdutoAbastecimento = (props: Props) => {
@@ -14,6 +15,7 @@ const SelectProdutoAbastecimento = (props: Props) => {
         name = "idProdutoAbastecimento",
         title = "Produto Abastecimento",
         control,
+        ignoreFiltros
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -32,7 +34,7 @@ const SelectProdutoAbastecimento = (props: Props) => {
     const getProdutosAbastecimento = async (pesquisa?: string) => {
         setOpcoesProdutoAbastecimento([]);
 
-        if(!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque)
+        if(!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque && !ignoreFiltros)
             return [];
 
         const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque, idVeiculo, idVeiculoTanque);

@@ -1,15 +1,17 @@
 
+import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
 
 type propsType = {
   children?: React.ReactNode,
   title?: string,
-  icon?: LucideIcon
+  icon?: LucideIcon,
+  className?: string
 }
 
-export const TableTop = ({children, title, icon: Icon}: propsType) => {
+export const TableTop = ({children, title, icon: Icon, className}: propsType) => {
   return (
-    <div className={`w-full dark:bg-card dark:text-foreground gap-2 flex ${title ? "justify-between" : "justify-end"} p-4 pt-3 px-6 items-center`}>
+    <div className={cn(`w-full dark:bg-card dark:text-foreground gap-2 flex ${title ? "justify-between" : "justify-end"} p-4 pt-3 px-6 items-center`, className)}>
       {title && (
         <div className="flex items-center gap-3">
           {Icon && (
