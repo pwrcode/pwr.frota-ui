@@ -19,7 +19,7 @@ const SelectPostoCombustivelTanque = (props: Props) => {
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesPostoCombustivelTanque, setOpcoesPostoCombustivelTanque] = useState<Array<any>>([]);
 
-    const [idPostoCombustivel] = useWatch({
+    const idPostoCombustivel = useWatch({
         control: control,
         name: "idPostoCombustivel.value",
     })

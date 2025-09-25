@@ -19,7 +19,7 @@ const SelectVeiculoTanque = (props: Props) => {
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesVeiculoTanque, setOpcoesVeiculoTanque] = useState<Array<any>>([]);
 
-    const [idVeiculo] = useWatch({
+    const veiculo = useWatch({
         control: control,
         name: "idVeiculo.value",
     })
@@ -27,15 +27,15 @@ const SelectVeiculoTanque = (props: Props) => {
     useEffect(() => {
         onChange(null)
         getVeiculoTanques();
-    }, [idVeiculo]);
+    }, [veiculo]);
 
     const getVeiculoTanques = async (pesquisa?: string) => {
         setOpcoesVeiculoTanque([]);
 
-        if (!idVeiculo)
+        if (!veiculo)
             return [];
 
-        const data = await getVeiculoTanqueList(pesquisa, idVeiculo, undefined);
+        const data = await getVeiculoTanqueList(pesquisa, veiculo, undefined);
         setOpcoesVeiculoTanque([...data]);
         return data;
     }
