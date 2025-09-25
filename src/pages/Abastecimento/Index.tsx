@@ -53,7 +53,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, _] = useState(10);
 
-  const { getValues, watch, setValue, control } = useForm({
+  const { getValues, watch, control } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       dataInicio: "",
@@ -79,8 +79,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
   }, []);
 
   useEffect(() => {
-    const subscription = watch((_values, field) => {
-      if(field.name === "veiculo") setValue("produtoAbastecimento", undefined);
+    const subscription = watch(() => {
       debounceUpdate();
     });
 
