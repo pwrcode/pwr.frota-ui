@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,11 +13,29 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { getMunicipios, type municipioType, type postListagemMunicipioType } from '@/services/municipio';
-import { type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getUfList } from '@/services/uf';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
+import SelectUf from '@/ui/selects/UfSelect';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+
+const schema = z.object({
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional(),
+  pesquisa: z.string().optional(),
+})
 
 export default function Municipio() {
+
+  const { getValues, watch, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      idUf: undefined,
+      pesquisa: ""
+    }
+  });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [municipios, setMunicipios] = useState<municipioType[]>([]);
@@ -29,54 +46,32 @@ export default function Municipio() {
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-  const [uf, setUf] = useState<optionType>();
-
-  const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa);
-    return [...data];
-  }
-
-  const initialPostListagem: postListagemMunicipioType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    idUf: null
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  useEffect(() => {
-    if(currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if(pesquisa.length > 0 || filtersOn) changeListFilters();
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [uf]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      idUf: uf && uf.value ? uf.value : null
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
-  const updateList = async () => {
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getMunicipios(postListagem);
+
+      const filtros: postListagemMunicipioType = {
+        pageSize: pageSize,
+        currentPage: paginaAtual,
+        pesquisa: getValues("pesquisa") || "",
+        idUf: getValues("idUf")?.value || null,
+      }
+
+      const data = await getMunicipios(filtros);
       setMunicipios(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -91,10 +86,6 @@ export default function Municipio() {
       setLoading(false);
     }
   }
-  
-  useEffect(() => {
-    if(postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -102,7 +93,7 @@ export default function Municipio() {
     setIdVisualizar(id);
     setModalOpen(true);
   }
-  
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
@@ -111,16 +102,8 @@ export default function Municipio() {
       <PageTitle title="Municípios" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect
-          name="idUf"
-          title="UF"
-          options={[]}
-          asyncFunction={getUfs}
-          value={uf}
-          setValue={setUf}
-          isClearable
-        />
+        <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+        <SelectUf control={control} />
       </Filters>
 
       {(municipios.length > 0) && (
@@ -180,7 +163,7 @@ export default function Municipio() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="map-pin" />
+          <TableEmpty py='py-20' icon="map-pin" />
         )}
       </>}
 

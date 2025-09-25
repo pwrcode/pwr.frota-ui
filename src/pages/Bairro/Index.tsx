@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,15 +13,38 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { deleteBairro, getBairros, type bairroType, type postListagemBairroType } from '@/services/bairro';
-import { type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getUfList } from '@/services/uf';
-import { getMunicipioList } from '@/services/municipio';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import SelectUf from '@/ui/selects/UfSelect';
+import z from 'zod';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+
+export const schema = z.object({
+    idUf: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    idMunicipio: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    pesquisa: z.string().optional(),
+});
 
 export default function Bairro() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: "",
+            idUf: undefined,
+            idMunicipio: undefined,
+        }
+    });
 
     const [loading, setLoading] = useState<boolean>(false);
     const [bairros, setBairros] = useState<bairroType[]>([]);
@@ -33,73 +55,34 @@ export default function Bairro() {
     const [openModalForm, setOpenModalForm] = useState<boolean>(false);
     const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-    const [currentPage, setCurrentPage] = useState<number>(0);
-    const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-    const [municipio, setMunicipio] = useState<optionType>();
-    const [uf, setUf] = useState<optionType>();
-
-    useEffect(() => {
-        if (uf && uf.value) getMunicipios();
-    }, [uf])
-
-
-    const getMunicipios = async (pesquisa?: string) => {
-        const data = await getMunicipioList(pesquisa, uf && uf.value ? uf.value : undefined);
-        return [...data];
-    }
-
-    const getUfs = async (pesquisa?: string) => {
-        const data = await getUfList(pesquisa);
-        return [...data];
-    }
-
-    const initialPostListagem: postListagemBairroType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-        idMunicipio: null,
-        idUf: null
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [municipio]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [uf]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-            idMunicipio: municipio && municipio.value ? municipio.value : null,
-            idUf: uf && uf.value ? uf.value : null
-        });
-    }
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const updateList = async () => {
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate();
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getBairros(postListagem);
+            const filtros: postListagemBairroType = {
+                pageSize: pageSize,
+                currentPage: paginaAtual,
+                pesquisa: getValues("pesquisa") || "",
+                idUf: getValues("idUf")?.value || null,
+                idMunicipio: getValues("idMunicipio")?.value || null,
+            }
+
+            const data = await getBairros(filtros);
             setBairros(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -114,10 +97,6 @@ export default function Bairro() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -145,7 +124,7 @@ export default function Bairro() {
             const response = await deleteBairro(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (bairros.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (bairros.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -160,31 +139,14 @@ export default function Bairro() {
             <PageTitle title="Bairros" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue
+                <InputFiltroPesquisa
                     name="pesquisa"
                     title="Pesquisar"
-                    value={pesquisa}
-                    setValue={setPesquisa}
+                    control={control}
                     style='col-span-2 space-y-2'
                 />
-                <AsyncReactSelect
-                    name="idUf"
-                    title="UF"
-                    options={[]}
-                    asyncFunction={getUfs}
-                    value={uf}
-                    setValue={setUf}
-                    isClearable
-                />
-                <AsyncReactSelect
-                    name="idMunicipio"
-                    title="Munícipio"
-                    options={[]}
-                    asyncFunction={getMunicipios}
-                    value={municipio}
-                    setValue={setMunicipio}
-                    isClearable
-                />
+                <SelectUf control={control} />
+                <SelectMunicipio control={control} />
             </Filters>
 
             {(bairros.length > 0) && (
@@ -261,7 +223,7 @@ export default function Bairro() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty py='py-20' icon="map-pin" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

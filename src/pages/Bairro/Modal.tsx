@@ -20,7 +20,7 @@ type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
     selecionarBairro?: (bairro: optionType) => void,
     idMunicipio?: number,
 }
@@ -114,7 +114,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
                 if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: id });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }

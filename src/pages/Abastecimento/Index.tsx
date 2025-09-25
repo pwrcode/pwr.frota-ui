@@ -29,19 +29,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 export const schema = z.object({
-  motorista: z.object({
+  idMotorista: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional(),
-  postoCombustivel: z.object({
+  idPostoCombustivel: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional(),
-  produtoAbastecimento: z.object({
+  idProdutoAbastecimento: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional(),
-  veiculo: z.object({
+  idVeiculo: z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional(),
@@ -58,10 +58,10 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
     defaultValues: {
       dataInicio: "",
       dataFim: "",
-      motorista: undefined,
-      postoCombustivel: undefined,
-      produtoAbastecimento: undefined,
-      veiculo: undefined,
+      idMotorista: undefined,
+      idPostoCombustivel: undefined,
+      idProdutoAbastecimento: undefined,
+      idVeiculo: undefined,
     }
   });
 
@@ -93,12 +93,12 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       const filtros: postListagemAbastecimentoType = {
         pageSize: pageSize,
         currentPage: paginaAtual,
-        dataInicio: getValues("dataInicio") || "",
-        dataFim: getValues("dataFim") || "",
-        idVeiculo: getValues("veiculo")?.value || null,
-        idMotorista: getValues("motorista")?.value || null,
-        idPostoCombustivel: getValues("postoCombustivel")?.value || null,
-        idProdutoAbastecimento: getValues("produtoAbastecimento")?.value || null,
+        dataInicio: getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "",
+        dataFim: getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "",
+        idVeiculo: getValues("idVeiculo")?.value || null,
+        idMotorista: getValues("idMotorista")?.value || null,
+        idPostoCombustivel: getValues("idPostoCombustivel")?.value || null,
+        idProdutoAbastecimento: getValues("idProdutoAbastecimento")?.value || null,
       }
 
       const data = await getAbastecimentos(filtros);

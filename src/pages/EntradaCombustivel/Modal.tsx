@@ -26,7 +26,7 @@ type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void,
+    updateList: (paginaAtual?: number) => Promise<void>,
     idPosto?: number,
 }
 
@@ -147,7 +147,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             setProdutosAbastecimento([]);
             return [];
         }
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value, undefined);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value, undefined, undefined);
         setProdutosAbastecimento([...data]);
         return data;
     }
@@ -179,7 +179,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 const response = await updateEntradaCombustivel(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
