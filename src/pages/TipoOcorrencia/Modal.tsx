@@ -11,14 +11,13 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getTipoOcorrenciaCategoriaList } from '@/services/tipoOcorrenciaCategoria';
+import SelectTipoOcorrenciaCategoria from '@/ui/selects/TipoOcorrenciaCategoriaSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
 }
 
 const schema = z.object({
@@ -31,7 +30,7 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, setFocus, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -40,8 +39,13 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         const process = toast.loading("Buscando item...");
         try {
             const item = await getTipoOcorrenciaPorId(Number(id));
-            setValue("descricao", item.descricao);
-            setValue("idTipoOcorrenciaCategoria", { value: item.idTipoOcorrenciaCategoria, label: item.descricaoTipoOcorrenciaCategoria});
+            reset({
+                descricao: item.descricao,
+                idTipoOcorrenciaCategoria: {
+                    value: item.idTipoOcorrenciaCategoria,
+                    label: item.descricaoTipoOcorrenciaCategoria
+                }
+            }, {keepDefaultValues: true})
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -66,11 +70,6 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         });
     }, [errors]);
 
-    const getTiposOcorrenciaCategoria = async (pesquisa?: string) => {
-        const data = await getTipoOcorrenciaCategoriaList(pesquisa);
-        return [...data];
-    }
-
     const submit = async (dados: dadosAddEdicaoTipoOcorrenciaType) => {
         if (loading) return
         setLoading(true);
@@ -88,7 +87,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
                 const response = await updateTipoOcorrencia(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
@@ -110,7 +109,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
 
                     <ModalFormBody>
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
-                        <AsyncReactSelect name='idTipoOcorrenciaCategoria' title='Categoria' options={[]} asyncFunction={getTiposOcorrenciaCategoria} control={control} isClearable />
+                        <SelectTipoOcorrenciaCategoria control={control} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

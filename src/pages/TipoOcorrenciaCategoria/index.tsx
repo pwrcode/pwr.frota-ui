@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -17,8 +16,23 @@ import { deleteTipoOcorrenciaCategoria, getTipoOcorrenciaCategorias, type tipoOc
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+    pesquisa: z.string().optional()
+})
 
 export default function TipoOcorrenciaCategoria() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: ""
+        }
+    })
 
     const [loading, setLoading] = useState<boolean>(false);
     const [tipoOcorrenciaCategorias, setTipoOcorrenciaCategorias] = useState<tipoOcorrenciaCategoriaType[]>([]);
@@ -31,42 +45,30 @@ export default function TipoOcorrenciaCategoria() {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-
-    const initialPostListagem: postListagemTipoOcorrenciaCategoriaType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const updateList = async () => {
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate()
+        })
+
+        return () => subscription.unsubscribe()
+    }, [watch])
+
+
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getTipoOcorrenciaCategorias(postListagem);
+            const filtros: postListagemTipoOcorrenciaCategoriaType = {
+                currentPage: paginaAtual,
+                pageSize: pageSize,
+                pesquisa: getValues("pesquisa") || ""
+            }
+            const data = await getTipoOcorrenciaCategorias(filtros);
             setTipoOcorrenciaCategorias(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -81,10 +83,6 @@ export default function TipoOcorrenciaCategoria() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -112,7 +110,7 @@ export default function TipoOcorrenciaCategoria() {
             const response = await deleteTipoOcorrenciaCategoria(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (tipoOcorrenciaCategorias.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (tipoOcorrenciaCategorias.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -127,7 +125,7 @@ export default function TipoOcorrenciaCategoria() {
             <PageTitle title="Tipos Ocorrência Categoria" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+                <InputFiltroPesquisa control={control} />
             </Filters>
 
             {(tipoOcorrenciaCategorias.length > 0) && (

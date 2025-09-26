@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -17,11 +16,29 @@ import { deleteTipoOcorrencia, getTipoOcorrencias, type tipoOcorrenciaType, type
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import type { optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getTipoOcorrenciaCategoriaList } from '@/services/tipoOcorrenciaCategoria';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import SelectTipoOcorrenciaCategoria from '@/ui/selects/TipoOcorrenciaCategoriaSelect';
+
+const schema = z.object({
+    pesquisa: z.string().optional(),
+    idTipoOcorrenciaCategoria: z.object({
+        value: z.number().optional(),
+        label: z.string().optional()
+    }).optional().nullable()
+})
 
 export default function TipoOcorrencia() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: "",
+            idTipoOcorrenciaCategoria: null
+        }
+    })
 
     const [loading, setLoading] = useState<boolean>(false);
     const [tipoOcorrencias, setTipoOcorrencias] = useState<tipoOcorrenciaType[]>([]);
@@ -34,55 +51,30 @@ export default function TipoOcorrencia() {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-    const [idTipoOcorrenciaCategoria, setIdTipoOcorrenciaCategoria] = useState<optionType>();
-
-    const initialPostListagem: postListagemTipoOcorrenciaType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-        idTipoOcorrenciaCategoria: null
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [idTipoOcorrenciaCategoria]);
-
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-            idTipoOcorrenciaCategoria: idTipoOcorrenciaCategoria?.value ?? null
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const getTiposOcorrenciaCategoria = async (pesquisa?: string) => {
-        const data = await getTipoOcorrenciaCategoriaList(pesquisa);
-        return [...data];
-    }
+    useEffect(() => {
+      const subscription = watch(() => {
+        debounceUpdate()
+      })
+    
+      return () => subscription.unsubscribe()
+    }, [watch])    
 
-    const updateList = async () => {
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getTipoOcorrencias(postListagem);
+            const filtros: postListagemTipoOcorrenciaType = {
+                currentPage: paginaAtual,
+                pageSize: pageSize,
+                pesquisa: getValues("pesquisa") || "",
+                idTipoOcorrenciaCategoria: getValues("idTipoOcorrenciaCategoria")?.value || null
+            }
+            const data = await getTipoOcorrencias(filtros);
             setTipoOcorrencias(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -97,10 +89,6 @@ export default function TipoOcorrencia() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -128,7 +116,7 @@ export default function TipoOcorrencia() {
             const response = await deleteTipoOcorrencia(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (tipoOcorrencias.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (tipoOcorrencias.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -143,16 +131,8 @@ export default function TipoOcorrencia() {
             <PageTitle title="Tipos Ocorrência" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect
-                    name="idTipoOcorrenciaCategoria"
-                    title="Categoria"
-                    options={[]}
-                    asyncFunction={getTiposOcorrenciaCategoria}
-                    value={idTipoOcorrenciaCategoria}
-                    setValue={setIdTipoOcorrenciaCategoria}
-                    isClearable
-                />
+                <InputFiltroPesquisa control={control} />
+                <SelectTipoOcorrenciaCategoria control={control} />
             </Filters>
 
             {(tipoOcorrencias.length > 0) && (

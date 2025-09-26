@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -17,10 +16,29 @@ import { deleteMotivoParada, getMotivoParadas, type motivoParadaType, type postL
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { tiposParada, type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import SelectTipoParada from '@/ui/selects/TipoParadaSelect';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+
+const schema = z.object({
+    pesquisa: z.string().optional(),
+    tipoParada: z.object({
+        value: z.number().optional(),
+        label: z.string().optional(),
+    }).optional().nullable(),
+})
 
 export default function MotivoParada() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: "",
+            tipoParada: null,
+        }
+    })
 
     const [loading, setLoading] = useState<boolean>(false);
     const [motivoParadas, setMotivoParadas] = useState<motivoParadaType[]>([]);
@@ -33,49 +51,30 @@ export default function MotivoParada() {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-    const [tipoParada, setTipoParada] = useState<optionType>();
-
-    const initialPostListagem: postListagemMotivoParadaType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-        tipoParada: null,
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [tipoParada]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-            tipoParada: tipoParada?.value ?? null,
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const updateList = async () => {
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate();
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getMotivoParadas(postListagem);
+            const filtros: postListagemMotivoParadaType = {
+                currentPage: paginaAtual,
+                pageSize: pageSize,
+                pesquisa: getValues("pesquisa") || "",
+                tipoParada: getValues("tipoParada")?.value || null
+            }
+            const data = await getMotivoParadas(filtros);
             setMotivoParadas(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -90,10 +89,6 @@ export default function MotivoParada() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -121,7 +116,7 @@ export default function MotivoParada() {
             const response = await deleteMotivoParada(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (motivoParadas.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (motivoParadas.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -136,8 +131,8 @@ export default function MotivoParada() {
             <PageTitle title="Motivos Parada" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect name='tipoParada' title='Tipo Parada' options={tiposParada} value={tipoParada} setValue={setTipoParada} isClearable />
+                <InputFiltroPesquisa control={control} />
+                <SelectTipoParada control={control} />
             </Filters>
 
             {(motivoParadas.length > 0) && (

@@ -11,14 +11,14 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { tiposParada } from '@/services/constants';
+import SelectTipoParada from '@/ui/selects/TipoParadaSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
 }
 
 const schema = z.object({
@@ -31,7 +31,7 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, setFocus, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, setFocus, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
@@ -40,11 +40,13 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         const process = toast.loading("Buscando item...");
         try {
             const item = await getMotivoParadaPorId(Number(id));
-            setValue("descricao", item.descricao);
-            setValue("tipo", {
-                value: tiposParada.find(t => t.valueLabel === item.tipo)?.value,
-                label: tiposParada.find(t => t.valueLabel === item.tipo)?.label
-            })
+            reset({
+                descricao: item.descricao,
+                tipo: {
+                    value: tiposParada.find(t => t.valueLabel === item.tipo)?.value,
+                    label: tiposParada.find(t => t.valueLabel === item.tipo)?.label
+                }
+            }, {keepDefaultValues: true})
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -86,7 +88,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
                 const response = await updateMotivoParada(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
@@ -108,7 +110,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
 
                     <ModalFormBody>
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
-                        <AsyncReactSelect name='tipo' title='Tipo Parada' options={tiposParada} control={control} isClearable />
+                        <SelectTipoParada name="tipo" control={control} />
                     </ModalFormBody>
 
                     <ModalFormFooter>
