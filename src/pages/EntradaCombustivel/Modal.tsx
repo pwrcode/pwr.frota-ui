@@ -21,6 +21,8 @@ import InputLabel from '@/ui/components/forms/InputLabel';
 import { getPessoaList } from '@/services/pessoa';
 import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
 import type { listType } from '@/services/constants';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import { formatarDataParaAPI } from '@/services/formatacao';
 
 type modalPropsType = {
     open: boolean,
@@ -47,6 +49,7 @@ const schema = z.object({
         label: z.string().optional(),
         value: z.number().optional()
     }, { message: "Selecione um Tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tanque" }),
+    dataRecebimento: z.string().optional(),
     quantidade: z.string().optional(),
     valorUnitario: z.string().optional(),
 });
@@ -57,7 +60,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
-    const [dataRecebimento, setDataRecebimento] = useState("");
 
     const idPostoCombustivel = watch("idPostoCombustivel");
     const idPostoCombustivelTanque = watch("idPostoCombustivelTanque");
@@ -69,11 +71,19 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         const process = toast.loading("Buscando item...");
         try {
             const item = await getEntradaCombustivelPorId(Number(id));
-            setDataRecebimento(item.dataRecebimento);
-            setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
-            setValue("idPessoaFornecedor", { value: item.idPessoaFornecedor, label: item.razaoSocialPessoaFornecedor });
-            setValue("quantidade", item.quantidade.toString());
-            setValue("valorUnitario", String(currency(item.valorUnitario)));
+            reset({
+                idPostoCombustivel: {
+                    value: item.idPostoCombustivel,
+                    label: item.razaoSocialPostoCombustivel
+                },
+                idPessoaFornecedor: {
+                    value: item.idPessoaFornecedor,
+                    label: item.razaoSocialPessoaFornecedor
+                },
+                quantidade: item.quantidade.toString(),
+                valorUnitario: String(currency(item.valorUnitario)),
+                dataRecebimento: item.dataRecebimento
+            })
             setTimeout(() => {
                 setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             }, 250);
@@ -88,7 +98,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     useEffect(() => {
-        setDataRecebimento("")
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
@@ -104,18 +113,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             }
         });
     }, [errors]);
-
-    // useEffect(() => {
-    //     const subscription = watch((_, field) => {
-    //         if (field.name == "idPostoCombustivel")
-    //             getPostoCombustivelTanques("");
-
-    //         if (field.name == "idPostoCombustivelTanque")
-    //             getProdutosAbastecimento("");
-    //     });
-
-    //     return () => subscription.unsubscribe();
-    // }, [watch]);
 
     useEffect(() => {
         resetField("idPostoCombustivelTanque");
@@ -163,7 +160,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         const process = toast.loading("Salvando item...");
         try {
             const postPut: dadosAddEdicaoEntradaCombustivelType = {
-                dataRecebimento: dataRecebimento ? dataRecebimento.slice(0, 11).concat("00:00:00") : "",
+                dataRecebimento: formatarDataParaAPI(dados.dataRecebimento),
                 idPostoCombustivel: idPosto ? +idPosto : (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
                 idPessoaFornecedor: dados.idPessoaFornecedor ?? null,
@@ -200,7 +197,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
+                        <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} />
                         {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
                         <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" />
                         <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />

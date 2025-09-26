@@ -1,8 +1,8 @@
-import { tiposPessoa, type listType, type optionType } from '@/services/constants';
+import { tiposPessoa, type optionType } from '@/services/constants';
 import { formatarCelular, formatarCep, formatarCpfCnpj } from '@/services/formatacao';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { useEffect, useState } from 'react';
-import { useForm, type Control, type FieldValues } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Modal from '../Bairro/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
@@ -16,10 +16,7 @@ import { removeNonDigit } from '@/services/utils';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
-import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import { FormGrid, FormGridPair } from '@/ui/components/forms/FormGrid';
+import { FormGridPair } from '@/ui/components/forms/FormGrid';
 import { ButtonSubmit, SearchButton } from '@/ui/components/buttons/FormButtons';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import FormLine from '@/ui/components/forms/FormLine';
@@ -28,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { errorMsg } from '@/services/api';
 import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 import TextareaLabel from '@/ui/components/forms/TextareaLabel';
-import { ca } from 'date-fns/locale';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 
 const schema = z.object({
     tipoPessoa: z.object({
@@ -67,7 +64,7 @@ export default function DadosEmpresa() {
         resolver: zodResolver(schema)
     });
 
-    const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
+    const { register, handleSubmit, reset, setValue, watch, control } = formFunctions;
 
     const {
         cep,
@@ -128,6 +125,9 @@ export default function DadosEmpresa() {
 
             if (data.idArquivoFoto)
                 setIdArquivoFotoEmpresa(data.idArquivoFoto);
+
+            setCadInfo(`${data.usuarioCadastro} ${dateDiaMesAno(data.dataCadastro)} ${dateHoraMin(data.dataCadastro)}`);
+            setEdicaoInfo(`${data.usuarioEdicao} ${dateDiaMesAno(data.dataEdicao)} ${dateHoraMin(data.dataEdicao)}`);
         } catch (ex) { }
     }
 

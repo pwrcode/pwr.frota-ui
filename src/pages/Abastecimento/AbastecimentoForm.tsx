@@ -83,10 +83,6 @@ export default function AbastecimentoForm() {
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
   const [postoInterno, setPostoInterno] = useState(false);
 
-  // useEffect(() => {
-  //   // if (id) return
-  // }, []);
-
   useEffect(() => {
     Object.entries(errors).forEach(([key, error]) => {
       if (error?.message) {

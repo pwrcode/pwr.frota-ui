@@ -15,19 +15,19 @@ export const formatarCelular = (c: string) => {
   if (l > 2 && l <= 6) return c.replace(/(\d{2})(\d)/, '($1) $2');
   if (l > 6 && l <= 10) return c.replace(/(\d{2})(\d{4})(\d)/, '($1) $2-$3');
   if (l === 11) return c.replace(/(\d{2})(\d{5})(\d)/, '($1) $2-$3');
-  return c  
+  return c
 }
 
 export const formatarCep = (c: string) => {
   if (!c) return "";
-  c = String(c).replace(/\D/g, "").slice(0,8);
+  c = String(c).replace(/\D/g, "").slice(0, 8);
   c = c.replace(/(\d{5})(\d)/, "$1-$2");
   return c
 }
 
-export const formatarPercentual = (valor: number | null ) => {
-  if(!valor) return "0 %";
-  return `${String(valor*100).replace(".",",")} %`
+export const formatarPercentual = (valor: number | null) => {
+  if (!valor) return "0 %";
+  return `${String(valor * 100).replace(".", ",")} %`
 }
 
 /*
@@ -36,11 +36,8 @@ export const formatDateAPI = (d: string | undefined | null) => {
   const n = d.replace(/-/g, "/");
   return formatISO(n) ?? undefined;
 }
-
+*/
 export const formatarDataParaAPI = (data: string) => {
   if (!data) return "";
-  const [dia, mes, ano] = data.split("/").map(Number);
-  const date = new Date(Date.UTC(ano, mes - 1, dia));
-  return date.toISOString();
+  return data.slice(0, 11).concat("00:00:00");
 }
-*/

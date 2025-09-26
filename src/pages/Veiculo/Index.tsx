@@ -293,8 +293,8 @@ export default function Veiculo() {
                     <SelectTipoDataVeiculo control={control} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <InputDataControl name="dataInicio" title='Data Início' control={control} />
-                      <InputDataControl name="dataFim" title='Data Fim' control={control} />
+                      <InputDataControl name="dataInicio" title='Data Início' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
+                      <InputDataControl name="dataFim" title='Data Fim' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
                     </div>
                   </div>
                 </div>
