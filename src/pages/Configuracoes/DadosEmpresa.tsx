@@ -93,11 +93,12 @@ export default function DadosEmpresa() {
 
                 if(values.tipoPessoa?.value === 1)
                     newDocumento = formatarCpfCnpj(removeNonDigit(values.documento || "").slice(0, 11));
-
+                
                 reset({
                     ...values,
                     documento: newDocumento
                 })
+
             }
         });
 

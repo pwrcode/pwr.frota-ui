@@ -57,6 +57,7 @@ export const getProdutoAbastecimentoList = async (
     idPostoCombustivelTanque: number | undefined,
     idVeiculo: number | undefined,
     idVeiculoTanque: number | undefined,
+    idPostoCombustivel: number | undefined,
 ) => {
     try {
         const axiosInstance = await getAxios();
@@ -68,7 +69,8 @@ export const getProdutoAbastecimentoList = async (
                 tipoTanque,
                 idPostoCombustivelTanque,
                 idVeiculo,
-                idVeiculoTanque
+                idVeiculoTanque,
+                idPostoCombustivel
             }
         });
         if (response.data.sucesso) {

@@ -145,7 +145,7 @@ export default function Veiculo() {
         tipoData: getValues("tipoData")?.value || null,
         dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
         dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
-        ativo: getValues("ativo")?.value || null
+        ativo: getValues("ativo")?.value === false ? false : getValues("ativo")?.value || null,
       }
       const data = await getVeiculos(filtros);
       setVeiculos(data.dados);

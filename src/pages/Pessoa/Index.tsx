@@ -109,10 +109,11 @@ export default function Pessoa() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
+      console.log(getValues("ativo")?.value === false)
       const filtros: postListagemPessoaType = {
         currentPage: paginaAtual,
         pageSize: pageSize,
-        ativo: getValues("ativo")?.value || null,
+        ativo: getValues("ativo")?.value === false ? false : getValues("ativo")?.value || null,
         dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
         dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
         tipoPessoa: getValues("tipoPessoa")?.value || null,
@@ -188,7 +189,7 @@ export default function Pessoa() {
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
       getValues("tipoPessoa") ||
-      getValues("optionsFuncoes").length > 0 ||
+      getValues("optionsFuncoes")?.length > 0 ||
       getValues("idUf") ||
       getValues("idMunicipio") ||
       getValues("idBairro") ||

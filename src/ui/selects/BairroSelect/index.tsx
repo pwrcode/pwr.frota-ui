@@ -27,9 +27,11 @@ const SelectBairro = (props: Props) => {
     })
 
     useEffect(() => {
-        onChange(null)
+        if (!municipio && !!value)
+            onChange(null)
+        
         getBairros();
-    }, [municipio]);
+    }, [municipio, value]);
 
     const getBairros = async (pesquisa?: string) => {
         setOpcoesBairro([]);

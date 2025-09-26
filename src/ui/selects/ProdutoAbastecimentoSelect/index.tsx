@@ -23,27 +23,29 @@ const SelectProdutoAbastecimento = (props: Props) => {
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesProdutoAbastecimento, setOpcoesProdutoAbastecimento] = useState<Array<any>>([]);
 
-    const [idVeiculo, idPostoCombustivelTanque, idVeiculoTanque] = useWatch({
+    const [idVeiculo, idPostoCombustivelTanque, idVeiculoTanque, idPostoCombustivel] = useWatch({
         control: control,
-        name: ["idVeiculo.value", "idPostoCombustivelTanque.value", "idVeiculoTanque.value"],
-    }) 
+        name: ["idVeiculo.value", "idPostoCombustivelTanque.value", "idVeiculoTanque.value", "idPostoCombustivel.value"],
+    })
 
     useEffect(() => {
-        onChange(null)
+        if (!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque && !ignoreFiltros && !!value)
+            onChange(null)
+        
         getProdutosAbastecimento();
-    }, [idPostoCombustivelTanque, idVeiculo, idVeiculoTanque]);
+    }, [idPostoCombustivelTanque, idVeiculo, idVeiculoTanque, idPostoCombustivel, value]);
 
     const getProdutosAbastecimento = async (pesquisa?: string) => {
         setOpcoesProdutoAbastecimento([]);
 
-        if(!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque && !ignoreFiltros)
+        if (!idPostoCombustivelTanque && !idVeiculo && !idVeiculoTanque && !ignoreFiltros)
             return [];
 
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque, idVeiculo, idVeiculoTanque);
+        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque, idVeiculo, idVeiculoTanque, idPostoCombustivel);
         setOpcoesProdutoAbastecimento([...data]);
         return data;
     }
-    
+
     return (
         <AsyncReactSelect
             name={name}

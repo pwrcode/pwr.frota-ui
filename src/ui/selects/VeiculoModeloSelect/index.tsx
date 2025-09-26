@@ -25,9 +25,11 @@ const SelectVeiculoModelo = (props: Props) => {
     })
 
     useEffect(() => {
-        onChange(null);
+        if (!marca && !!value)
+            onChange(null);
+        
         getVeiculoModelos();
-    }, [marca]);
+    }, [marca, value]);
 
     const getVeiculoModelos = async (pesquisa?: string) => {
         setOpcoesVeiculoModelo([]);

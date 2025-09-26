@@ -25,9 +25,11 @@ const SelectVeiculoTanque = (props: Props) => {
     })
 
     useEffect(() => {
-        onChange(null)
+        if (!veiculo && !!value)
+            onChange(null)
+        
         getVeiculoTanques();
-    }, [veiculo]);
+    }, [veiculo, value]);
 
     const getVeiculoTanques = async (pesquisa?: string) => {
         setOpcoesVeiculoTanque([]);

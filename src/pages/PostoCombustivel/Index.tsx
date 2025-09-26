@@ -97,7 +97,7 @@ export default function PostoCombustivel() {
       const filtros: postListagemPostoCombustivelType = {
         currentPage: paginaAtual,
         pageSize: pageSize,
-        isInterno: getValues("isInterno")?.value || null,
+        isInterno: getValues("isInterno")?.value === false ? false : getValues("isInterno")?.value || null,
         idUf: getValues("idUf")?.value || null,
         idMunicipio: getValues("idMunicipio")?.value || null,
         idBairro: getValues("idBairro")?.value || null,

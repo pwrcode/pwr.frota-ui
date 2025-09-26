@@ -27,9 +27,10 @@ const SelectMunicipio = (props: Props) => {
     })
 
     useEffect(() => {
-        onChange(null)
+        if (!uf && !!value)
+            onChange(null)
         getMunicipios();
-    }, [uf]);
+    }, [uf, value]);
 
     const getMunicipios = async (pesquisa?: string) => {
         setOpcoesMunicipio([]);
@@ -42,7 +43,7 @@ const SelectMunicipio = (props: Props) => {
         setOpcoesMunicipio([...data]);
         return data;
     }
-    
+
     return (
         <AsyncReactSelect
             name={name}

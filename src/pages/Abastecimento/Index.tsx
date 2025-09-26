@@ -155,7 +155,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
         {!idVeiculo ? <VeiculoSelect control={control} /> : <></>}
         <SelectMotorista control={control} />
         {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-        <SelectProdutoAbastecimento control={control} />
+        <SelectProdutoAbastecimento control={control} ignoreFiltros={!idPosto} />
         <InputDataControl name="dataInicio" title='Data Início' control={control} />
         <InputDataControl name="dataFim" title='Data Fim' control={control} />
       </Filters>

@@ -143,10 +143,10 @@ export default function Bairro() {
                     name="pesquisa"
                     title="Pesquisar"
                     control={control}
-                    style='col-span-2 space-y-2'
+                    style='sm:col-span-2 md:col-span-3 lg:col-span-2 space-y-2'
                 />
                 <SelectUf control={control} />
-                <SelectMunicipio control={control} />
+                <SelectMunicipio control={control} size='md:col-span-2 lg:col-span-1' />
             </Filters>
 
             {(bairros.length > 0) && (

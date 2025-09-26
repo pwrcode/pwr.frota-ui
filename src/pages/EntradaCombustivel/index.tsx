@@ -159,8 +159,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
             <Filters grid={FiltersGrid.sm2_md3}>
                 {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-                <SelectPostoCombustivelTanque control={control} />
-                {!idPosto ? <SelectProdutoAbastecimento control={control} /> : <></>}
+                <SelectPostoCombustivelTanque control={control} ignoreFiltros />
+                {!idPosto ? <SelectProdutoAbastecimento control={control} ignoreFiltros /> : <></>}
                 <SelectFornecedor control={control} />
                 <InputDataControl name="dataInicio" title='Data Início' control={control} />
                 <InputDataControl name="dataFim" title='Data Fim' control={control} />

@@ -7,7 +7,8 @@ type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
-    size?: string
+    size?: string,
+    ignoreFiltros?: boolean
 }
 
 const SelectPostoCombustivelTanque = (props: Props) => {
@@ -15,7 +16,8 @@ const SelectPostoCombustivelTanque = (props: Props) => {
         name = "idPostoCombustivelTanque",
         title = "Posto Tanque",
         control,
-        size
+        size,
+        ignoreFiltros
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -27,13 +29,16 @@ const SelectPostoCombustivelTanque = (props: Props) => {
     })
 
     useEffect(() => {
-        onChange(null)
+        if (!idPostoCombustivel && !!value)
+            onChange(null)
+
         getPostoCombustivelTanques();
-    }, [idPostoCombustivel]);
+    }, [idPostoCombustivel, value]);
 
     const getPostoCombustivelTanques = async (pesquisa?: string) => {
         setOpcoesPostoCombustivelTanque([]);
-        if (!idPostoCombustivel)
+        
+        if (!idPostoCombustivel && !ignoreFiltros)
             return [];
 
         const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel, undefined);
@@ -43,7 +48,7 @@ const SelectPostoCombustivelTanque = (props: Props) => {
 
     return (
         <AsyncReactSelect
-            name={name} 
+            name={name}
             title={title}
             options={opcoesPostoCombustivelTanque}
             asyncFunction={getPostoCombustivelTanques}
