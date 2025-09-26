@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { formatISO } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { ptBR } from 'date-fns/locale';
 import { formatarData } from '@/services/date';
@@ -87,7 +86,7 @@ export default function InputDataControl({ title, name, control, size, isDisable
                 autoComplete='off'
                 id={name}
                 type={"time"}
-                className="text-[14px]"
+                className="text-[14px] dark:[color-scheme:dark]"
                 disabled={isDisabled ?? false}
                 value={hora}
                 onChange={(value) => setHora(value.target.value)}
