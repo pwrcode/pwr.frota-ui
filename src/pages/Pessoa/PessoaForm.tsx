@@ -106,7 +106,6 @@ export default function PessoaForm() {
                 return
             }
         });
-        console.log(errors)
     }, [errors]);
 
     useEffect(() => {
@@ -122,8 +121,6 @@ export default function PessoaForm() {
         try {
             if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
             const item = await getPessoaPorId(Number(id));
-            // if (item.idUf) setIdUf(item.idUf);
-            // if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
             reset({
                 idUf: {
                     value: item.idUf,
@@ -170,33 +167,6 @@ export default function PessoaForm() {
             setTimeout(() => {
                 setValuesBairro(item.idBairro)
             }, 500);
-            // setValue("tipoPessoa",
-            //     {
-            //         value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value,
-            //         label: tiposPessoa.find(t => t.valueString === item.tipoPessoa.toString())?.label
-            //     }); // atencao
-            // setValue("documento", formatarCpfCnpj(removeNonDigit(item.documento)));
-            // setValue("razaoSocial", item.razaoSocial);
-            // setValue("nomeFantasia", item.nomeFantasia);
-            // setValue("cep", formatarCep(item.cep));
-            // setValue("logradouro", item.logradouro);
-            // setValue("numero", item.numero);
-            // setValue("complemento", item.complemento);
-            // setValue("pontoReferencia", item.pontoReferencia);
-            // setValue("telefonePrincipal", formatarCelular(item.telefonePrincipal));
-            // setValue("telefoneSecundario", formatarCelular(item.telefoneSecundario));
-            // setValue("observacao", item.observacao);
-            // setValue("isMotorista", item.isMotorista ? true : false);
-            // setValue("isAjudante", item.isAjudante ? true : false);
-            // setValue("isOficina", item.isOficina ? true : false);
-            // setValue("isFornecedor", item.isFornecedor ? true : false);
-            // setValue("cnhNumero", item.cnhNumero ?? "");
-            // setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
-            // setDataCnhValidade(item.cnhValidade ?? "")
-            // setValue("ativo", item.ativo ? true : false);
-            // setValuesUf(item.idUf); // useEndereco
-            // setValuesMunicipio(item.idMunicipio); // useEndereco
-            // setValuesBairro(item.idBairro)
             setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
             setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
             toast.dismiss(process);
