@@ -7,6 +7,7 @@ type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
+    size?: string
 }
 
 const SelectPostoCombustivelTanque = (props: Props) => {
@@ -14,6 +15,7 @@ const SelectPostoCombustivelTanque = (props: Props) => {
         name = "idPostoCombustivelTanque",
         title = "Posto Tanque",
         control,
+        size
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -41,7 +43,7 @@ const SelectPostoCombustivelTanque = (props: Props) => {
 
     return (
         <AsyncReactSelect
-            name={name}
+            name={name} 
             title={title}
             options={opcoesPostoCombustivelTanque}
             asyncFunction={getPostoCombustivelTanques}
@@ -49,6 +51,7 @@ const SelectPostoCombustivelTanque = (props: Props) => {
             setValue={onChange}
             isClearable
             filter
+            size={size}
         />
     )
 }

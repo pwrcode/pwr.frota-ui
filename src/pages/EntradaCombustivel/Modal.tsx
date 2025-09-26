@@ -11,18 +11,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { currency } from '@/services/currency';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getPostoCombustivelList } from '@/services/postoCombustivel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { toNumber } from '@/services/utils';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { getPessoaList } from '@/services/pessoa';
-import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
-import type { listType } from '@/services/constants';
 import InputDataControl from '@/ui/components/forms/InputDataControl';
 import { formatarDataParaAPI } from '@/services/formatacao';
+import SelectPostoCombustivel from '@/ui/selects/PostoCombustivelSelect';
+import SelectPostoCombustivelTanque from '@/ui/selects/PostoCombustivelTanqueSelect';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import SelectFornecedor from '@/ui/selects/FornecedorSelect';
 
 type modalPropsType = {
     open: boolean,
@@ -56,16 +53,10 @@ const schema = z.object({
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, resetField, setFocus, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
-
-    const idPostoCombustivel = watch("idPostoCombustivel");
-    const idPostoCombustivelTanque = watch("idPostoCombustivelTanque");
-
-    const [postoCombustivelTanques, setPostoCombustivelTanques] = useState<listType>([])
-    const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
 
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
@@ -83,7 +74,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 quantidade: item.quantidade.toString(),
                 valorUnitario: String(currency(item.valorUnitario)),
                 dataRecebimento: item.dataRecebimento
-            })
+            }, {keepDefaultValues: true})
             setTimeout(() => {
                 setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             }, 250);
@@ -113,46 +104,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             }
         });
     }, [errors]);
-
-    useEffect(() => {
-        resetField("idPostoCombustivelTanque");
-        getPostoCombustivelTanques();
-    }, [idPostoCombustivel])
-
-    useEffect(() => {
-        resetField("idProdutoAbastecimento");
-        getProdutosAbastecimento();
-    }, [idPostoCombustivelTanque])
-
-    const getPostosCombustivel = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
-        return data;
-    }
-
-    const getPostoCombustivelTanques = async (pesquisa?: string) => {
-        if (!idPostoCombustivel) {
-            setPostoCombustivelTanques([]);
-            return [];
-        }
-        const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel?.value, undefined);
-        setPostoCombustivelTanques([...data]);
-        return data;
-    }
-
-    const getProdutosAbastecimento = async (pesquisa?: string) => {
-        if (!idPostoCombustivelTanque) {
-            setProdutosAbastecimento([]);
-            return [];
-        }
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value, undefined, undefined);
-        setProdutosAbastecimento([...data]);
-        return data;
-    }
-
-    const getPessoasFornecedor = async (pesquisa?: string) => {
-        const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
-        return data;
-    }
 
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
         if (loading) return
@@ -198,10 +149,14 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
 
                     <ModalFormBody>
                         <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} />
-                        {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
-                        <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" />
-                        <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
-                        <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable />
+                        {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
+                        {/* {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>} */}
+                        <SelectPostoCombustivelTanque control={control} size='w-full' />
+                        {/* <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" /> */}
+                        <SelectProdutoAbastecimento control={control} size='w-full' />
+                        {/* <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" /> */}
+                        <SelectFornecedor control={control} />
+                        {/* <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable /> */}
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
                     </ModalFormBody>

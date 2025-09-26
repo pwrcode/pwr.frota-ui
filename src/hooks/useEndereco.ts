@@ -66,14 +66,18 @@ export function useEndereco(useForm: any) {
     try {
       const data = await getCep(removeNonDigit(cep));
       if (data.uf) {
-        setValue("idUf", {value: data.uf.id, label: data.uf.descricao});
-              }
+        setValue("idUf", { value: data.uf.id, label: data.uf.descricao });
+      }
       if (data.municipio) {
-        setValue("idMunicipio", {value: data.municipio.id, label: data.municipio.descricao});
+        setTimeout(() => {
+          setValue("idMunicipio", { value: data.municipio.id, label: data.municipio.descricao });
+        }, 250);
         setIdUf(data.municipio.idUf);
       }
       if (data.bairro) {
-        setValue("idBairro", {value: data.bairro.id, label: data.bairro.descricao});
+        setTimeout(() => {
+          setValue("idBairro", { value: data.bairro.id, label: data.bairro.descricao });
+        }, 250);
         setIdMunicipio(data.bairro.idMunicipio);
       }
       setValue("logradouro", data.rua);
@@ -89,17 +93,17 @@ export function useEndereco(useForm: any) {
 
   const setValuesUf = async (id: number | null) => {
     const ufObj = id ? await getUfPorId(id) : undefined;
-    if (ufObj) setValue("idUf", {value: ufObj.id, label: ufObj.descricao});
+    if (ufObj) setValue("idUf", { value: ufObj.id, label: ufObj.descricao });
   }
 
   const setValuesMunicipio = async (id: number | null) => {
     const municipioObj = id ? await getMunicipioPorId(id) : undefined;
-    if (municipioObj) setValue("idMunicipio", {value: municipioObj.id, label: municipioObj.descricao});
+    if (municipioObj) setValue("idMunicipio", { value: municipioObj.id, label: municipioObj.descricao });
   }
 
   const setValuesBairro = async (id: number | null) => {
     const bairroObj = id ? await getBairroPorId(id) : undefined;
-    if (bairroObj) setValue("idBairro", {value: bairroObj.id, label: bairroObj.descricao});
+    if (bairroObj) setValue("idBairro", { value: bairroObj.id, label: bairroObj.descricao });
   }
 
   return {

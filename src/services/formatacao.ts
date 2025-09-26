@@ -37,7 +37,7 @@ export const formatDateAPI = (d: string | undefined | null) => {
   return formatISO(n) ?? undefined;
 }
 */
-export const formatarDataParaAPI = (data: string) => {
+export const formatarDataParaAPI = (data: string | undefined | null) => {
   if (!data) return "";
   return data.slice(0, 11).concat("00:00:00");
 }

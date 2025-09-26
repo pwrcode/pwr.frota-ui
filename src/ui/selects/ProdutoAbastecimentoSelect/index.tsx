@@ -8,6 +8,7 @@ type Props = {
     title?: string;
     control: Control<any>;
     ignoreFiltros?: boolean;
+    size?: string
 }
 
 const SelectProdutoAbastecimento = (props: Props) => {
@@ -15,7 +16,8 @@ const SelectProdutoAbastecimento = (props: Props) => {
         name = "idProdutoAbastecimento",
         title = "Produto Abastecimento",
         control,
-        ignoreFiltros
+        ignoreFiltros,
+        size
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -52,6 +54,7 @@ const SelectProdutoAbastecimento = (props: Props) => {
             setValue={onChange}
             filter
             isClearable
+            size={size}
         />
     )
 }

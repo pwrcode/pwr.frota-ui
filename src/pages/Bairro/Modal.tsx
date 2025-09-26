@@ -30,16 +30,21 @@ const schema = z.object({
     idUf: z.object({
         label: z.string().optional(),
         value: z.number().optional()
-    }),
+    }).nullable(),
     idMunicipio: z.object({
         label: z.string().optional(),
         value: z.number().optional()
-    }, { message: "Selecione o munícipio" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
+    }, { message: "Selecione o munícipio" }).nullable().transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList, selecionarBairro, idMunicipio }: modalPropsType) {
     const formFunctions = useForm({
-        resolver: zodResolver(schema)
+        resolver: zodResolver(schema),
+        defaultValues: {
+            descricao: "",
+            idUf: null,
+            idMunicipio: null
+        }
     });
     const { register, handleSubmit, reset, setValue, control, setFocus, formState: { errors } } = formFunctions;
 
@@ -55,7 +60,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
                     value: item.idUf,
                     label: item.siglaUf
                 }
-            })
+            }, { keepDefaultValues: true })
             setTimeout(() => {
                 if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
             }, 500);
@@ -70,13 +75,19 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
-        if (idMunicipio) {
+        else if (idMunicipio) {
             const setMunicipio = async () => {
                 const mun = await getMunicipioPorId(idMunicipio);
                 reset({
                     "idUf": { value: mun.idUf, label: mun.descricaoUf + ` (${mun.siglaUf})` },
                     "idMunicipio": { value: mun.id, label: mun.descricao }
-                });
+                }, { keepDefaultValues: true });
+                setTimeout(() => {
+                    setValue("idMunicipio", {
+                        value: mun.id,
+                        label: mun.descricao
+                    })
+                }, 250);
             }
             setMunicipio();
         }

@@ -7,6 +7,7 @@ type Props = {
     name?: string;
     title?: string;
     control: Control<any>;
+    size?: string
 }
 
 const SelectBairro = (props: Props) => {
@@ -14,6 +15,7 @@ const SelectBairro = (props: Props) => {
         name = "idBairro",
         title = "Bairro",
         control,
+        size
     } = props;
 
     const { field: { value, onChange } } = useController({ control, name })
@@ -50,6 +52,7 @@ const SelectBairro = (props: Props) => {
             setValue={onChange}
             isClearable
             filter
+            size={size}
         />
     )
 }
