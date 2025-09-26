@@ -1,12 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ToggleFiltros, { coresToggleFiltros } from '@/components/ui/toggle-filtros';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import { useMobile } from '@/hooks/useMobile';
 import { errorMsg } from '@/services/api';
-import { optionsFuncoes } from '@/services/constants';
+import { optionsFuncoes, todosOption } from '@/services/constants';
+import { type totalizadorType } from '@/services/dashboard';
 import { formatarCpfCnpj } from '@/services/formatacao';
-import { deletePessoa, getPessoas, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
+import { deletePessoa, getPessoas, getPessoaTotalizadores, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
@@ -29,7 +31,7 @@ import SelectTipoDataVeiculo from '@/ui/selects/TipoDataVeiculoSelect';
 import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
 import SelectUf from '@/ui/selects/UfSelect';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -94,6 +96,8 @@ export default function Pessoa() {
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
+  const [totalizadores, setTotalizadores] = useState<Array<totalizadorType>>([]);
+
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -116,7 +120,7 @@ export default function Pessoa() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-
+      carregaTotalizadores();
       const filtros: postListagemPessoaType = {
         currentPage: paginaAtual,
         pageSize: pageSize,
@@ -145,6 +149,19 @@ export default function Pessoa() {
     }
     catch (error: Error | any) {
       toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  const carregaTotalizadores = async () => {
+    try {
+      const data = await getPessoaTotalizadores();
+      setTotalizadores(data);
+    }
+    catch (error: Error | any) {
+      toast.error(errorMsg(error, null), { type: "error", isLoading: false, autoClose: 2000 });
     }
     finally {
       setLoading(false);
@@ -221,7 +238,7 @@ export default function Pessoa() {
 
     return listaFuncoes.join(", ");
   }
-
+  
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
@@ -231,7 +248,17 @@ export default function Pessoa() {
         <div className="flex-1">
           <Filters grid={FiltersGrid.sm1_md1_lg1}>
             <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
-            <FiltroAbas options={optionsFuncoes} control={control} name='funcao' />
+            <ToggleFiltros
+              name='funcao'
+              control={control}
+              options={[todosOption].concat(optionsFuncoes).map((x, index) => ({
+                value: x.value,
+                label: x.label,
+                icon: x.icone as LucideIcon,
+                color: coresToggleFiltros[index % coresToggleFiltros.length],
+                quantidade: totalizadores.find(y => y.descricao == (x.value || "TODOS"))?.valor || 0
+              }))}
+            />
           </Filters>
         </div>
 
