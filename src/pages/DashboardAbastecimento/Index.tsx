@@ -179,7 +179,6 @@ export default function DashboardAbastecimento() {
 		setTotalizadorAbastecimentosLitrosPorDia([]);
 		try {
 			const data = await getTotalizadorAbastecimentosLitrosPorDia(filtros);
-			console.log(data)
 			setTotalizadorAbastecimentosLitrosPorDia(data);
 		} catch (err) { }
 	}

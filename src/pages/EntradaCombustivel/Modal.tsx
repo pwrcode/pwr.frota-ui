@@ -150,13 +150,9 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     <ModalFormBody>
                         <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} />
                         {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-                        {/* {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>} */}
                         <SelectPostoCombustivelTanque control={control} size='w-full' />
-                        {/* <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" /> */}
                         <SelectProdutoAbastecimento control={control} size='w-full' />
-                        {/* <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" /> */}
                         <SelectFornecedor control={control} />
-                        {/* <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable /> */}
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
                     </ModalFormBody>

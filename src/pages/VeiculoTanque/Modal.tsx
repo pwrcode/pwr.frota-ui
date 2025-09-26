@@ -140,7 +140,6 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
 
                     <ModalFormBody>
                         <SelectTipoTanque control={control} />
-                        {/* <AsyncReactSelect name="tipoTanque" title="Tipo Tanque" control={control} options={tiposTanque} isClearable /> */}
                         <InputLabel name='capacidade' title='Capacidade' register={{...register("capacidade")}}  type='number' step='0.01'/>
                     </ModalFormBody>
 

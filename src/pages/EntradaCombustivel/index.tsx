@@ -160,11 +160,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             <Filters grid={FiltersGrid.sm2_md3}>
                 {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
                 <SelectPostoCombustivelTanque control={control} />
-                {/* <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={postoCombustivelTanques} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable /> */}
                 {!idPosto ? <SelectProdutoAbastecimento control={control} /> : <></>}
-                {/* {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={produtosAbastecimento} value={produtoAbastecimento} setValue={setProdutoAbastecimento} isClearable /> : <></>} */}
                 <SelectFornecedor control={control} />
-                {/* <AsyncReactSelect name="idPessoaFornecedor" title="Fornececdor" options={[]} value={pessoaFornecedor} setValue={setPessoaFornecedor} asyncFunction={getPessoasFornecedor} isClearable /> */}
                 <InputDataControl name="dataInicio" title='Data Início' control={control} />
                 <InputDataControl name="dataFim" title='Data Fim' control={control} />
             </Filters>

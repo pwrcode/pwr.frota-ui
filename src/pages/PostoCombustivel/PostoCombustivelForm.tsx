@@ -13,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
@@ -35,6 +34,9 @@ import EntradaCombustivel from '../EntradaCombustivel';
 import PostoCombustivelTanque from '../PostoCombustivelTanque/Index';
 import type { dadosAddEdicaoPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
 import PostoCombustivelHistorico from '../PostoCombustivelHistorico/Index';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectBairro from '@/ui/selects/BairroSelect';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -88,8 +90,7 @@ export default function PostoCombustivelForm() {
 
     const {
         cep,
-        getUfs, getMunicipios, getBairros, buscarCep, loadingCep,
-        ufs, municipios, bairros,
+        buscarCep, loadingCep,
         setIdUf, setIdMunicipio,
         setValuesUf, setValuesMunicipio, setValuesBairro
     } = useEndereco(formFunctions);
@@ -110,11 +111,6 @@ export default function PostoCombustivelForm() {
     useEffect(() => {
         if (id) setValuesPorId();
     }, [id]);
-
-    useEffect(() => {
-        getUfs();
-    }, [])
-
 
     const setValuesPorId = async () => {
         const process = toast.loading("Buscando item...");
@@ -216,16 +212,13 @@ export default function PostoCombustivelForm() {
 
     const selecionarBairro = (bairro: optionType) => {
         setValue("idBairro", bairro);
-        getBairros();
     }
 
     return (
         <>
             <Modal open={openModalFormBairro} setOpen={setOpenModalFormBairro} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
-
             <Tabs defaultValue='postoCombustivel' className='w-full mt-16 flex flex-col gap-2'>
-
                 <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-1 bg-muted rounded-lg'>
                     <TabsTrigger
                         value='postoCombustivel'
@@ -394,14 +387,13 @@ export default function PostoCombustivelForm() {
                                         <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
                                         <SearchButton func={buscarCep} disabled={loadingCep} />
                                     </div>
-                                    <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                    <SelectUf control={control} size='col-span-1 xl:col-span-2' />
                                     <span className='col-span-1 hidden lg:invisible'></span>
-                                    <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                    <SelectMunicipio control={control} size='col-span-1 xl:col-span-4' />
                                     <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                                        <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                        <SelectBairro control={control} size='w-full' />
                                         <PlusButton loading={loading} func={handleClickAdicionarBairro} />
                                     </div>
-                                    {/* Bairro e Add */}
                                     <InputLabel name="logradouro" title="Logradouro" register={{ ...register("logradouro") }} size="xl:col-span-3" />
                                     <InputLabel name="numero" title="Número" register={{ ...register("numero") }} size="xl:col-span-1" />
                                     <InputLabel name="complemento" title="Complemento" register={{ ...register("complemento") }} size="xl:col-span-2" />

@@ -1,44 +1,50 @@
-import InputLabel from '@/ui/components/forms/InputLabel';
 import { Button } from '@/components/ui/button';
-import FormContainer from '@/ui/components/forms/FormContainer';
-import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
-import FormContainerBody from '@/ui/components/forms/FormContainerBody';
-import FormLine from '@/ui/components/forms/FormLine';
-import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
-import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'react-toastify';
-import { addVeiculo, type dadosAddEdicaoVeiculoType, getVeiculoPorId, updateVeiculo } from '@/services/veiculo';
-import { dateDiaMesAno, dateHoraMin } from '@/services/date';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEndereco } from '@/hooks/useEndereco';
 import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
-import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
+import { type listType, type optionType } from '@/services/constants';
+import { currency } from '@/services/currency';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
+import { formatMaskPlaca } from '@/services/mask';
+import { getTipoMotorList } from '@/services/tipoMotor';
 import { getTipoVeiculoList } from '@/services/tipoVeiculo';
+import { toNumber } from '@/services/utils';
+import { addVeiculo, getVeiculoPorId, updateVeiculo, type dadosAddEdicaoVeiculoType } from '@/services/veiculo';
 import { getVeiculoMarcaList } from '@/services/veiculoMarca';
 import { getVeiculoModeloList } from '@/services/veiculoModelo';
-import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import { formatMaskPlaca } from '@/services/mask';
-import { tiposCorVeiculo, type listType, type optionType } from '@/services/constants';
-import { currency } from '@/services/currency';
-import { toNumber } from '@/services/utils';
+import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
+import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
+import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
+import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
+import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
+import FormContainer from '@/ui/components/forms/FormContainer';
+import FormContainerBody from '@/ui/components/forms/FormContainerBody';
+import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
+import FormLine from '@/ui/components/forms/FormLine';
+import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import InputLabel from '@/ui/components/forms/InputLabel';
+import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import SelectCor from '@/ui/selects/CorSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectTipoMotor from '@/ui/selects/TipoMotorSelect';
+import SelectTiposVeiculo from '@/ui/selects/TiposVeiculoSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectVeiculoMarca from '@/ui/selects/VeiculoMarcaSelect';
+import SelectVeiculoModelo from '@/ui/selects/VeiculoModeloSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Car, ChevronDown, ChevronUp, Fuel } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { z } from 'zod';
+import Abastecimento from '../Abastecimento/Index';
 import ModalMarca from '../VeiculoMarca/Modal';
 import ModalModelo from '../VeiculoModelo/Modal';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronUp, Car, Fuel } from 'lucide-react';
-import Abastecimento from '../Abastecimento/Index';
-import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
 import VeiculoTanque from '../VeiculoTanque/Index';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import { UploadFoto } from '@/ui/components/forms/UploadFoto';
-import { useEndereco } from '@/hooks/useEndereco';
-import { getTipoMotorList } from '@/services/tipoMotor';
 
 export const schema = z.object({
   descricao: z.string().optional()/*.min(1, {message: "Informe a descrição"})*/,
@@ -95,17 +101,12 @@ export default function VeiculoForm() {
   const { register, handleSubmit, reset, setValue, watch, resetField, control, setFocus, formState: { errors } } = formFunctions;
 
   const {
-    getUfs, getMunicipios,
-    ufs, municipios,
     setIdUf, setIdMunicipio,
   } = useEndereco(formFunctions);
 
   const { id } = useParams();
   const [idArquivoFotoVeiculo, setIdArquivoFotoVeiculo] = useState<number>(0);
-  const idVeiculoMarca = watch("idVeiculoMarca");
-  const idVeiculoModelo = watch("idVeiculoModelo.value");
   const isVendido = watch("isVendido");
-  const [veiculoModelos, setVeiculoModelos] = useState<listType>([])
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
@@ -117,43 +118,6 @@ export default function VeiculoForm() {
   const [tanques, setTanques] = useState<dadosAddEdicaoVeiculoTanqueType[]>([]);
   const [dataCompra, setDataCompra] = useState("");
   const [dataVenda, setDataVenda] = useState("");
-
-  useEffect(() => {
-    if (id) return
-    getTipoVeiculos();
-    getVeiculoMarcas();
-    getUfs();
-  }, []);
-
-  useEffect(() => {
-    resetField("idVeiculoModelo")
-    getVeiculoModelos();
-  }, [idVeiculoMarca])
-
-  const getTipoVeiculos = async (pesquisa?: string) => {
-    const data = await getTipoVeiculoList(pesquisa, undefined);
-    return data;
-  }
-
-  const getTiposMotor = async (pesquisa?: string) => {
-    const data = await getTipoMotorList(pesquisa);
-    return data;
-  }
-
-  const getVeiculoMarcas = async (pesquisa?: string) => {
-    const data = await getVeiculoMarcaList(pesquisa);
-    return data;
-  }
-
-  const getVeiculoModelos = async (pesquisa?: string) => {
-    if (!idVeiculoMarca) {
-      setVeiculoModelos([]);
-      return [];
-    }
-    const data = await getVeiculoModeloList(pesquisa, idVeiculoMarca ? idVeiculoMarca.value : undefined);
-    setVeiculoModelos([...data]);
-    return data;
-  }
 
   useEffect(() => {
     Object.entries(errors).forEach(([key, error]) => {
@@ -179,28 +143,32 @@ export default function VeiculoForm() {
       if (item.idUf) setIdUf(item.idUf);
       if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
       setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
-      setValue("descricao", item.descricao);
-      setValue("placa", formatMaskPlaca(item.placa));
-      setValue("renavam", item.renavam);
-      setValue("chassi", item.chassi);
       if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
       if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
       if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
-      setValue("versao", item.versao);
-      setValue("anoFabricacao", item.anoFabricacao?.toString());
-      setValue("anoModelo", item.anoModelo?.toString());
-      setValue("cor", item.cor ? { label: item.cor, value: item.cor } : undefined);
-      setValue("ativo", item.ativo ? true : false);
-      setValue("icone", item.icone);
-      setValue("quilometragemInicial", item.quilometragemInicial?.toString());
-      setValue("capacidadeCargaKg", item.capacidadeCargaKg?.toString());
-      setValue("capacidadeVolumeM3", item.capacidadeVolumeM3?.toString());
-      setValue("capacidadePassageiros", item.capacidadePassageiros?.toString());
+      
+      reset({
+        descricao: item.descricao,
+        placa: formatMaskPlaca(item.placa),
+        renavam: item.renavam,
+        chassi: item.chassi,
+        versao: item.versao,
+        anoFabricacao: item.anoFabricacao?.toString(),
+        anoModelo: item.anoModelo?.toString(),
+        cor: item.cor ? { label: item.cor, value: item.cor } : undefined,
+        ativo: item.ativo ? true : false,
+        icone: item.icone,
+        quilometragemInicial: item.quilometragemInicial?.toString(),
+        capacidadeCargaKg: item.capacidadeCargaKg?.toString(),
+        capacidadeVolumeM3: item.capacidadeVolumeM3?.toString(),
+        capacidadePassageiros: item.capacidadePassageiros?.toString(),
+        valorCompra: String(currency(item.valorCompra)),
+        valorVenda: String(currency(item.valorVenda)),
+        isVendido: item.valorVenda ? true : false,
+      })
+      
       setDataCompra(item.dataAquisicao);
       setDataVenda(item.dataVenda);
-      setValue("valorCompra", String(currency(item.valorCompra)));
-      setValue("valorVenda", String(currency(item.valorVenda)));
-      setValue("isVendido", item.valorVenda ? true : false);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       setTimeout(() => {
@@ -297,25 +265,23 @@ export default function VeiculoForm() {
     setOpenModalFormMarca(true);
   }
 
-  const selecionarMarca = (marca: optionType) => {
-    setValue("idVeiculoMarca", marca);
-    getVeiculoMarcas();
-  }
-
   const handleClickAdicionarModelo = () => {
     setOpenModalFormModelo(true);
   }
 
+  const selecionarMarca = (marca: optionType) => {
+    setValue("idVeiculoMarca", marca);
+  }
+
   const selecionarModelo = (modelo: optionType) => {
     setValue("idVeiculoModelo", modelo);
-    getVeiculoModelos();
   }
 
   return (
     <>
-      <ModalMarca open={openModalFormMarca} setOpen={setOpenModalFormMarca} id={idVeiculoMarca?.value ?? 0} selecionarMarca={selecionarMarca} />
+      <ModalMarca open={openModalFormMarca} setOpen={setOpenModalFormMarca} id={watch("idVeiculoMarca")?.value ?? 0} selecionarMarca={selecionarMarca} />
 
-      <ModalModelo open={openModalFormModelo} setOpen={setOpenModalFormModelo} id={idVeiculoModelo ?? 0} selecionarModelo={selecionarModelo} idMarca={idVeiculoMarca?.value} />
+      <ModalModelo open={openModalFormModelo} setOpen={setOpenModalFormModelo} id={watch("idVeiculoModelo")?.value ?? 0} selecionarModelo={selecionarModelo} idMarca={watch("idVeiculoMarca")?.value} />
 
       <Tabs defaultValue='veiculo' className='w-full mt-16 flex flex-col gap-2'>
 
@@ -396,10 +362,10 @@ export default function VeiculoForm() {
                   <InputMaskLabel name='placa' title='Placa' mask={Masks.placa} value={watch("placa")} setValue={setValue} />
                   <InputLabel name="renavam" title="Renavam" register={{ ...register("renavam") }} />
                   <InputLabel name="chassi" title="Chassi" register={{ ...register("chassi") }} />
-                  <AsyncReactSelect name="cor" title="Cor" control={control} options={tiposCorVeiculo} isClearable size="w-full" />
+                  <SelectCor control={control} />
                   <InputLabel name="versao" title="Versão" register={{ ...register("versao") }} />
-                  <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1" filter={true} isClearable />
-                  <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1" />
+                  <SelectUf control={control} />
+                  <SelectMunicipio control={control} />
                 </div>
                 {(!id) && (
                   <div className="mt-6">
@@ -415,14 +381,14 @@ export default function VeiculoForm() {
               <FormContainerHeader title="Tipo e Modelo" />
               <FormContainerBody>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  <AsyncReactSelect name="idTipoVeiculo" title="Tipo Veículo" control={control} asyncFunction={getTipoVeiculos} options={[]} isClearable />
-                  <AsyncReactSelect name="idTipoMotor" title="Tipo Motor" control={control} asyncFunction={getTiposMotor} options={[]} isClearable />
+                  <SelectTiposVeiculo control={control} />
+                  <SelectTipoMotor control={control} />
                   <div className='flex justify-between items-end gap-2'>
-                    <AsyncReactSelect name="idVeiculoMarca" title="Marca" control={control} options={[]} asyncFunction={getVeiculoMarcas} isClearable size="w-full" />
+                    <SelectVeiculoMarca control={control} />
                     <PlusButton loading={loading} func={handleClickAdicionarMarca} />
                   </div>
                   <div className=' flex justify-between items-end gap-2'>
-                    <AsyncReactSelect name="idVeiculoModelo" title="Modelo" control={control} options={veiculoModelos} asyncFunction={getVeiculoModelos} filter isClearable size="w-full" />
+                    <SelectVeiculoModelo control={control} />
                     <PlusButton loading={loading} func={handleClickAdicionarModelo} />
                   </div>
                   <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />

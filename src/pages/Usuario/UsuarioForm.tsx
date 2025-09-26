@@ -1,27 +1,26 @@
-import InputLabel from '@/ui/components/forms/InputLabel';
 import { Button } from '@/components/ui/button';
-import FormContainer from '@/ui/components/forms/FormContainer';
-import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
-import FormContainerBody from '@/ui/components/forms/FormContainerBody';
-import FormLine from '@/ui/components/forms/FormLine';
+import { errorMsg } from '@/services/api';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
+import { addUsuario, type dadosAddEdicaoUsuarioType, getUsuarioPorId, updateUsuario } from '@/services/usuario';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
-import { useNavigate, useParams } from 'react-router-dom';
+import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
+import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
+import FormContainer from '@/ui/components/forms/FormContainer';
+import FormContainerBody from '@/ui/components/forms/FormContainerBody';
+import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
+import FormLine from '@/ui/components/forms/FormLine';
+import InputLabel from '@/ui/components/forms/InputLabel';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import SelectPerfilAcesso from '@/ui/selects/PerfilAcessoSelect';
+import SelectPessoa from '@/ui/selects/PessoaSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { getPerfilAcessoList } from '@/services/perfilAcesso';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { addUsuario, type dadosAddEdicaoUsuarioType, getUsuarioPorId, updateUsuario } from '@/services/usuario';
-import { dateDiaMesAno, dateHoraMin } from '@/services/date';
-import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
-import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
-import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import { z } from 'zod';
 import ModalSenha from './ModalSenha';
-import { getPessoaList } from '@/services/pessoa';
 
 export const schemaAdd = z.object({
   nome: z.string().min(1, { message: "Informe o nome" }),
@@ -64,21 +63,6 @@ export default function UsuarioForm() {
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
   const [idArquivoFoto, setIdArquivoFoto] = useState<number>(0);
   const [openModalSenha, setOpenModalSenha] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (id) return
-    getPerfis();
-  }, []);
-
-  const getPerfis = async (pesquisa?: string) => {
-    const data = await getPerfilAcessoList(pesquisa);
-    return data;
-  }
-
-  const getPessoas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-    return data;
-  }
 
   const { register, handleSubmit, reset, setValue, control, setFocus, formState: { errors } } = useForm({
     resolver: zodResolver(id ? schemaUpdate : schemaAdd)
@@ -189,8 +173,8 @@ export default function UsuarioForm() {
 
             <FormLine>
               <InputLabel name="nome" title="Nome" register={{ ...register("nome") }} />
-              <AsyncReactSelect name="idPerfil" title="Perfil de Acesso" control={control} asyncFunction={getPerfis} options={[]} isClearable />
-              <AsyncReactSelect name="idPessoa" title="Pessoa" control={control} asyncFunction={getPessoas} options={[]} isClearable />
+              <SelectPessoa control={control} />
+              <SelectPerfilAcesso control={control} />
             </FormLine>
 
             <FormLine justify="start">

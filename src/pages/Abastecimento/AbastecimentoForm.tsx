@@ -157,7 +157,6 @@ export default function AbastecimentoForm() {
     setLoading(true);
     const process = toast.loading("Salvando item...")
     try {
-      console.log(data)
       if (!id) {
         const post: dadosAddEdicaoAbastecimentoType = {
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,

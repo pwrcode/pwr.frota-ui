@@ -247,7 +247,6 @@ export default function PessoaForm() {
                         <FormContainerBody>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
                                 <SelectTipoPessoa control={control} />
-                                {/* <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" control={control} options={tiposPessoa} /> */}
                                 <InputMaskLabel
                                     name="documento" title={tipoPessoa && tipoPessoa.value === 1 ? "CPF" : "CNPJ"}
                                     mask={tipoPessoa && tipoPessoa.value == 1 ? Masks.cpf : Masks.cnpj}
@@ -266,12 +265,9 @@ export default function PessoaForm() {
                         <FormContainerHeader title="Dados CNH" />
                         <FormContainerBody>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
-
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
                                 <SelectCategoriaCnh control={control} />
-                                {/* <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable /> */}
                                 <InputDataControl name='cnhValidade' title='CNH Validade' control={control} />
-                                {/* <InputDataLabel name='cnhValidade' title='CNH Validade' date={dataCnhValidade} setDate={setDataCnhValidade} /> */}
                             </div>
                         </FormContainerBody>
                     </FormContainer>
@@ -329,13 +325,10 @@ export default function PessoaForm() {
                                     <SearchButton func={buscarCep} disabled={loadingCep} />
                                 </div>
                                 <SelectUf control={control} size='col-span-1 xl:col-span-2' />
-                                {/* <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable /> */}
                                 <span className='col-span-1 hidden lg:invisible'></span>
                                 <SelectMunicipio control={control} size='col-span-1 xl:col-span-4' />
-                                {/* <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" /> */}
                                 <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
                                     <SelectBairro control={control} size='w-full' />
-                                    {/* <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" /> */}
                                     <PlusButton loading={loading} func={handleClickAdicionarBairro} />
                                 </div>
                                 {/* Bairro e Add */}

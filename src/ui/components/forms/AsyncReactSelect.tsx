@@ -2,7 +2,7 @@ import AsyncSelect from "react-select/async";
 import { Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { type listType } from "@/services/constants";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTheme } from "@/components/ui/theme-provider";
 
 // Configuração centralizada das cores do select
@@ -182,6 +182,12 @@ export default function AsyncReactSelect({
     isClearable,
     style
 }: AsyncSelectProps) {
+    const selectRef = useRef<any>(null)
+
+    useEffect(() => {
+        if (!value && !!selectRef.current)
+            selectRef.current?.clearValue();
+    }, [value, selectRef])
 
     // @ts-ignore
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,7 +208,7 @@ export default function AsyncReactSelect({
             callback(result);
         }, 500);
     };
-    
+
     const handleInputChange = (newValue: string, actionMeta: { action: string }) => {
         if (newValue === "" && (actionMeta.action === "input-change" || actionMeta.action === "menu-close")) {
             loadOptions("", () => { });
@@ -260,6 +266,7 @@ export default function AsyncReactSelect({
                     noOptionsMessage={customNoOptionsMessage}
                     isMulti={isMulti}
                     isClearable={isClearable}
+                    ref={selectRef}
                 />
             )}
         </div>

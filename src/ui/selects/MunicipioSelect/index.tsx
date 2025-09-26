@@ -34,14 +34,15 @@ const SelectMunicipio = (props: Props) => {
     const getMunicipios = async (pesquisa?: string) => {
         setOpcoesMunicipio([]);
 
-        if (!uf)
+        if (!uf) {
             return [];
+        }
 
         const data = await getMunicipioList(pesquisa, uf);
         setOpcoesMunicipio([...data]);
         return data;
     }
-
+    
     return (
         <AsyncReactSelect
             name={name}
