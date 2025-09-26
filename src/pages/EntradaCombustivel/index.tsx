@@ -221,7 +221,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
-                                            {isMobile && "Data Recebimento: "}{formatarData(c.dataRecebimento)}
+                                            {isMobile && "Data Recebimento: "}{formatarData(c.dataRecebimento, "dd/mm/yyyy hh:mm")}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>

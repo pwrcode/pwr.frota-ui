@@ -31,6 +31,7 @@ import SelectVeiculoTanque from '@/ui/selects/VeiculoTanqueSelect';
 import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
 import SelectMotorista from '@/ui/selects/MotoristaSelect';
 import InputDataControl from '@/ui/components/forms/InputDataControl';
+import { formatarDataParaAPI } from '@/services/formatacao';
 
 export const schema = z.object({
   idVeiculo: z.object({
@@ -170,7 +171,7 @@ export default function AbastecimentoForm() {
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
-          dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
+          dataAbastecimento: formatarDataParaAPI(data.dataAbastecimento),
           idArquivoFotoPainelAntes: data.idArquivoFotoPainelAntes !== 0 ? data.idArquivoFotoPainelAntes : null,
           idArquivoFotoPainelDepois: data.idArquivoFotoPainelDepois !== 0 ? data.idArquivoFotoPainelDepois : null,
         }
@@ -190,7 +191,7 @@ export default function AbastecimentoForm() {
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
-          dataAbastecimento: data.dataAbastecimento ? data.dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
+          dataAbastecimento: formatarDataParaAPI(data.dataAbastecimento),
           idArquivoFotoPainelAntes: data.idArquivoFotoPainelAntes !== 0 ? data.idArquivoFotoPainelAntes : null,
           idArquivoFotoPainelDepois: data.idArquivoFotoPainelDepois !== 0 ? data.idArquivoFotoPainelDepois : null,
         }
@@ -234,7 +235,7 @@ export default function AbastecimentoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
               <SelectMotorista name='idPessoa' control={control} />
-              <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} />
+              <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} time/>
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />

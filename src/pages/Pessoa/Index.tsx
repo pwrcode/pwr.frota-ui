@@ -111,7 +111,7 @@ export default function Pessoa() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      console.log(getValues("ativo")?.value === false)
+      
       const filtros: postListagemPessoaType = {
         currentPage: paginaAtual,
         pageSize: pageSize,

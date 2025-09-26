@@ -213,7 +213,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>
-                      {isMobile && "Data Abastecimento: "}{formatarData(c.dataAbastecimento)}
+                      {isMobile && "Data Abastecimento: "}{formatarData(c.dataAbastecimento, "dd/mm/yyyy hh:mm")}
                     </TableCell>
 
                     <TableCell className={cellStyle + " sm:text-left"}>

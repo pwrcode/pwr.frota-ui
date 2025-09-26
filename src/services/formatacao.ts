@@ -39,5 +39,9 @@ export const formatDateAPI = (d: string | undefined | null) => {
 */
 export const formatarDataParaAPI = (data: string | undefined | null) => {
   if (!data) return "";
+
+  if(data.split("T")[1])
+    return data;
+
   return data.slice(0, 11).concat("00:00:00");
 }

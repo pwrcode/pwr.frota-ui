@@ -74,7 +74,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 quantidade: item.quantidade.toString(),
                 valorUnitario: String(currency(item.valorUnitario)),
                 dataRecebimento: item.dataRecebimento
-            }, {keepDefaultValues: true})
+            }, { keepDefaultValues: true })
             setTimeout(() => {
                 setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             }, 250);
@@ -138,7 +138,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             setLoading(false);
         }
     }
-
+    
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
@@ -148,7 +148,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} />
+                        <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} time />
                         {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
                         <SelectPostoCombustivelTanque control={control} size='w-full' />
                         <SelectProdutoAbastecimento control={control} size='w-full' />
