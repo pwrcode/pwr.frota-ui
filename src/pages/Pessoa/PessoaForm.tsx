@@ -31,6 +31,7 @@ import InputDataControl from '@/ui/components/forms/InputDataControl';
 import SelectUf from '@/ui/selects/UfSelect';
 import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 import SelectBairro from '@/ui/selects/BairroSelect';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 
 const schema = z.object({
     tipoPessoa: z.object({
@@ -71,6 +72,8 @@ const schema = z.object({
     }).optional().transform(t => t && t.value ? t.value : undefined),
     cnhValidade: z.string().optional(),
     ativo: z.boolean().optional(),
+    dataNascimentoFundacao: z.string().optional(),
+    email: z.string().optional(),
 })
 
 export default function PessoaForm() {
@@ -89,6 +92,8 @@ export default function PessoaForm() {
     const [cadInfo, setCadInfo] = useState<string>("");
     const [edicaoInfo, setEdicaoInfo] = useState<string>("");
     const [openModalFormBairro, setOpenModalFormBairro] = useState(false);
+
+    const [idArquivoFoto, setIdArquivoFoto] = useState<number>(0);
 
     const {
         cep, getBairros, buscarCep, loadingCep, setValuesMunicipio, setValuesBairro,
@@ -159,7 +164,9 @@ export default function PessoaForm() {
                 cnhCategoria: {
                     value: item.cnhCategoria,
                     label: item.cnhCategoria
-                }
+                },
+                dataNascimentoFundacao: item.dataNascimentoFundacao,
+                email: item.email,
             }, { keepDefaultValues: true })
             setTimeout(() => {
                 setValuesMunicipio(item.idMunicipio)
@@ -167,6 +174,7 @@ export default function PessoaForm() {
             setTimeout(() => {
                 setValuesBairro(item.idBairro)
             }, 500);
+            setIdArquivoFoto(item.idArquivoFoto ?? 0)
             setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
             setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
             toast.dismiss(process);
@@ -206,6 +214,9 @@ export default function PessoaForm() {
                 cnhCategoria: data.cnhCategoria ?? null,
                 cnhValidade: formatarDataParaAPI(data.cnhValidade),
                 ativo: data.ativo ?? false,
+                dataNascimentoFundacao: formatarDataParaAPI(data.dataNascimentoFundacao),
+                idArquivoFoto: idArquivoFoto || null,
+                email: data.email ?? null,
             }
             if (!id) {
                 const res = await addPessoa(postPut);
@@ -234,12 +245,16 @@ export default function PessoaForm() {
         setValue("idBairro", bairro);
         getBairros();
     }
-
+    
     return (
         <>
             <Modal open={openModalFormBairro} setOpen={setOpenModalFormBairro} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
             <div className="w-full mt-16">
+                <div className="flex-1 mb-4">
+                    <UploadFoto referenciaTipo="Veiculo" idArquivo={idArquivoFoto} changeIdArquivo={setIdArquivoFoto} alt="Foto do Veículo" isDisabled={loading} />
+                </div>
+
                 <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoPessoaType))}>
 
                     <FormContainer>
@@ -254,6 +269,8 @@ export default function PessoaForm() {
                                 />
                                 <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
+                                <InputLabel name="email" title="Email" register={{ ...register("email") }} />
+                                <InputDataControl name='dataNascimentoFundacao' title={watch("tipoPessoa")?.value == 1 ? "Data Nascimento" : "Data Fundação"} control={control} />
                             </div>
                             <DivCheckBox style="line">
                                 <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />

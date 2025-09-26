@@ -26,6 +26,7 @@ import SelectBairro from '@/ui/selects/BairroSelect';
 import SelectFuncao from '@/ui/selects/FuncaoSelect';
 import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 import SelectStatus from '@/ui/selects/StatusSelect';
+import SelectTipoDataVeiculo from '@/ui/selects/TipoDataVeiculoSelect';
 import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
 import SelectUf from '@/ui/selects/UfSelect';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,6 +59,10 @@ const schema = z.object({
     value: z.string().optional(),
     label: z.string().optional()
   }).optional().nullable(),
+  tipoData: z.object({
+    label: z.string().optional(),
+    value: z.string().optional()
+  }).optional().nullable(),
   dataInicio: z.string().optional(),
   dataFim: z.string().optional(),
   ativo: z.object({
@@ -72,6 +77,7 @@ export default function Pessoa() {
     resolver: zodResolver(schema),
     defaultValues: {
       pesquisa: "",
+      tipoData: null,
       dataInicio: "",
       dataFim: "",
       tipoPessoa: undefined,
@@ -111,11 +117,12 @@ export default function Pessoa() {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      
+
       const filtros: postListagemPessoaType = {
         currentPage: paginaAtual,
         pageSize: pageSize,
         ativo: getValues("ativo")?.value === false ? false : getValues("ativo")?.value || null,
+        tipoData: getValues("tipoData")?.value || null,
         dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
         dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
         tipoPessoa: getValues("tipoPessoa")?.value || null,
@@ -176,6 +183,7 @@ export default function Pessoa() {
 
   const clearFilters = () => {
     reset({
+      "tipoData": null,
       "funcao": null,
       "ativo": null,
       "dataFim": "",
@@ -190,6 +198,7 @@ export default function Pessoa() {
 
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
+      getValues("tipoData") ||
       getValues("tipoPessoa") ||
       getValues("idUf") ||
       getValues("idMunicipio") ||
@@ -267,9 +276,13 @@ export default function Pessoa() {
                   <h4 className="text-sm font-medium mb-4 text-muted-foreground">
                     Filtros por Data
                   </h4>
-                  <div className="grid grid-cols-1 gap-4">
-                    <InputDataControl name="dataInicio" title='Data Início' control={control} />
-                    <InputDataControl name="dataFim" title='Data Fim' control={control} />
+                  <div className="space-y-4">
+                    <SelectTipoDataVeiculo control={control} />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <InputDataControl name="dataInicio" title='Data Início' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
+                      <InputDataControl name="dataFim" title='Data Fim' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
+                    </div>
                   </div>
                 </div>
 

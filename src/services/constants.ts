@@ -100,6 +100,11 @@ export const tiposDataVeiculo = [
     { value: "VENDA", label: "Venda" },
 ]
 
+export const tiposDataPessoa = [
+    { value: "CNH_VALIDADE", label: "Validade CNH" },
+    { value: "FUNDACAO_NASCIMENTO", label: "Fundação/Nascimento" },
+]
+
 export const tiposRegime = [
     { value: 1, label: "Simples Nacional", valueString: "SimplesNacional" },
     { value: 2, label: "Lucro Presumido", valueString: "LucroPresumido" },

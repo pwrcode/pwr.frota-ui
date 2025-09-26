@@ -43,7 +43,7 @@ export default function InputDataControl({ title, name, control, size, isDisable
 
     onChange(localData + "T" + localHora);
   }, [data, hora]);
-
+  
   useEffect(() => {
     if (!value && !firstUpdate) return;
     
@@ -102,10 +102,10 @@ export default function InputDataControl({ title, name, control, size, isDisable
             mode="single"
             locale={ptBR}
             disabled={isDisabled ?? false}
-            selected={data ? new Date(data) : undefined}
-            defaultMonth={data ? new Date(data) : undefined} // Abre no mês da data selecionada
+            selected={data ? new Date(data + "T00:00:00") : undefined}
+            defaultMonth={data ? new Date(data + "T00:00:00") : undefined} // Abre no mês da data selecionada
             onSelect={(selectedDate) => {
-              if (setData) setData(selectedDate ? formatISO(selectedDate).split("T")[0] : "");
+              if (setData) setData(selectedDate?.toISOString().split("T")[0] || "");
               setIsOpen(false); // Fecha o popover ao selecionar a data
             }}
             autoFocus

@@ -34,6 +34,9 @@ export type pessoaType = {
   cnhCategoria: string,
   cnhValidade: string,
   ativo: boolean,
+  dataNascimentoFundacao: string,
+  idArquivoFoto: number,
+  email: string,
   dataCadastro: string,
   usuarioCadastro: string,
   dataEdicao: string | null,
@@ -44,6 +47,7 @@ export type postListagemPessoaType = {
   pageSize: number,
   currentPage: number,
   pesquisa: string,
+  tipoData: string | null,
   dataInicio: string,
   dataFim: string,
   tipoPessoa: number | null,
@@ -81,6 +85,9 @@ export type dadosAddEdicaoPessoaType = {
   cnhCategoria: string,
   cnhValidade: string | null | undefined,
   ativo: boolean,
+  dataNascimentoFundacao: string | null | undefined,
+  idArquivoFoto: number | null,
+  email: string,
 }
 
 export const getPessoas = async (dados: postListagemPessoaType) => {

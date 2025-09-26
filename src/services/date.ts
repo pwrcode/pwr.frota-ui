@@ -2,9 +2,11 @@ import { formatISO } from 'date-fns';
 
 export const formatarData = (isoDate: string, format = 'dd/mm/yyyy') => {
   if (!isoDate || isoDate === "") return "";
-  const d = isoDate.includes("T")
-    ? new Date(isoDate.replace("Z", ""))
-    : new Date(+isoDate.split("T")[0].split("-")[0], +isoDate.split("T")[0].split("-")[1], +isoDate.split("T")[0].split("-")[2]);
+
+  if (!isoDate.includes("T"))
+    isoDate += "T00:00:00";
+  
+  const d = new Date(isoDate);
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
