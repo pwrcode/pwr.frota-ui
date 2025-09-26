@@ -25,7 +25,7 @@ function FiltroAbas({ options, control, name }: Props) {
     }
 
     return (
-        <div className='flex gap-4 col-span-full mt-2'>
+        <div className='flex flex-wrap gap-4 col-span-full mt-2'>
             {[todosOption].concat(options).map((x, index) => (
                 <button
                     key={x.value + "_" + index}
