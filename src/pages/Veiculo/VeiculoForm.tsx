@@ -393,7 +393,7 @@ export default function VeiculoForm() {
                   </div>
                   <InputMaskLabel name='anoFabricacao' title='Ano Fabricação' mask={Masks.numerico} value={(watch("anoFabricacao"))} setValue={setValue} />
                   <InputMaskLabel name='anoModelo' title='Ano Modelo' mask={Masks.numerico} value={watch("anoModelo")} setValue={setValue} />
-                  <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} />
+                  {/* <InputLabel name="icone" title="Ícone" register={{ ...register("icone") }} /> */}
                 </div>
               </FormContainerBody>
             </FormContainer>

@@ -49,6 +49,7 @@ const schema = z.object({
     dataRecebimento: z.string().optional(),
     quantidade: z.string().optional(),
     valorUnitario: z.string().optional(),
+    valorTotal: z.string().optional(),
 });
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
@@ -73,7 +74,8 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 },
                 quantidade: item.quantidade.toString(),
                 valorUnitario: String(currency(item.valorUnitario)),
-                dataRecebimento: item.dataRecebimento
+                dataRecebimento: item.dataRecebimento,
+                valorTotal: currency(item.quantidade * item.valorUnitario)
             }, { keepDefaultValues: true })
             setTimeout(() => {
                 setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
@@ -104,6 +106,15 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             }
         });
     }, [errors]);
+
+    useEffect(() => {
+        const subscription = watch((values, field) => {
+            if (field.name == "quantidade" || field.name == "valorUnitario") 
+                setValue("valorTotal", currency(+(values.quantidade || 0) * +(toNumber(values.valorUnitario) || 0)))
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
 
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
         if (loading) return
@@ -138,7 +149,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
             setLoading(false);
         }
     }
-    
+
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
@@ -155,6 +166,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                         <SelectFornecedor control={control} />
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
+                        <InputMaskLabel name='valorTotal' title='Valor Total' mask={Masks.dinheiro} disabled setValue={() => { }} value={watch("valorTotal")} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

@@ -174,7 +174,7 @@ export default function UsuarioForm() {
             <FormLine>
               <InputLabel name="nome" title="Nome" register={{ ...register("nome") }} />
               <SelectPessoa control={control} />
-              <SelectPerfilAcesso control={control} />
+              <SelectPerfilAcesso name='idPerfil' control={control} />
             </FormLine>
 
             <FormLine justify="start">

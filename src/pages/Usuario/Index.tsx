@@ -57,6 +57,10 @@ export default function Usuario({ config }: any) {
   const [pageSize, setPageSize] = useState<number>(10);
 
   useEffect(() => {
+      debounceUpdate();
+  }, []);
+
+  useEffect(() => {
     const subscription = watch(() => {
       debounceUpdate();
     });

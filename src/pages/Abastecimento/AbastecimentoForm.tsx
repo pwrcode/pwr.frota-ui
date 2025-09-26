@@ -61,6 +61,7 @@ export const schema = z.object({
   quilometragem: z.string().optional(),
   quantidadeAbastecida: z.string().optional(),
   valorUnitario: z.string().optional(),
+  valorTotal: z.string().optional(),
   observacao: z.string().optional(),
   tanqueCheio: z.boolean().optional(),
   idArquivoFotoPainelAntes: z.number().optional(),
@@ -103,6 +104,10 @@ export default function AbastecimentoForm() {
     const subscription = watch((values, field) => {
       if (field.name == "idPostoCombustivel")
         verificaPostoInterno(values.idPostoCombustivel?.value)
+
+      if (field.name == "quantidadeAbastecida" || field.name == "valorUnitario") {
+        setValue("valorTotal", currency(+(values.quantidadeAbastecida || 0) * +(toNumber(values.valorUnitario) || 0)))
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -136,6 +141,7 @@ export default function AbastecimentoForm() {
         dataAbastecimento: item.dataAbastecimento ?? "",
         idArquivoFotoPainelAntes: item.idArquivoFotoPainelAntes ?? 0,
         idArquivoFotoPainelDepois: item.idArquivoFotoPainelDepois ?? 0,
+        valorTotal: currency(item.quantidadeAbastecida * item.valorUnitario)
       })
 
       setTimeout(() => {
@@ -235,10 +241,11 @@ export default function AbastecimentoForm() {
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
               <SelectMotorista name='idPessoa' control={control} />
-              <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} time/>
+              <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} time />
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
+              <InputMaskLabel name='valorTotal' title='Valor Total' mask={Masks.dinheiro} disabled setValue={() => { }} value={watch("valorTotal")} />
               <div className='lg:col-span-3'>
                 <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
               </div>

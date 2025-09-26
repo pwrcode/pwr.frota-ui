@@ -1,6 +1,6 @@
 import { getPessoaList } from "@/services/pessoa";
 import AsyncReactSelect from "@/ui/components/forms/AsyncReactSelect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useController, type Control } from "react-hook-form";
 
 type Props = {
@@ -20,6 +20,10 @@ const SelectPessoa = (props: Props) => {
 
     const { field: { value, onChange } } = useController({ control, name })
     const [opcoesPessoa, setOpcoesPessoa] = useState<Array<any>>([]);
+
+    useEffect(() => {
+        getPessoas();
+    }, []);
 
     const getPessoas = async (pesquisa?: string) => {
         setOpcoesPessoa([]);
