@@ -1,3 +1,5 @@
+import { Contact, IdCard, Menu, UserCog, Users, type LucideIcon } from "lucide-react";
+
 export type modalParamsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -13,7 +15,8 @@ export type listType = {
 
 export type optionType = {
     value: any,
-    label: string
+    label: string,
+    icone?: LucideIcon
 }
 
 export type itemSelectType = {
@@ -22,10 +25,10 @@ export type itemSelectType = {
 };
 
 export const optionsFuncoes = [
-    { value: "isAjudante", label: "Ajudante" },
-    { value: "isMotorista", label: "Motorista" },
-    { value: "isOficina", label: "Oficina" },
-    { value: "isFornecedor", label: "Fornecedor" },
+    { value: "isAjudante", label: "Ajudante", icone: Users },
+    { value: "isMotorista", label: "Motorista", icone: Contact },
+    { value: "isOficina", label: "Oficina", icone: UserCog },
+    { value: "isFornecedor", label: "Fornecedor", icone: IdCard },
 ];
 
 export const tiposCorVeiculo = [
@@ -56,9 +59,10 @@ export const selecioneOption = {
     label: "Selecione"
 };
 
-export const todosOption = {
+export const todosOption: optionType = {
     value: undefined,
-    label: "Todos"
+    label: "Todos",
+    icone: Menu
 };
 
 export const ativoOptions = [

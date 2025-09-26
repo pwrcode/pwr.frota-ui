@@ -1,38 +1,40 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useMobile } from '@/hooks/useMobile';
-import PageTitle from '@/ui/components/PageTitle';
-import TableLoading from '@/ui/components/tables/TableLoading';
-import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
-import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
-import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
-import TableEmpty from '@/ui/components/tables/TableEmpty';
-import { toast } from 'react-toastify';
-import { errorMsg } from '@/services/api';
-import { TableRodape } from '@/ui/components/tables/TableRodape';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
-import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import { useMobile } from '@/hooks/useMobile';
+import { errorMsg } from '@/services/api';
+import { optionsFuncoes } from '@/services/constants';
 import { formatarCpfCnpj } from '@/services/formatacao';
 import { deletePessoa, getPessoas, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
+import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
-import ModalFormBody from '@/ui/components/forms/ModalFormBody';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Filter, X } from 'lucide-react';
-import z from 'zod';
-import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
-import SelectFuncao from '@/ui/selects/FuncaoSelect';
-import SelectUf from '@/ui/selects/UfSelect';
-import SelectMunicipio from '@/ui/selects/MunicipioSelect';
-import SelectBairro from '@/ui/selects/BairroSelect';
-import SelectStatus from '@/ui/selects/StatusSelect';
+import FiltroAbas from '@/ui/components/FiltroAbas';
 import InputDataControl from '@/ui/components/forms/InputDataControl';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
+import PageTitle from '@/ui/components/PageTitle';
+import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
+import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
+import TableEmpty from '@/ui/components/tables/TableEmpty';
+import TableLoading from '@/ui/components/tables/TableLoading';
+import { TableRodape } from '@/ui/components/tables/TableRodape';
+import { TableTop } from '@/ui/components/tables/TableTop';
+import SelectBairro from '@/ui/selects/BairroSelect';
+import SelectFuncao from '@/ui/selects/FuncaoSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectStatus from '@/ui/selects/StatusSelect';
+import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Filter, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import z from 'zod';
 
 const schema = z.object({
   pesquisa: z.string().optional(),
@@ -52,10 +54,10 @@ const schema = z.object({
     label: z.string().optional(),
     value: z.number().optional()
   }).optional().nullable(),
-  optionsFuncoes: z.array(z.object({
+  funcao: z.object({
     value: z.string().optional(),
     label: z.string().optional()
-  })),
+  }).optional().nullable(),
   dataInicio: z.string().optional(),
   dataFim: z.string().optional(),
   ativo: z.object({
@@ -120,10 +122,10 @@ export default function Pessoa() {
         idUf: getValues("idUf")?.value || null,
         idMunicipio: getValues("idMunicipio")?.value || null,
         idBairro: getValues("idBairro")?.value || null,
-        isAjudante: getValues("optionsFuncoes")?.find(l => l.value === "isAjudante") ? true : null,
-        isMotorista: getValues("optionsFuncoes")?.find(l => l.value === "isMotorista") ? true : null,
-        isOficina: getValues("optionsFuncoes")?.find(l => l.value === "isOficina") ? true : null,
-        isFornecedor: getValues("optionsFuncoes")?.find(l => l.value === "isFornecedor") ? true : null,
+        isAjudante: getValues("funcao")?.value === "isAjudante" ? true : null,
+        isMotorista: getValues("funcao")?.value === "isMotorista" ? true : null,
+        isOficina: getValues("funcao")?.value === "isOficina" ? true : null,
+        isFornecedor: getValues("funcao")?.value === "isFornecedor" ? true : null,
         pesquisa: getValues("pesquisa") || ""
       }
 
@@ -174,7 +176,7 @@ export default function Pessoa() {
 
   const clearFilters = () => {
     reset({
-      "optionsFuncoes": [],
+      "funcao": null,
       "ativo": null,
       "dataFim": "",
       "dataInicio": "",
@@ -189,7 +191,6 @@ export default function Pessoa() {
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
       getValues("tipoPessoa") ||
-      getValues("optionsFuncoes")?.length > 0 ||
       getValues("idUf") ||
       getValues("idMunicipio") ||
       getValues("idBairro") ||
@@ -222,10 +223,11 @@ export default function Pessoa() {
         <div className="flex-1">
           <Filters grid={FiltersGrid.sm1_md1_lg1}>
             <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+            <FiltroAbas options={optionsFuncoes} control={control} name='funcao' />
           </Filters>
         </div>
 
-        <div className="flex items-end h-fit">
+        <div className="flex items-start pt-[22px] h-full">
           <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <SheetTrigger asChild>
               <Button
@@ -255,9 +257,6 @@ export default function Pessoa() {
               <ModalFormBody>
                 <div className="space-y-4">
                   <SelectTipoPessoa control={control} />
-                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-                    <SelectFuncao control={control} />
-                  </div>
                   <SelectUf control={control} />
                   <SelectMunicipio control={control} />
                   <SelectBairro control={control} />
