@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -16,15 +15,33 @@ import { toast } from 'react-toastify';
 import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getPerfilAcessoList } from '@/services/perfilAcesso';
 import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import { ImageSrc } from '@/ui/components/ImageSrc';
 import ModalSenha from './ModalSenha';
-import type { optionType } from '@/services/constants';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import SelectPerfilAcesso from '@/ui/selects/PerfilAcessoSelect';
+
+const schema = z.object({
+  pesquisa: z.string().optional(),
+  idPerfilAcesso: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+})
 
 export default function Usuario({ config }: any) {
+
+  const { getValues, watch, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+      idPerfilAcesso: null,
+    }
+  });
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,55 +55,30 @@ export default function Usuario({ config }: any) {
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-  const [perfilAcesso, setPerfilAcesso] = useState<optionType>();
-
-  const initialPostListagem: postListagemUsuarioType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    idPerfilAcesso: null
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
 
   useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (pesquisa.length > 0 || filtersOn) changeListFilters();
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [perfilAcesso]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      idPerfilAcesso: perfilAcesso && perfilAcesso.value ? perfilAcesso.value : null
-    });
-  }
-
-  useEffect(() => {
-    updateList();
-    getPerfis();
+      debounceUpdate();
   }, []);
 
-  const getPerfis = async (pesquisa?: string) => {
-    const data = await getPerfilAcessoList(pesquisa);
-    return [...data];
-  }
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+    });
 
-  const updateList = async () => {
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getUsuarios(postListagem);
+      const filtros: postListagemUsuarioType = {
+        pageSize: pageSize,
+        currentPage: paginaAtual,
+        pesquisa: getValues("pesquisa") || "",
+        idPerfilAcesso: getValues("idPerfilAcesso")?.value || null
+      }
+      const data = await getUsuarios(filtros);
       setUsuarios(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -101,10 +93,6 @@ export default function Usuario({ config }: any) {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -132,7 +120,7 @@ export default function Usuario({ config }: any) {
       const response = await deleteUsuario(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (usuarios.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (usuarios.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -148,16 +136,8 @@ export default function Usuario({ config }: any) {
       <PageTitle title="Usuário" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-        <AsyncReactSelect
-          name="perfil"
-          title="Perfil de Acesso"
-          options={[]}
-          asyncFunction={getPerfis}
-          value={perfilAcesso}
-          setValue={setPerfilAcesso}
-          isClearable
-        />
+        <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+        <SelectPerfilAcesso control={control} />
       </Filters>
 
       {(usuarios.length > 0) && (
@@ -245,7 +225,7 @@ export default function Usuario({ config }: any) {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="user-cog" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

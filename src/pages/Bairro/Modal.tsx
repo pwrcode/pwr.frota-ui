@@ -7,20 +7,20 @@ import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 import { addBairro, getBairroPorId, updateBairro, type dadosAddEdicaoBairroType } from '@/services/bairro';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { getMunicipioPorId } from '@/services/municipio';
 import type { optionType } from '@/services/constants';
-import { useEndereco } from '@/hooks/useEndereco';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
     selecionarBairro?: (bairro: optionType) => void,
     idMunicipio?: number,
 }
@@ -30,23 +30,23 @@ const schema = z.object({
     idUf: z.object({
         label: z.string().optional(),
         value: z.number().optional()
-    }),
+    }).nullable(),
     idMunicipio: z.object({
         label: z.string().optional(),
         value: z.number().optional()
-    }, { message: "Selecione o munícipio" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
+    }, { message: "Selecione o munícipio" }).nullable().transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList, selecionarBairro, idMunicipio }: modalPropsType) {
     const formFunctions = useForm({
-        resolver: zodResolver(schema)
+        resolver: zodResolver(schema),
+        defaultValues: {
+            descricao: "",
+            idUf: null,
+            idMunicipio: null
+        }
     });
     const { register, handleSubmit, reset, setValue, control, setFocus, formState: { errors } } = formFunctions;
-
-    const {
-        getUfs, getMunicipios,
-        ufs, municipios
-    } = useEndereco(formFunctions);
 
     const [loading, setLoading] = useState(false);
 
@@ -54,9 +54,16 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
         const process = toast.loading("Buscando item...");
         try {
             const item = await getBairroPorId(Number(id));
-            setValue("descricao", item.descricao);
-            if (item.idUf) setValue("idUf", { value: item.idUf, label: item.siglaUf });
-            if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
+            reset({
+                descricao: item.descricao,
+                idUf: {
+                    value: item.idUf,
+                    label: item.siglaUf
+                }
+            }, { keepDefaultValues: true })
+            setTimeout(() => {
+                if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
+            }, 250);
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -65,20 +72,22 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
     }
 
     useEffect(() => {
-        getUfs();
-    }, [])
-
-    useEffect(() => {
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
-        if (idMunicipio) {
+        else if (idMunicipio) {
             const setMunicipio = async () => {
                 const mun = await getMunicipioPorId(idMunicipio);
                 reset({
                     "idUf": { value: mun.idUf, label: mun.descricaoUf + ` (${mun.siglaUf})` },
                     "idMunicipio": { value: mun.id, label: mun.descricao }
-                });
+                }, { keepDefaultValues: true });
+                setTimeout(() => {
+                    setValue("idMunicipio", {
+                        value: mun.id,
+                        label: mun.descricao
+                    })
+                }, 250);
             }
             setMunicipio();
         }
@@ -114,7 +123,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
                 if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: id });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
@@ -135,8 +144,8 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
-                        <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                        <SelectUf control={control} />
+                        <SelectMunicipio control={control} />
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
                     </ModalFormBody>
 

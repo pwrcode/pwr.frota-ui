@@ -1,43 +1,92 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useMobile } from '@/hooks/useMobile';
-import PageTitle from '@/ui/components/PageTitle';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
-import TableLoading from '@/ui/components/tables/TableLoading';
-import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
-import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
-import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
-import TableEmpty from '@/ui/components/tables/TableEmpty';
-import { toast } from 'react-toastify';
-import { errorMsg } from '@/services/api';
-import { TableRodape } from '@/ui/components/tables/TableRodape';
-import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { ativoOptions, type listType, type optionType, tiposPessoa } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
-import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { formatarCpfCnpj } from '@/services/formatacao';
-import { deletePessoa, getPessoas, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
-import { getUfList } from '@/services/uf';
-import { getMunicipioList } from '@/services/municipio';
-import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import { getBairroList } from '@/services/bairro';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
-import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Filter, X } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ToggleFiltros, { coresToggleFiltros } from '@/components/ui/toggle-filtros';
+import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
+import { useMobile } from '@/hooks/useMobile';
+import { errorMsg } from '@/services/api';
+import { optionsFuncoes, todosOption } from '@/services/constants';
+import { type totalizadorType } from '@/services/dashboard';
+import { formatarCpfCnpj } from '@/services/formatacao';
+import { deletePessoa, getPessoas, getPessoaTotalizadores, type pessoaType, type postListagemPessoaType } from '@/services/pessoa';
+import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
+import { Filters, FiltersGrid } from '@/ui/components/Filters';
+import FiltroAbas from '@/ui/components/FiltroAbas';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import ModalFormBody from '@/ui/components/forms/ModalFormBody';
+import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
+import PageTitle from '@/ui/components/PageTitle';
+import { BadgeAtivo } from '@/ui/components/tables/BadgeAtivo';
+import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
+import TableEmpty from '@/ui/components/tables/TableEmpty';
+import TableLoading from '@/ui/components/tables/TableLoading';
+import { TableRodape } from '@/ui/components/tables/TableRodape';
+import { TableTop } from '@/ui/components/tables/TableTop';
+import SelectBairro from '@/ui/selects/BairroSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectStatus from '@/ui/selects/StatusSelect';
+import SelectTipoDataVeiculo from '@/ui/selects/TipoDataVeiculoSelect';
+import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Filter, X, type LucideIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import z from 'zod';
 
-const options = [
-  { value: "isAjudante", label: "Ajudante" },
-  { value: "isMotorista", label: "Motorista" },
-  { value: "isOficina", label: "Oficina" },
-  { value: "isFornecedor", label: "Fornecedor" },
-];
+const schema = z.object({
+  pesquisa: z.string().optional(),
+  tipoPessoa: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idMunicipio: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idBairro: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  funcao: z.object({
+    value: z.string().optional(),
+    label: z.string().optional()
+  }).optional().nullable(),
+  tipoData: z.object({
+    label: z.string().optional(),
+    value: z.string().optional()
+  }).optional().nullable(),
+  dataInicio: z.string().optional(),
+  dataFim: z.string().optional(),
+  ativo: z.object({
+    value: z.boolean().optional(),
+    label: z.string().optional(),
+  }).optional().nullable()
+})
 
 export default function Pessoa() {
+
+  const { getValues, watch, reset, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+      tipoData: null,
+      dataInicio: "",
+      dataFim: "",
+      tipoPessoa: undefined,
+      idUf: undefined,
+      idMunicipio: undefined,
+      idBairro: undefined,
+    }
+  });
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,151 +96,50 @@ export default function Pessoa() {
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-  // const [ufs, setUfs] = useState<listType>([]);
-  const [municipios, setMunicipios] = useState<listType>([]);
-  const [bairros, setBairros] = useState<listType>([]);
+  const [totalizadores, setTotalizadores] = useState<Array<totalizadorType>>([]);
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoPessoa, setTipoPessoa] = useState<optionType | null>();
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
-
-  const [optionsSelected, setOptionsSelected] = useState<listType>([]);
-  const [status, setStatus] = useState<optionType | null>();
-  const [uf, setUf] = useState<optionType | null>();
-  const [municipio, setMunicipio] = useState<optionType | null>();
-  const [bairro, setBairro] = useState<optionType | null>();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
-
-  const initialPostListagem: postListagemPessoaType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    dataInicio: "",
-    dataFim: "",
-    ativo: null,
-    tipoPessoa: null,
-    isAjudante: false,
-    isMotorista: false,
-    isOficina: false,
-    isFornecedor: false,
-    idUf: null,
-    idMunicipio: null,
-    idBairro: null,
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa);
-    // setUfs([...data]);
-    return [...data];
-  }
-
-  useEffect(() => {
-    getMunicipios();
-  }, [uf]);
-
-  useEffect(() => {
-    getBairros();
-  }, [municipio]);
-
-  const getMunicipios = async (pesquisa?: string) => {
-    if (!uf) {
-      setMunicipios([]);
-      setMunicipio(null);
-      return [];
-    };
-    const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
-    setMunicipios([...data]);
-    return [...data];
-  }
-
-  const getBairros = async (pesquisa?: string) => {
-    if (!municipio) {
-      setBairros([]);
-      setBairro(null);
-      return [];
-    };
-    const data = await getBairroList(pesquisa, municipio ? municipio.value : undefined);
-    setBairros([...data]);
-    return [...data];
-  }
-
-  useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (pesquisa.length > 0 || filtersOn) changeListFilters(0);
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [status]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [tipoPessoa]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [uf]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [municipio]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [bairro]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [dataInicio]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [dataFim]);
-
-  useEffect(() => {
-    if ((Array.isArray(optionsSelected) && optionsSelected.length > 0) || filtersOn) {
-      changeListFilters(0, optionsSelected);
-    }
-  }, [optionsSelected]);
-
-  const changeListFilters = (page: number, list?: listType) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
-      dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-      ativo: status ? status.value : null,
-      tipoPessoa: tipoPessoa && tipoPessoa.value ? tipoPessoa.value : null,
-      isAjudante: list?.find(l => l.value === "isAjudante") ? true : null,
-      isMotorista: list?.find(l => l.value === "isMotorista") ? true : null,
-      isOficina: list?.find(l => l.value === "isOficina") ? true : null,
-      isFornecedor: list?.find(l => l.value === "isFornecedor") ? true : null,
-      idUf: uf && uf.value ? uf.value : null,
-      idMunicipio: municipio && municipio.value ? municipio.value : null,
-      idBairro: bairro && bairro.value ? bairro.value : null,
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
-  const updateList = async () => {
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+      checkActiveFilters();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getPessoas(postListagem);
+      carregaTotalizadores();
+      const filtros: postListagemPessoaType = {
+        currentPage: paginaAtual,
+        pageSize: pageSize,
+        ativo: getValues("ativo")?.value === false ? false : getValues("ativo")?.value || null,
+        tipoData: getValues("tipoData")?.value || null,
+        dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
+        dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
+        tipoPessoa: getValues("tipoPessoa")?.value || null,
+        idUf: getValues("idUf")?.value || null,
+        idMunicipio: getValues("idMunicipio")?.value || null,
+        idBairro: getValues("idBairro")?.value || null,
+        isAjudante: getValues("funcao")?.value === "isAjudante" ? true : null,
+        isMotorista: getValues("funcao")?.value === "isMotorista" ? true : null,
+        isOficina: getValues("funcao")?.value === "isOficina" ? true : null,
+        isFornecedor: getValues("funcao")?.value === "isFornecedor" ? true : null,
+        pesquisa: getValues("pesquisa") || ""
+      }
+
+      const data = await getPessoas(filtros);
       setPessoas(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -207,9 +155,18 @@ export default function Pessoa() {
     }
   }
 
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
+  const carregaTotalizadores = async () => {
+    try {
+      const data = await getPessoaTotalizadores();
+      setTotalizadores(data);
+    }
+    catch (error: Error | any) {
+      toast.error(errorMsg(error, null), { type: "error", isLoading: false, autoClose: 2000 });
+    }
+    finally {
+      setLoading(false);
+    }
+  }
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -232,7 +189,7 @@ export default function Pessoa() {
       const response = await deletePessoa(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (pessoas.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (pessoas.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -241,33 +198,33 @@ export default function Pessoa() {
   }
 
   const clearFilters = () => {
-    setTipoPessoa(null);
-    setOptionsSelected([]);
-    setUf(null);
-    setMunicipio(null);
-    setBairro(null);
-    setDataInicio("");
-    setDataFim("");
-    setStatus(null);
+    reset({
+      "tipoData": null,
+      "funcao": null,
+      "ativo": null,
+      "dataFim": "",
+      "dataInicio": "",
+      "idBairro": null,
+      "idMunicipio": null,
+      "idUf": null,
+      "pesquisa": "",
+      "tipoPessoa": null,
+    });
   }
 
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
-      tipoPessoa ||
-      optionsSelected.length > 0 ||
-      uf ||
-      municipio ||
-      bairro ||
-      dataInicio ||
-      dataFim ||
-      status
+      getValues("tipoData") ||
+      getValues("tipoPessoa") ||
+      getValues("idUf") ||
+      getValues("idMunicipio") ||
+      getValues("idBairro") ||
+      getValues("dataInicio") ||
+      getValues("dataFim") ||
+      getValues("ativo")
     );
     setHasActiveFilters(hasFilters);
   }
-
-  useEffect(() => {
-    checkActiveFilters();
-  }, [tipoPessoa, optionsSelected, uf, municipio, bairro, dataInicio, dataFim, status]);
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
@@ -281,7 +238,7 @@ export default function Pessoa() {
 
     return listaFuncoes.join(", ");
   }
-
+  
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
 
@@ -290,11 +247,22 @@ export default function Pessoa() {
       <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
         <div className="flex-1">
           <Filters grid={FiltersGrid.sm1_md1_lg1}>
-            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+            <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+            <ToggleFiltros
+              name='funcao'
+              control={control}
+              options={[todosOption].concat(optionsFuncoes).map((x, index) => ({
+                value: x.value,
+                label: x.label,
+                icon: x.icone as LucideIcon,
+                color: coresToggleFiltros[index % coresToggleFiltros.length],
+                quantidade: totalizadores.find(y => y.descricao == (x.value || "TODOS"))?.valor || 0
+              }))}
+            />
           </Filters>
         </div>
 
-        <div className="flex items-end h-fit">
+        <div className="flex items-start pt-[22px] h-full">
           <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <SheetTrigger asChild>
               <Button
@@ -323,23 +291,24 @@ export default function Pessoa() {
 
               <ModalFormBody>
                 <div className="space-y-4">
-                  <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" options={tiposPessoa} value={tipoPessoa} setValue={setTipoPessoa} isClearable />
-                  <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-                    <AsyncReactSelect name="optionsSelected" title="Função" options={options} value={optionsSelected} setValue={setOptionsSelected} isMulti />
-                  </div>
-                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
-                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
-                  <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-                  <AsyncReactSelect name="ativo" title="Status" options={ativoOptions} value={status} setValue={setStatus} isClearable />
+                  <SelectTipoPessoa control={control} />
+                  <SelectUf control={control} />
+                  <SelectMunicipio control={control} />
+                  <SelectBairro control={control} />
+                  <SelectStatus control={control} />
                 </div>
 
                 <div className="border-t border-border pt-6">
                   <h4 className="text-sm font-medium mb-4 text-muted-foreground">
                     Filtros por Data
                   </h4>
-                  <div className="grid grid-cols-1 gap-4">
-                    <InputDataLabel name="dataInicio" title='Data Início (Validade CNH)' date={dataInicio} setDate={setDataInicio} />
-                    <InputDataLabel name="dataFim" title='Data Fim (Validade CNH)' date={dataFim} setDate={setDataFim} />
+                  <div className="space-y-4">
+                    <SelectTipoDataVeiculo control={control} />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <InputDataControl name="dataInicio" title='Data Início' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
+                      <InputDataControl name="dataFim" title='Data Fim' control={control} isDisabled={!getValues("tipoData") || !getValues("tipoData")?.value} />
+                    </div>
                   </div>
                 </div>
 

@@ -31,7 +31,6 @@ export const postArquivo = async (dados: any) => {
 export const obterArquivoPorId = async (idArquivo: number) => {
   const axiosInstance = await getAxios();
   const response = await axiosInstance.get(`${api}/${idArquivo}`);
-  console.log(response);
   if(response.data.sucesso) return response.data.dados as arquivoType;
   throw new Error("Erro ao baixar arquivo");
 }

@@ -2,7 +2,7 @@ import getAxios from "@/axios/configAxios";
 import { toast } from "react-toastify";
 import { errorMsg } from "./api";
 import { type itemSelectType } from "./constants";
-import type { dadosAddEdicaoPostoCombustivelTanqueType } from "./postoCombustivelTanque";
+import type { dadosAddEdicaoPostoCombustivelTanqueType, dadosHistoricoPostoCombustivelTanqueType } from "./postoCombustivelTanque";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/posto-combustivel";
@@ -132,4 +132,11 @@ export const getPostoCombustivelList = async (
     toast.error(errorMsg(error, null));
     return [];
   }
+}
+
+export const getPostoCombustivelHistorico = async (id: number) => {
+  const axiosInstance = await getAxios();
+  const response = await axiosInstance.get(`${api}/historico/${id}`);
+  if (response.data.sucesso) return response.data.dados as Array<dadosHistoricoPostoCombustivelTanqueType>;
+  throw new Error(response.data.mensagem);
 }

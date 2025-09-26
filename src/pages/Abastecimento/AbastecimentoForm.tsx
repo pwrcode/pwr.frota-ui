@@ -8,19 +8,15 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
-import { getVeiculoList } from '@/services/veiculo';
 import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import { getPostoCombustivelList, getPostoCombustivelPorId } from '@/services/postoCombustivel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
-import { getPessoaList } from '@/services/pessoa';
+import { getPostoCombustivelPorId } from '@/services/postoCombustivel';
 import { addAbastecimento, getAbastecimentoPorId, updateAbastecimento, type dadosAddEdicaoAbastecimentoType } from '@/services/abastecimento';
 import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 import TextareaLabel from '@/ui/components/forms/TextareaLabel';
@@ -28,12 +24,14 @@ import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { Label } from '@/components/ui/label';
 import { currency } from '@/services/currency';
 import { toNumber } from '@/services/utils';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import { getVeiculoTanqueList } from '@/services/veiculoTanque';
-import type { listType, optionType } from '@/services/constants';
-import { PlusButton } from '@/ui/components/buttons/PlusButton';
-import Modal from '../VeiculoTanque/Modal';
-import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
+import SelectPostoCombustivel from '@/ui/selects/PostoCombustivelSelect';
+import SelectPostoCombustivelTanque from '@/ui/selects/PostoCombustivelTanqueSelect';
+import SelectVeiculo from '@/ui/selects/VeiculoSelect';
+import SelectVeiculoTanque from '@/ui/selects/VeiculoTanqueSelect';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import SelectMotorista from '@/ui/selects/MotoristaSelect';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import { formatarDataParaAPI } from '@/services/formatacao';
 
 export const schema = z.object({
   idVeiculo: z.object({
@@ -63,15 +61,16 @@ export const schema = z.object({
   quilometragem: z.string().optional(),
   quantidadeAbastecida: z.string().optional(),
   valorUnitario: z.string().optional(),
+  valorTotal: z.string().optional(),
   observacao: z.string().optional(),
   tanqueCheio: z.boolean().optional(),
   idArquivoFotoPainelAntes: z.number().optional(),
   idArquivoFotoPainelDepois: z.number().optional(),
+  dataAbastecimento: z.string().optional(),
 });
 
 export default function AbastecimentoForm() {
-
-  const { register, handleSubmit, reset, resetField, setValue, watch, control, setFocus, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = useForm({
     resolver: zodResolver(schema)
   });
 
@@ -80,95 +79,11 @@ export default function AbastecimentoForm() {
   const idPosto = searchParams.get("idPosto");
   const idVeiculo = searchParams.get("idVeiculo");
 
-  const veiculo = watch("idVeiculo");
-  const postoCombustivel = watch("idPostoCombustivel");
-  const postoCombustivelTanque = watch("idPostoCombustivelTanque");
-  const [postoInterno, setPostoInterno] = useState(false);
-
-  const [tanques, setTanques] = useState<listType>([]);
-  const [tanquesPosto, setTanquesPosto] = useState<listType>([]);
-  const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
-
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [cadInfo, setCadInfo] = useState<string>("");
   const [edicaoInfo, setEdicaoInfo] = useState<string>("");
-  const [dataAbastecimento, setDataAbastecimento] = useState("");
-
-  const [idArquivoFotoPainelAntes, setIdArquivoFotoPainelAntes] = useState<number>(0);
-  const [idArquivoFotoPainelDepois, setIdArquivoFotoPainelDepois] = useState<number>(0);
-
-
-  useEffect(() => {
-    if (id) return
-  }, []);
-
-  const getVeiculos = async (pesquisa?: string) => {
-    const data = await getVeiculoList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined);
-    return data;
-  }
-
-  const getPostosCombustivel = async (pesquisa?: string) => {
-    const data = await getPostoCombustivelList(pesquisa, undefined, undefined, undefined, undefined);
-    return data;
-  }
-
-  const getProdutosAbastecimento = async (pesquisa?: string) => {
-    if (!postoCombustivelTanque && !veiculo) {
-      setProdutosAbastecimento([]);
-      return [];
-    }
-    const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value, veiculo?.value);
-    setProdutosAbastecimento([...data]);
-    return data;
-  }
-
-  const getPessoas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, true, undefined, undefined, undefined, undefined, undefined);
-    return data;
-  }
-
-  useEffect(() => {
-    resetField("idVeiculoTanque")
-    getTanques();
-  }, [veiculo])
-
-  useEffect(() => {
-    resetField("idPostoCombustivelTanque")
-    getTanquesPosto();
-    verificaPostoInterno();
-  }, [postoCombustivel])
-
-  useEffect(() => {
-    resetField("idProdutoAbastecimento")
-    getProdutosAbastecimento();
-  }, [postoCombustivelTanque, veiculo])
-
-  const getTanques = async (pesquisa?: string) => {
-    if (!veiculo) {
-      setTanques([]);
-      return [];
-    }
-    const data = await getVeiculoTanqueList(pesquisa, veiculo && veiculo.value ? veiculo.value : undefined, undefined);
-    setTanques([...data]);
-    return data;
-  }
-
-  const getTanquesPosto = async (pesquisa?: string) => {
-    if (!postoCombustivel) {
-      setTanquesPosto([]);
-      return [];
-    }
-    const data = await getPostoCombustivelTanqueList(pesquisa, postoCombustivel && postoCombustivel.value ? postoCombustivel.value : undefined, undefined);
-    setTanquesPosto([...data]);
-    return data;
-  }
-
-  const verificaPostoInterno = async () => {
-    if (!postoCombustivel) return;
-    const data = await getPostoCombustivelPorId(postoCombustivel.value || 0);
-    setPostoInterno(data.isInterno || false);
-  }
+  const [postoInterno, setPostoInterno] = useState(false);
 
   useEffect(() => {
     Object.entries(errors).forEach(([key, error]) => {
@@ -185,29 +100,55 @@ export default function AbastecimentoForm() {
     if (id) setValuesPorId();
   }, [id]);
 
+  useEffect(() => {
+    const subscription = watch((values, field) => {
+      if (field.name == "idPostoCombustivel")
+        verificaPostoInterno(values.idPostoCombustivel?.value)
+
+      if (field.name == "quantidadeAbastecida" || field.name == "valorUnitario") {
+        setValue("valorTotal", currency(+(values.quantidadeAbastecida || 0) * +(toNumber(values.valorUnitario) || 0)))
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch])
+
+  const verificaPostoInterno = async (idPostoCombustivel?: number) => {
+    if (!idPostoCombustivel) {
+      setPostoInterno(false);
+      return;
+    }
+    const data = await getPostoCombustivelPorId(idPostoCombustivel || 0);
+    setPostoInterno(data.isInterno || false);
+  }
+
   const setValuesPorId = async () => {
     const process = toast.loading("Buscando item...");
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getAbastecimentoPorId(Number(id));
-      setDataAbastecimento(item.dataAbastecimento ?? "");
-      setIdArquivoFotoPainelAntes(item.idArquivoFotoPainelAntes ?? 0);
-      setIdArquivoFotoPainelDepois(item.idArquivoFotoPainelDepois ?? 0);
-      setValue("idVeiculo", { value: item.idVeiculo, label: item.descricaoVeiculo });
-      setValue("idPessoa", { value: item.idPessoa, label: item.razaoSocialPessoa });
-      setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento });
-      setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
-      setValue("quilometragem", item.quilometragem.toString())
-      setValue("quantidadeAbastecida", item.quantidadeAbastecida.toString())
-      setValue("valorUnitario", String(currency(item.valorUnitario)))
-      setValue("observacao", item.observacao ?? "")
-      setValue("tanqueCheio", item.tanqueCheio ? true : false)
-      setTimeout(() => {
-        setValue("idVeiculoTanque", { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque })
-      }, 500);
+      verificaPostoInterno(item.idPostoCombustivel)
+      reset({
+        idVeiculo: { value: item.idVeiculo, label: item.descricaoVeiculo },
+        idPessoa: { value: item.idPessoa, label: item.razaoSocialPessoa },
+        idPostoCombustivel: { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel },
+        quilometragem: item.quilometragem.toString(),
+        quantidadeAbastecida: item.quantidadeAbastecida.toString(),
+        valorUnitario: String(currency(item.valorUnitario)),
+        observacao: item.observacao ?? "",
+        tanqueCheio: item.tanqueCheio ? true : false,
+        idVeiculoTanque: { value: item.idVeiculoTanque, label: item.descricaoVeiculoTanque },
+        dataAbastecimento: item.dataAbastecimento ?? "",
+        idArquivoFotoPainelAntes: item.idArquivoFotoPainelAntes ?? 0,
+        idArquivoFotoPainelDepois: item.idArquivoFotoPainelDepois ?? 0,
+        valorTotal: currency(item.quantidadeAbastecida * item.valorUnitario)
+      })
+
       setTimeout(() => {
         setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque })
+        setValue("idProdutoAbastecimento", { value: item.idProdutoAbastecimento, label: item.descricaoProdutoAbastecimento })
       }, 500);
+
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       toast.dismiss(process);
@@ -225,40 +166,40 @@ export default function AbastecimentoForm() {
     try {
       if (!id) {
         const post: dadosAddEdicaoAbastecimentoType = {
-          dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
-          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
+          idPostoCombustivelTanque: (data.idPostoCombustivelTanque as any)?.value ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
           quantidadeAbastecida: +data.quantidadeAbastecida,
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
-          idArquivoFotoPainelAntes: idArquivoFotoPainelAntes !== 0 ? idArquivoFotoPainelAntes : null,
-          idArquivoFotoPainelDepois: idArquivoFotoPainelDepois !== 0 ? idArquivoFotoPainelDepois : null,
+          dataAbastecimento: formatarDataParaAPI(data.dataAbastecimento),
+          idArquivoFotoPainelAntes: data.idArquivoFotoPainelAntes !== 0 ? data.idArquivoFotoPainelAntes : null,
+          idArquivoFotoPainelDepois: data.idArquivoFotoPainelDepois !== 0 ? data.idArquivoFotoPainelDepois : null,
         }
         const res = await addAbastecimento(post);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
       }
       else {
         const put: dadosAddEdicaoAbastecimentoType = {
-          dataAbastecimento: dataAbastecimento ? dataAbastecimento.slice(0, 11).concat("00:00:00") : "",
           idVeiculo: Number(idVeiculo) !== 0 ? Number(idVeiculo) : data.idVeiculo ?? null,
           idPessoa: data.idPessoa ?? null,
           idVeiculoTanque: data.idVeiculoTanque ?? null,
-          idPostoCombustivelTanque: data.idPostoCombustivelTanque ?? null,
           idPostoCombustivel: Number(idPosto) !== 0 ? Number(idPosto) : data.idPostoCombustivel ?? null,
+          idPostoCombustivelTanque: (data.idPostoCombustivelTanque as any)?.value ?? null,
           idProdutoAbastecimento: data.idProdutoAbastecimento ?? null,
           quilometragem: +data.quilometragem,
           quantidadeAbastecida: +data.quantidadeAbastecida,
           valorUnitario: toNumber(data.valorUnitario) ?? 0,
           observacao: data.observacao,
           tanqueCheio: data.tanqueCheio ?? false,
-          idArquivoFotoPainelAntes: idArquivoFotoPainelAntes !== 0 ? idArquivoFotoPainelAntes : null,
-          idArquivoFotoPainelDepois: idArquivoFotoPainelDepois !== 0 ? idArquivoFotoPainelDepois : null,
+          dataAbastecimento: formatarDataParaAPI(data.dataAbastecimento),
+          idArquivoFotoPainelAntes: data.idArquivoFotoPainelAntes !== 0 ? data.idArquivoFotoPainelAntes : null,
+          idArquivoFotoPainelDepois: data.idArquivoFotoPainelDepois !== 0 ? data.idArquivoFotoPainelDepois : null,
         }
         const res = await updateAbastecimento(Number(id), put);
         toast.update(process, { render: res, type: "success", isLoading: false, autoClose: 2000 });
@@ -286,11 +227,11 @@ export default function AbastecimentoForm() {
           <FormContainerHeader title="Abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
-              {!idPosto ? <AsyncReactSelect style='2xl:col-span-2' name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
-              {postoInterno ? <AsyncReactSelect style='2xl:col-span-2' name="idPostoCombustivelTanque" title="Tanque Posto" control={control} asyncFunction={getTanquesPosto} options={tanquesPosto} filter isClearable size="w-full" isDisabled={!postoInterno} /> : <></>}
-              {!idVeiculo ? <AsyncReactSelect name="idVeiculo" title="Veículo" control={control} asyncFunction={getVeiculos} options={[]} isClearable /> : <></>}
-              <AsyncReactSelect name="idVeiculoTanque" title="Tanque Veiculo" control={control} asyncFunction={getTanques} options={tanques} filter isClearable size="w-full" />
-              <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
+              {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
+              {postoInterno ? <SelectPostoCombustivelTanque control={control} /> : <></>}
+              {!idVeiculo ? <SelectVeiculo control={control} /> : <></>}
+              <SelectVeiculoTanque control={control} />
+              <SelectProdutoAbastecimento control={control} />
             </div>
           </FormContainerBody>
         </FormContainer>
@@ -299,11 +240,12 @@ export default function AbastecimentoForm() {
           <FormContainerHeader title="Informações abastecimento" />
           <FormContainerBody>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2'>
-              <AsyncReactSelect name="idPessoa" title="Motorista" control={control} asyncFunction={getPessoas} options={[]} isClearable />
-              <InputDataLabel title="Data Abastecimento" name="dataAbastecimento" date={dataAbastecimento} setDate={setDataAbastecimento} />
+              <SelectMotorista name='idPessoa' control={control} />
+              <InputDataControl title="Data Abastecimento" name="dataAbastecimento" control={control} time />
               <InputLabel name="quilometragem" title="Quilomentragem" register={{ ...register("quilometragem") }} type='number' step='0.01' />
               <InputLabel name="quantidadeAbastecida" title="Quantidade Abastecida" register={{ ...register("quantidadeAbastecida") }} type='number' step='0.01' />
               <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
+              <InputMaskLabel name='valorTotal' title='Valor Total' mask={Masks.dinheiro} disabled setValue={() => { }} value={watch("valorTotal")} />
               <div className='lg:col-span-3'>
                 <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
               </div>
@@ -321,13 +263,37 @@ export default function AbastecimentoForm() {
               <Label className='space-y-2 flex flex-col items-start w-full'>
                 Foto Painel Antes
                 <div className="w-full">
-                  <UploadFoto referenciaTipo="FotoPainelAntes" idArquivo={idArquivoFotoPainelAntes} changeIdArquivo={setIdArquivoFotoPainelAntes} alt="Foto do painel antes" isDisabled={loading} />
+                  <Controller
+                    control={control}
+                    name="idArquivoFotoPainelAntes"
+                    render={({ field: { onChange, value } }) => (
+                      <UploadFoto
+                        referenciaTipo="FotoPainelAntes"
+                        idArquivo={value ?? 0}
+                        changeIdArquivo={onChange}
+                        alt="Foto do painel antes"
+                        isDisabled={loading}
+                      />
+                    )}
+                  />
                 </div>
               </Label>
               <Label className='space-y-2 flex flex-col items-start w-full'>
                 Foto Painel Depois
                 <div className="w-full">
-                  <UploadFoto referenciaTipo="FotoPainelDepois" idArquivo={idArquivoFotoPainelDepois} changeIdArquivo={setIdArquivoFotoPainelDepois} alt="Foto do painel depois" isDisabled={loading} />
+                  <Controller
+                    control={control}
+                    name="idArquivoFotoPainelDepois"
+                    render={({ field: { onChange, value } }) => (
+                      <UploadFoto
+                        referenciaTipo="FotoPainelDepois"
+                        idArquivo={value ?? 0}
+                        changeIdArquivo={onChange}
+                        alt="Foto do painel depois"
+                        isDisabled={loading}
+                      />
+                    )}
+                  />
                 </div>
               </Label>
             </div>

@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,8 +13,23 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { getUfs, type postListagemUfType, type ufType } from '@/services/uf';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+
+const schema = z.object({
+  pesquisa: z.string().optional(),
+})
 
 export default function Uf() {
+
+  const { getValues, watch, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+    }
+  });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [ufs, setUfs] = useState<ufType[]>([]);
@@ -26,42 +40,29 @@ export default function Uf() {
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-
-  const initialPostListagem: postListagemUfType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: ""
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  useEffect(() => {
-    if(currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if(pesquisa.length > 0 || filtersOn) changeListFilters();
-  }, [pesquisa]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
-  const updateList = async () => {
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getUfs(postListagem);
+      const filtros: postListagemUfType = {
+        pageSize: pageSize,
+        currentPage: paginaAtual,
+        pesquisa: getValues("pesquisa") || ""
+      }
+      const data = await getUfs(filtros);
       setUfs(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -76,10 +77,6 @@ export default function Uf() {
       setLoading(false);
     }
   }
-  
-  useEffect(() => {
-    if(postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -87,7 +84,7 @@ export default function Uf() {
     setIdVisualizar(id);
     setModalOpen(true);
   }
-  
+
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   return (
@@ -96,7 +93,7 @@ export default function Uf() {
       <PageTitle title="UF" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
+        <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} size="flex-[5]" />
       </Filters>
 
       {(ufs.length > 0) && (
@@ -156,7 +153,7 @@ export default function Uf() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="map" />
+          <TableEmpty py='py-20' icon="map" />
         )}
       </>}
 

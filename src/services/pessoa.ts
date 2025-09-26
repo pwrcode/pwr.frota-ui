@@ -2,6 +2,7 @@ import getAxios from "@/axios/configAxios";
 import { toast } from "react-toastify";
 import { errorMsg } from "./api";
 import { type itemSelectType } from "./constants";
+import type { totalizadorType } from "./dashboard";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/pessoa";
@@ -14,8 +15,11 @@ export type pessoaType = {
   nomeFantasia: string,
   cep: string,
   idUf: number,
+  descricaoUf: string,
   idMunicipio: number,
+  descricaoMunicipio: string,
   idBairro: number,
+  descricaoBairro: string,
   logradouro: string,
   numero: string,
   complemento: string,
@@ -31,6 +35,9 @@ export type pessoaType = {
   cnhCategoria: string,
   cnhValidade: string,
   ativo: boolean,
+  dataNascimentoFundacao: string,
+  idArquivoFoto: number,
+  email: string,
   dataCadastro: string,
   usuarioCadastro: string,
   dataEdicao: string | null,
@@ -41,6 +48,7 @@ export type postListagemPessoaType = {
   pageSize: number,
   currentPage: number,
   pesquisa: string,
+  tipoData: string | null,
   dataInicio: string,
   dataFim: string,
   tipoPessoa: number | null,
@@ -78,6 +86,9 @@ export type dadosAddEdicaoPessoaType = {
   cnhCategoria: string,
   cnhValidade: string | null | undefined,
   ativo: boolean,
+  dataNascimentoFundacao: string | null | undefined,
+  idArquivoFoto: number | null,
+  email: string,
 }
 
 export const getPessoas = async (dados: postListagemPessoaType) => {
@@ -161,4 +172,11 @@ export const getPessoaList = async (
     toast.error(errorMsg(error, null));
     return [];
   }
+}
+
+export const getPessoaTotalizadores = async () => {
+  const axiosInstance = await getAxios();
+  const response = await axiosInstance.get(`${api}/totalizadores`);
+  if (response.data.sucesso) return response.data.dados as Array<totalizadorType>;
+  throw new Error(response.data.mensagem);
 }

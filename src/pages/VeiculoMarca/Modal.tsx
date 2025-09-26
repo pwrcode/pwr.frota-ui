@@ -17,7 +17,7 @@ type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
     selecionarMarca?: (marca: optionType) => void,
 }
 
@@ -79,7 +79,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarMarca }
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
                 if (selecionarMarca) selecionarMarca({ label: dados.descricao.toUpperCase(), value: id });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }

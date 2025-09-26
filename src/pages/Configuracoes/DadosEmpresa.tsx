@@ -1,34 +1,34 @@
-import { tiposPessoa, type listType, type optionType } from '@/services/constants';
-import { formatarCelular, formatarCep, formatarCpfCnpj } from '@/services/formatacao';
-import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
-import { useEffect, useState } from 'react';
-import { useForm, type Control, type FieldValues } from 'react-hook-form';
-import Modal from '../Bairro/Modal';
-import { zodResolver } from '@hookform/resolvers/zod';
-import z from 'zod';
-import FormContainer from '@/ui/components/forms/FormContainer';
-import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
-import FormContainerBody from '@/ui/components/forms/FormContainerBody';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import { Button } from '@/components/ui/button';
 import { useEndereco } from '@/hooks/useEndereco';
+import { errorMsg } from '@/services/api';
+import { tiposPessoa, type optionType } from '@/services/constants';
+import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { getEmpresa, updateEmpresa, type dadosAddEdicaoEmpresaType } from '@/services/empresa';
+import { formatarCelular, formatarCep, formatarCpfCnpj } from '@/services/formatacao';
 import { removeNonDigit } from '@/services/utils';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import InputLabel from '@/ui/components/forms/InputLabel';
-import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
-import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
-import { FormGrid, FormGridPair } from '@/ui/components/forms/FormGrid';
 import { ButtonSubmit, SearchButton } from '@/ui/components/buttons/FormButtons';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
-import FormLine from '@/ui/components/forms/FormLine';
 import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
-import { Button } from '@/components/ui/button';
-import { errorMsg } from '@/services/api';
-import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import FormContainer from '@/ui/components/forms/FormContainer';
+import FormContainerBody from '@/ui/components/forms/FormContainerBody';
+import FormContainerHeader from '@/ui/components/forms/FormContainerHeader';
+import { FormGridPair } from '@/ui/components/forms/FormGrid';
+import FormLine from '@/ui/components/forms/FormLine';
+import InputLabel from '@/ui/components/forms/InputLabel';
+import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import TextareaLabel from '@/ui/components/forms/TextareaLabel';
-import { ca } from 'date-fns/locale';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
+import SelectBairro from '@/ui/selects/BairroSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import z from 'zod';
+import Modal from '../Bairro/Modal';
 
 const schema = z.object({
     tipoPessoa: z.object({
@@ -67,23 +67,16 @@ export default function DadosEmpresa() {
         resolver: zodResolver(schema)
     });
 
-    const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
+    const { register, handleSubmit, reset, setValue, watch, control } = formFunctions;
 
     const {
         cep,
-        getUfs, getMunicipios, getBairros, buscarCep, loadingCep,
-        ufs, municipios, bairros,
+        buscarCep, loadingCep,
     } = useEndereco(formFunctions);
 
     const [loading, setLoading] = useState(false);
     const [cadInfo, setCadInfo] = useState<string>("");
     const [edicaoInfo, setEdicaoInfo] = useState<string>("");
-
-    const idBairro = watch("idBairro.value");
-    const idMunicipio = watch("idMunicipio.value");
-
-    const tipoPessoa = watch("tipoPessoa");
-    const documento = watch("documento");
 
     const [idArquivoFotoEmpresa, setIdArquivoFotoEmpresa] = useState<number>(0);
 
@@ -92,6 +85,25 @@ export default function DadosEmpresa() {
     useEffect(() => {
         carregaDadosEmpresa();
     }, []);
+
+    useEffect(() => {
+        const subscription = watch((values, field) => {
+            if (field.name == "tipoPessoa") {
+                var newDocumento = values.documento;
+
+                if(values.tipoPessoa?.value === 1)
+                    newDocumento = formatarCpfCnpj(removeNonDigit(values.documento || "").slice(0, 11));
+                
+                reset({
+                    ...values,
+                    documento: newDocumento
+                })
+
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
 
     const carregaDadosEmpresa = async () => {
         try {
@@ -128,6 +140,9 @@ export default function DadosEmpresa() {
 
             if (data.idArquivoFoto)
                 setIdArquivoFotoEmpresa(data.idArquivoFoto);
+
+            setCadInfo(`${data.usuarioCadastro} ${dateDiaMesAno(data.dataCadastro)} ${dateHoraMin(data.dataCadastro)}`);
+            setEdicaoInfo(`${data.usuarioEdicao} ${dateDiaMesAno(data.dataEdicao)} ${dateHoraMin(data.dataEdicao)}`);
         } catch (ex) { }
     }
 
@@ -172,12 +187,11 @@ export default function DadosEmpresa() {
 
     const selecionarBairro = (bairro: optionType) => {
         setValue("idBairro", bairro);
-        getBairros();
     }
 
     return (
         <>
-            <Modal open={bairroModalOpen} setOpen={setBairroModalOpen} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
+            <Modal open={bairroModalOpen} setOpen={setBairroModalOpen} id={watch("idBairro")?.value ?? 0} selecionarBairro={selecionarBairro} idMunicipio={watch("idMunicipio")?.value} />
 
             <div className="w-full mt-16">
                 <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoEmpresaType))}>
@@ -189,11 +203,11 @@ export default function DadosEmpresa() {
                         <FormContainerHeader title="Pessoa" />
                         <FormContainerBody>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
-                                <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" control={control} options={tiposPessoa} />
+                                <SelectTipoPessoa control={control} />
                                 <InputMaskLabel
-                                    name="documento" title={tipoPessoa && tipoPessoa.value === 1 ? "CPF" : "CNPJ"}
-                                    mask={tipoPessoa && tipoPessoa.value == 1 ? Masks.cpf : Masks.cnpj}
-                                    register={{ ...register("documento") }} value={documento} setValue={setValue}
+                                    name="documento" title={watch("tipoPessoa")?.value === 1 ? "CPF" : "CNPJ"}
+                                    mask={watch("tipoPessoa")?.value == 1 ? Masks.cpf : Masks.cnpj}
+                                    register={{ ...register("documento") }} value={watch("documento")} setValue={setValue}
                                 />
                                 <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
@@ -236,11 +250,11 @@ export default function DadosEmpresa() {
                                     <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
                                     <SearchButton func={buscarCep} disabled={loadingCep} />
                                 </div>
-                                <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                <SelectUf control={control} size="col-span-1 xl:col-span-2" />
                                 <span className='col-span-1 hidden lg:invisible'></span>
-                                <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                <SelectMunicipio control={control} size="col-span-1 xl:col-span-4" />
                                 <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                                    <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                    <SelectBairro control={control} />
                                     <PlusButton loading={loading} func={handleClickAdicionarBairro} />
                                 </div>
                                 {/* Bairro e Add */}

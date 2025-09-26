@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,10 +13,29 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { getTipoVeiculos, type postListagemTipoVeiculoType, type tipoVeiculoType } from '@/services/tipoVeiculo';
-import { categoriasVeiculos, type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import SelectCategoriaVeiculo from '@/ui/selects/CategoriaVeiculosSelect';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  pesquisa: z.string().optional(),
+  categoriaHabilitacao: z.object({
+    label: z.string().optional(),
+    value: z.string().optional()
+  }).optional().nullable(),
+})
 
 export default function TipoVeiculo() {
+
+  const { getValues, watch, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+      categoriaHabilitacao: null,
+    }
+  });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [tipoVeiculos, setTipoVeiculos] = useState<tipoVeiculoType[]>([]);
@@ -28,49 +46,30 @@ export default function TipoVeiculo() {
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-  const [categoria, setCategoria] = useState<optionType>();
-
-  const initialPostListagem: postListagemTipoVeiculoType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    categoria: "",
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (pesquisa.length > 0 || filtersOn) changeListFilters();
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [categoria]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      categoria: categoria && categoria.value ? categoria.value : "",
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
-  const updateList = async () => {
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getTipoVeiculos(postListagem);
+      const filtros: postListagemTipoVeiculoType = {
+        categoriaHabilitacao: getValues("categoriaHabilitacao")?.value || "",
+        pesquisa: getValues("pesquisa") || "",
+        currentPage: paginaAtual,
+        pageSize: pageSize,
+      }
+      const data = await getTipoVeiculos(filtros);
       setTipoVeiculos(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -85,10 +84,6 @@ export default function TipoVeiculo() {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -105,8 +100,8 @@ export default function TipoVeiculo() {
       <PageTitle title="Tipos Veículo" />
 
       <Filters grid={FiltersGrid.sm2_md3_lg4}>
-        <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} size="flex-[5]" />
-        <AsyncReactSelect name="categoria" title='Categoria' options={categoriasVeiculos} value={categoria} setValue={setCategoria} isClearable />
+        <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+        <SelectCategoriaVeiculo control={control} />
       </Filters>
 
       {(tipoVeiculos.length > 0) && (
@@ -166,7 +161,7 @@ export default function TipoVeiculo() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="truck" />
+          <TableEmpty py='py-20' icon="truck" />
         )}
       </>}
 

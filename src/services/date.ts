@@ -2,6 +2,10 @@ import { formatISO } from 'date-fns';
 
 export const formatarData = (isoDate: string, format = 'dd/mm/yyyy') => {
   if (!isoDate || isoDate === "") return "";
+
+  if (!isoDate.includes("T"))
+    isoDate += "T00:00:00";
+  
   const d = new Date(isoDate);
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -33,7 +37,7 @@ export const dateCurrent = () => {
 }
 
 export const dateDiaMesAno = (data: string | number | null) => {
-  if(!data) return "";
+  if (!data) return "";
   const formatter = new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -44,7 +48,7 @@ export const dateDiaMesAno = (data: string | number | null) => {
 }
 
 export const dateHoraMinSec = (data: string | number | null) => {
-  if(!data) return "";
+  if (!data) return "";
   const formatter = new Intl.DateTimeFormat('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -55,7 +59,7 @@ export const dateHoraMinSec = (data: string | number | null) => {
 }
 
 export const dateHoraMin = (data: string | number | null) => {
-  if(!data) return "";
+  if (!data) return "";
   const formatter = new Intl.DateTimeFormat('pt-BR', {
     hour: '2-digit',
     minute: '2-digit'

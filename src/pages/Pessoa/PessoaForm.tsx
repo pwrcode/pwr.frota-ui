@@ -9,24 +9,29 @@ import { CadAlterInfo } from '@/ui/components/forms/CadAlterInfo';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { categoriasCnh, tiposPessoa, type optionType } from '@/services/constants';
+import { tiposPessoa, type optionType } from '@/services/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { removeNonDigit } from '@/services/utils';
-import { formatarCelular, formatarCep, formatarCpfCnpj } from '@/services/formatacao';
+import { formatarCelular, formatarCep, formatarCpfCnpj, formatarDataParaAPI } from '@/services/formatacao';
 import { addPessoa, type dadosAddEdicaoPessoaType, getPessoaPorId, updatePessoa } from '@/services/pessoa';
 import { FormGrid, FormGridPair } from '@/ui/components/forms/FormGrid';
 import { useEndereco } from '@/hooks/useEndereco';
 import z from 'zod';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
 import Modal from '../Bairro/Modal';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
+import SelectTipoPessoa from '@/ui/selects/TipoPessoaSelect';
+import SelectCategoriaCnh from '@/ui/selects/CategoriaCnhSelect';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectBairro from '@/ui/selects/BairroSelect';
+import { UploadFoto } from '@/ui/components/forms/UploadFoto';
 
 const schema = z.object({
     tipoPessoa: z.object({
@@ -67,6 +72,8 @@ const schema = z.object({
     }).optional().transform(t => t && t.value ? t.value : undefined),
     cnhValidade: z.string().optional(),
     ativo: z.boolean().optional(),
+    dataNascimentoFundacao: z.string().optional(),
+    email: z.string().optional(),
 })
 
 export default function PessoaForm() {
@@ -86,14 +93,10 @@ export default function PessoaForm() {
     const [edicaoInfo, setEdicaoInfo] = useState<string>("");
     const [openModalFormBairro, setOpenModalFormBairro] = useState(false);
 
-    const [dataCnhValidade, setDataCnhValidade] = useState("");
+    const [idArquivoFoto, setIdArquivoFoto] = useState<number>(0);
 
     const {
-        cep,
-        getUfs, getMunicipios, getBairros, buscarCep, loadingCep,
-        ufs, municipios, bairros,
-        setIdUf, setIdMunicipio,
-        setValuesUf, setValuesMunicipio, setValuesBairro
+        cep, getBairros, buscarCep, loadingCep, setValuesMunicipio, setValuesBairro,
     } = useEndereco(formFunctions);
 
     const tipoPessoa = watch("tipoPessoa");
@@ -108,13 +111,7 @@ export default function PessoaForm() {
                 return
             }
         });
-        console.log(errors)
     }, [errors]);
-
-    useEffect(() => {
-        getUfs();
-    }, [])
-
 
     useEffect(() => {
         if (id) setValuesPorId();
@@ -129,35 +126,55 @@ export default function PessoaForm() {
         try {
             if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
             const item = await getPessoaPorId(Number(id));
-            if (item.idUf) setIdUf(item.idUf);
-            if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
-            setValue("tipoPessoa",
-                {
+            reset({
+                idUf: {
+                    value: item.idUf,
+                    label: item.descricaoUf
+                },
+                idMunicipio: {
+                    value: item.idMunicipio,
+                    label: item.descricaoMunicipio
+                },
+                idBairro: {
+                    value: item.idBairro,
+                    label: item.descricaoBairro
+                },
+                tipoPessoa: {
                     value: tiposPessoa.find(t => t.valueString == item.tipoPessoa.toString())?.value,
                     label: tiposPessoa.find(t => t.valueString === item.tipoPessoa.toString())?.label
-                }); // atencao
-            setValue("documento", formatarCpfCnpj(removeNonDigit(item.documento)));
-            setValue("razaoSocial", item.razaoSocial);
-            setValue("nomeFantasia", item.nomeFantasia);
-            setValue("cep", formatarCep(item.cep));
-            setValue("logradouro", item.logradouro);
-            setValue("numero", item.numero);
-            setValue("complemento", item.complemento);
-            setValue("pontoReferencia", item.pontoReferencia);
-            setValue("telefonePrincipal", formatarCelular(item.telefonePrincipal));
-            setValue("telefoneSecundario", formatarCelular(item.telefoneSecundario));
-            setValue("observacao", item.observacao);
-            setValue("isMotorista", item.isMotorista ? true : false);
-            setValue("isAjudante", item.isAjudante ? true : false);
-            setValue("isOficina", item.isOficina ? true : false);
-            setValue("isFornecedor", item.isFornecedor ? true : false);
-            setValue("cnhNumero", item.cnhNumero ?? "");
-            setValue("cnhCategoria", item.cnhCategoria ? { value: item.cnhCategoria, label: item.cnhCategoria } : undefined);
-            setDataCnhValidade(item.cnhValidade ?? "")
-            setValue("ativo", item.ativo ? true : false);
-            setValuesUf(item.idUf); // useEndereco
-            setValuesMunicipio(item.idMunicipio); // useEndereco
-            setValuesBairro(item.idBairro)
+                },
+                documento: formatarCpfCnpj(removeNonDigit(item.documento)),
+                razaoSocial: item.razaoSocial,
+                nomeFantasia: item.nomeFantasia,
+                cep: formatarCep(removeNonDigit(item.cep)),
+                logradouro: item.logradouro,
+                numero: item.numero,
+                complemento: item.complemento,
+                pontoReferencia: item.pontoReferencia,
+                telefonePrincipal: formatarCelular(removeNonDigit(item.telefonePrincipal)),
+                telefoneSecundario: formatarCelular(removeNonDigit(item.telefoneSecundario)),
+                observacao: item.observacao,
+                isMotorista: item.isMotorista,
+                isAjudante: item.isAjudante,
+                isOficina: item.isOficina,
+                isFornecedor: item.isFornecedor,
+                ativo: item.ativo,
+                cnhNumero: item.cnhNumero || "",
+                cnhValidade: item.cnhValidade,
+                cnhCategoria: {
+                    value: item.cnhCategoria,
+                    label: item.cnhCategoria
+                },
+                dataNascimentoFundacao: item.dataNascimentoFundacao,
+                email: item.email,
+            }, { keepDefaultValues: true })
+            setTimeout(() => {
+                setValuesMunicipio(item.idMunicipio)
+            }, 250);
+            setTimeout(() => {
+                setValuesBairro(item.idBairro)
+            }, 500);
+            setIdArquivoFoto(item.idArquivoFoto ?? 0)
             setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
             setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
             toast.dismiss(process);
@@ -195,8 +212,11 @@ export default function PessoaForm() {
                 isFornecedor: data.isFornecedor ?? false,
                 cnhNumero: data.cnhNumero,
                 cnhCategoria: data.cnhCategoria ?? null,
-                cnhValidade: dataCnhValidade ? dataCnhValidade?.slice(0, 11).concat("00:00:00") : null,
+                cnhValidade: formatarDataParaAPI(data.cnhValidade),
                 ativo: data.ativo ?? false,
+                dataNascimentoFundacao: formatarDataParaAPI(data.dataNascimentoFundacao),
+                idArquivoFoto: idArquivoFoto || null,
+                email: data.email ?? null,
             }
             if (!id) {
                 const res = await addPessoa(postPut);
@@ -225,19 +245,23 @@ export default function PessoaForm() {
         setValue("idBairro", bairro);
         getBairros();
     }
-
+    
     return (
         <>
             <Modal open={openModalFormBairro} setOpen={setOpenModalFormBairro} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
             <div className="w-full mt-16">
+                <div className="flex-1 mb-4">
+                    <UploadFoto referenciaTipo="Veiculo" idArquivo={idArquivoFoto} changeIdArquivo={setIdArquivoFoto} alt="Foto do Veículo" isDisabled={loading} />
+                </div>
+
                 <form autoComplete='off' className="flex-[3] flex flex-col gap-4" onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoPessoaType))}>
 
                     <FormContainer>
                         <FormContainerHeader title="Pessoa" />
                         <FormContainerBody>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
-                                <AsyncReactSelect name="tipoPessoa" title="Tipo Pessoa" control={control} options={tiposPessoa} />
+                                <SelectTipoPessoa control={control} />
                                 <InputMaskLabel
                                     name="documento" title={tipoPessoa && tipoPessoa.value === 1 ? "CPF" : "CNPJ"}
                                     mask={tipoPessoa && tipoPessoa.value == 1 ? Masks.cpf : Masks.cnpj}
@@ -245,6 +269,8 @@ export default function PessoaForm() {
                                 />
                                 <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                 <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
+                                <InputLabel name="email" title="Email" register={{ ...register("email") }} />
+                                <InputDataControl name='dataNascimentoFundacao' title={watch("tipoPessoa")?.value == 1 ? "Data Nascimento" : "Data Fundação"} control={control} />
                             </div>
                             <DivCheckBox style="line">
                                 <CheckBoxLabel name="ativo" title="Ativo" register={{ ...register("ativo") }} />
@@ -256,10 +282,9 @@ export default function PessoaForm() {
                         <FormContainerHeader title="Dados CNH" />
                         <FormContainerBody>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2">
-
                                 <InputMaskLabel name='cnhNumero' title='CNH Número' mask={Masks.numerico} value={watch("cnhNumero")} setValue={setValue} />
-                                <AsyncReactSelect name="cnhCategoria" title="CNH Categoria" control={control} options={categoriasCnh} isClearable />
-                                <InputDataLabel name='cnhValidade' title='CNH Validade' date={dataCnhValidade} setDate={setDataCnhValidade} />
+                                <SelectCategoriaCnh control={control} />
+                                <InputDataControl name='cnhValidade' title='CNH Validade' control={control} />
                             </div>
                         </FormContainerBody>
                     </FormContainer>
@@ -316,11 +341,11 @@ export default function PessoaForm() {
                                     <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
                                     <SearchButton func={buscarCep} disabled={loadingCep} />
                                 </div>
-                                <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                <SelectUf control={control} size='col-span-1 xl:col-span-2' />
                                 <span className='col-span-1 hidden lg:invisible'></span>
-                                <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                <SelectMunicipio control={control} size='col-span-1 xl:col-span-4' />
                                 <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                                    <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                    <SelectBairro control={control} size='w-full' />
                                     <PlusButton loading={loading} func={handleClickAdicionarBairro} />
                                 </div>
                                 {/* Bairro e Add */}

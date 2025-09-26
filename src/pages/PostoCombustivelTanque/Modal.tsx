@@ -10,10 +10,10 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { tiposTanque, type optionType } from '@/services/constants';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import { getPostoCombustivelPorId } from '@/services/postoCombustivel';
 
 type modalPropsType = {
     open: boolean,
@@ -40,7 +40,6 @@ const schema = z.object({
 });
 
 export default function Modal({ open, setOpen, id, updateList, idPostoCombustivel, tanques, setTanques, selecionarTanque }: modalPropsType) {
-
     const { handleSubmit, setValue, reset, setFocus, register, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
@@ -52,6 +51,9 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
             if (tanques) setValue("capacidadeLitros", tanques[id].capacidadeLitros.toString());
             if (tanques) setValue("estoqueMinimoLitros", tanques[id].estoqueMinimoLitros.toString());
             return
+        } else {
+            const posto = await getPostoCombustivelPorId(idPostoCombustivel ?? 0);
+            setValue("idPostoCombustivel", { value: idPostoCombustivel, label: posto.razaoSocial })
         }
         const process = toast.loading("Buscando item...");
         try {
@@ -66,11 +68,6 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
         catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error), type: "error", isLoading: false, autoClose: 5000 });
         }
-    }
-
-    const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined);
-        return data;
     }
 
     useEffect(() => {
@@ -149,7 +146,7 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} asyncFunction={getProdutosAbastecimento} options={[]} isClearable />
+                        <SelectProdutoAbastecimento ignoreFiltros name='idProdutoAbastecimento' control={control} />
                         <InputLabel name='capacidadeLitros' title='Capacidade Litros' register={{ ...register("capacidadeLitros") }} type='number' step='0.01' />
                         <InputLabel name='estoqueMinimoLitros' title='Estoque Mínimo Litros' register={{ ...register("estoqueMinimoLitros") }} type='number' step='0.01' />
                     </ModalFormBody>

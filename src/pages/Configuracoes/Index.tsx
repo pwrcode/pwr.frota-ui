@@ -195,7 +195,7 @@ export default function Configuracoes() {
     <div className="w-full space-y-6">
       <PageTitle title="Configurações do Sistema" />
 
-      <Tabs defaultValue="veiculoMarca" className="flex flex-col xl:flex-row xl:gap-6">
+      <Tabs defaultValue="empresa" className="flex flex-col xl:flex-row xl:gap-6">
         <div className="xl:w-72 mb-6 xl:mb-0">
           <TabsList className="flex flex-col w-full h-fit bg-card shadow-sm border border-border">
             <div className="w-full p-4 border-b border-border">

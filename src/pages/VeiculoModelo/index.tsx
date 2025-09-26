@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -13,15 +12,33 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
-import { deleteVeiculoModelo, getVeiculoModelos, type veiculoModeloType, type postListagemVeiculoModeloType } from '@/services/veiculoModelo';
+import { deleteVeiculoModelo, getVeiculoModelos, type postListagemVeiculoModeloType, type veiculoModeloType } from '@/services/veiculoModelo';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getVeiculoMarcaList } from '@/services/veiculoMarca';
+import SelectVeiculoMarca from '@/ui/selects/VeiculoMarcaSelect';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
+
+const schema = z.object({
+    pesquisa: z.string().optional(),
+    idVeiculoMarca: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional().nullable(),
+})
 
 export default function VeiculoModelo() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: "",
+            idVeiculoMarca: null,
+        }
+    });
 
     const [loading, setLoading] = useState<boolean>(false);
     const [veiculoModelos, setVeiculoModelos] = useState<veiculoModeloType[]>([]);
@@ -34,54 +51,30 @@ export default function VeiculoModelo() {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-    const [veiculoMarca, setVeiculoMarca] = useState<optionType>();
-
-    const initialPostListagem: postListagemVeiculoModeloType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-        idVeiculoMarca: null,
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [veiculoMarca]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-            idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const getVeiculoMarcas = async (pesquisa?: string) => {
-        const data = await getVeiculoMarcaList(pesquisa);
-        return [...data];
-    }
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate();
+        });
 
-    const updateList = async () => {
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getVeiculoModelos(postListagem);
+            const filtros: postListagemVeiculoModeloType = {
+                pageSize: pageSize,
+                currentPage: paginaAtual,
+                pesquisa: getValues("pesquisa") || "",
+                idVeiculoMarca: getValues("idVeiculoMarca")?.value || null
+            }
+            const data = await getVeiculoModelos(filtros);
             setVeiculoModelos(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -96,10 +89,6 @@ export default function VeiculoModelo() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -127,7 +116,7 @@ export default function VeiculoModelo() {
             const response = await deleteVeiculoModelo(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (veiculoModelos.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (veiculoModelos.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -142,9 +131,8 @@ export default function VeiculoModelo() {
             <PageTitle title="Veículo Modelo" />
 
             <Filters grid={FiltersGrid.sm2}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
-                <AsyncReactSelect name="idVeiculoMarca" title="Veiculo Marca" options={[]} asyncFunction={getVeiculoMarcas} value={veiculoMarca} setValue={setVeiculoMarca} isClearable
-                />
+                <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
+                <SelectVeiculoMarca control={control} />
             </Filters>
 
             {(veiculoModelos.length > 0) && (

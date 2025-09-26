@@ -11,22 +11,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { currency } from '@/services/currency';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getPostoCombustivelList } from '@/services/postoCombustivel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
 import { toNumber } from '@/services/utils';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { getPessoaList } from '@/services/pessoa';
-import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
-import type { listType } from '@/services/constants';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import { formatarDataParaAPI } from '@/services/formatacao';
+import SelectPostoCombustivel from '@/ui/selects/PostoCombustivelSelect';
+import SelectPostoCombustivelTanque from '@/ui/selects/PostoCombustivelTanqueSelect';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import SelectFornecedor from '@/ui/selects/FornecedorSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList: (filter: boolean) => void,
+    updateList: (paginaAtual?: number) => Promise<void>,
     idPosto?: number,
 }
 
@@ -47,33 +46,37 @@ const schema = z.object({
         label: z.string().optional(),
         value: z.number().optional()
     }, { message: "Selecione um Tanque" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione um Tanque" }),
+    dataRecebimento: z.string().optional(),
     quantidade: z.string().optional(),
     valorUnitario: z.string().optional(),
+    valorTotal: z.string().optional(),
 });
 
 export default function Modal({ open, setOpen, id, updateList, idPosto }: modalPropsType) {
 
-    const { register, handleSubmit, setValue, reset, resetField, setFocus, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, setFocus, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema)
     });
     const [loading, setLoading] = useState(false);
-    const [dataRecebimento, setDataRecebimento] = useState("");
-
-    const idPostoCombustivel = watch("idPostoCombustivel");
-    const idPostoCombustivelTanque = watch("idPostoCombustivelTanque");
-
-    const [postoCombustivelTanques, setPostoCombustivelTanques] = useState<listType>([])
-    const [produtosAbastecimento, setProdutosAbastecimento] = useState<listType>([])
 
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
             const item = await getEntradaCombustivelPorId(Number(id));
-            setDataRecebimento(item.dataRecebimento);
-            setValue("idPostoCombustivel", { value: item.idPostoCombustivel, label: item.razaoSocialPostoCombustivel });
-            setValue("idPessoaFornecedor", { value: item.idPessoaFornecedor, label: item.razaoSocialPessoaFornecedor });
-            setValue("quantidade", item.quantidade.toString());
-            setValue("valorUnitario", String(currency(item.valorUnitario)));
+            reset({
+                idPostoCombustivel: {
+                    value: item.idPostoCombustivel,
+                    label: item.razaoSocialPostoCombustivel
+                },
+                idPessoaFornecedor: {
+                    value: item.idPessoaFornecedor,
+                    label: item.razaoSocialPessoaFornecedor
+                },
+                quantidade: item.quantidade.toString(),
+                valorUnitario: String(currency(item.valorUnitario)),
+                dataRecebimento: item.dataRecebimento,
+                valorTotal: currency(item.quantidade * item.valorUnitario)
+            }, { keepDefaultValues: true })
             setTimeout(() => {
                 setValue("idPostoCombustivelTanque", { value: item.idPostoCombustivelTanque, label: item.descricaoPostoCombustivelTanque });
             }, 250);
@@ -88,7 +91,6 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
     }
 
     useEffect(() => {
-        setDataRecebimento("")
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
@@ -105,57 +107,14 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         });
     }, [errors]);
 
-    // useEffect(() => {
-    //     const subscription = watch((_, field) => {
-    //         if (field.name == "idPostoCombustivel")
-    //             getPostoCombustivelTanques("");
-
-    //         if (field.name == "idPostoCombustivelTanque")
-    //             getProdutosAbastecimento("");
-    //     });
-
-    //     return () => subscription.unsubscribe();
-    // }, [watch]);
-
     useEffect(() => {
-        resetField("idPostoCombustivelTanque");
-        getPostoCombustivelTanques();
-    }, [idPostoCombustivel])
+        const subscription = watch((values, field) => {
+            if (field.name == "quantidade" || field.name == "valorUnitario") 
+                setValue("valorTotal", currency(+(values.quantidade || 0) * +(toNumber(values.valorUnitario) || 0)))
+        });
 
-    useEffect(() => {
-        resetField("idProdutoAbastecimento");
-        getProdutosAbastecimento();
-    }, [idPostoCombustivelTanque])
-
-    const getPostosCombustivel = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
-        return data;
-    }
-
-    const getPostoCombustivelTanques = async (pesquisa?: string) => {
-        if (!idPostoCombustivel) {
-            setPostoCombustivelTanques([]);
-            return [];
-        }
-        const data = await getPostoCombustivelTanqueList(pesquisa, idPostoCombustivel?.value, undefined);
-        setPostoCombustivelTanques([...data]);
-        return data;
-    }
-
-    const getProdutosAbastecimento = async (pesquisa?: string) => {
-        if (!idPostoCombustivelTanque) {
-            setProdutosAbastecimento([]);
-            return [];
-        }
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, idPostoCombustivelTanque?.value, undefined);
-        setProdutosAbastecimento([...data]);
-        return data;
-    }
-
-    const getPessoasFornecedor = async (pesquisa?: string) => {
-        const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
-        return data;
-    }
+        return () => subscription.unsubscribe();
+    }, [watch]);
 
     const submit = async (dados: dadosAddEdicaoEntradaCombustivelType) => {
         if (loading) return
@@ -163,7 +122,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
         const process = toast.loading("Salvando item...");
         try {
             const postPut: dadosAddEdicaoEntradaCombustivelType = {
-                dataRecebimento: dataRecebimento ? dataRecebimento.slice(0, 11).concat("00:00:00") : "",
+                dataRecebimento: formatarDataParaAPI(dados.dataRecebimento),
                 idPostoCombustivel: idPosto ? +idPosto : (dados.idPostoCombustivel ?? null),
                 idProdutoAbastecimento: dados.idProdutoAbastecimento ?? null,
                 idPessoaFornecedor: dados.idPessoaFornecedor ?? null,
@@ -179,7 +138,7 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                 const response = await updateEntradaCombustivel(id, postPut);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
@@ -200,13 +159,14 @@ export default function Modal({ open, setOpen, id, updateList, idPosto }: modalP
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <InputDataLabel title="Data Recebimento" name="dataRecebimento" date={dataRecebimento} setDate={setDataRecebimento} />
-                        {!idPosto ? <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" control={control} asyncFunction={getPostosCombustivel} options={[]} isClearable /> : <></>}
-                        <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" control={control} options={postoCombustivelTanques} asyncFunction={getPostoCombustivelTanques} filter isClearable size="w-full" />
-                        <AsyncReactSelect name="idProdutoAbastecimento" title="Produto Abastecimento" control={control} options={produtosAbastecimento} asyncFunction={getProdutosAbastecimento} filter isClearable size="w-full" />
-                        <AsyncReactSelect name="idPessoaFornecedor" title="Fornecedor" control={control} asyncFunction={getPessoasFornecedor} options={[]} isClearable />
+                        <InputDataControl title="Data Recebimento" name="dataRecebimento" control={control} time />
+                        {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
+                        <SelectPostoCombustivelTanque control={control} size='w-full' />
+                        <SelectProdutoAbastecimento control={control} size='w-full' />
+                        <SelectFornecedor control={control} />
                         <InputLabel name='quantidade' title='Quantidade' register={{ ...register("quantidade") }} type='number' step='0.01' />
                         <InputMaskLabel name='valorUnitario' title='Valor Unitário' mask={Masks.dinheiro} setValue={setValue} value={watch("valorUnitario")} />
+                        <InputMaskLabel name='valorTotal' title='Valor Total' mask={Masks.dinheiro} disabled setValue={() => { }} value={watch("valorTotal")} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

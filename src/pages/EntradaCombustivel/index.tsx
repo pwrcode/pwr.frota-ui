@@ -16,17 +16,51 @@ import { deleteEntradaCombustivel, getEntradaCombustivels, type entradaCombustiv
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
-import { getPostoCombustivelList } from '@/services/postoCombustivel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { formatarData } from '@/services/date';
 import { currency } from '@/services/currency';
-import type { optionType } from '@/services/constants';
-import { getPessoaList } from '@/services/pessoa';
-import { getPostoCombustivelTanqueList } from '@/services/postoCombustivelTanque';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import SelectPostoCombustivel from '@/ui/selects/PostoCombustivelSelect';
+import SelectPostoCombustivelTanque from '@/ui/selects/PostoCombustivelTanqueSelect';
+import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import SelectFornecedor from '@/ui/selects/FornecedorSelect';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+    idPessoaFornecedor: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    idPostoCombustivel: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    idProdutoAbastecimento: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    idPostoCombustivelTanque: z.object({
+        label: z.string().optional(),
+        value: z.number().optional()
+    }).optional(),
+    dataInicio: z.string().optional(),
+    dataFim: z.string().optional(),
+})
 
 export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            dataInicio: "",
+            dataFim: "",
+            idPessoaFornecedor: undefined,
+            idPostoCombustivel: undefined,
+            idProdutoAbastecimento: undefined,
+            idPostoCombustivelTanque: undefined,
+        }
+    });
 
     const [loading, setLoading] = useState<boolean>(false);
     const [entradaCombustivels, setEntradaCombustivels] = useState<entradaCombustivelType[]>([]);
@@ -39,97 +73,35 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [dataInicio, setDataInicio] = useState("");
-    const [dataFim, setDataFim] = useState("");
-    const [postoCombustivel, setPostoCombustivel] = useState<optionType>();
-    const [produtoAbastecimento, setProdutoAbastecimento] = useState<optionType>();
-    const [pessoaFornecedor, setPessoaFornecedor] = useState<optionType>();
-    const [postoCombustivelTanque, setPostoCombustivelTanque] = useState<optionType>();
-
-    const initialPostListagem: postListagemEntradaCombustivelType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        dataInicio: "",
-        dataFim: "",
-        idPostoCombustivel: idPosto ?? null,
-        idProdutoAbastecimento: null,
-        idPessoaFornecedor: null,
-        idPostoCombustivelTanque: null,
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [dataInicio]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [dataFim]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [postoCombustivel]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [produtoAbastecimento]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [pessoaFornecedor]);
-
-    useEffect(() => {
-        changeListFilters();
-    }, [postoCombustivelTanque]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
-            dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-            idPostoCombustivel: idPosto ?? (postoCombustivel && postoCombustivel.value ? postoCombustivel.value : null),
-            idProdutoAbastecimento: produtoAbastecimento && produtoAbastecimento.value ? produtoAbastecimento.value : null,
-            idPessoaFornecedor: pessoaFornecedor && pessoaFornecedor.value ? pessoaFornecedor.value : null,
-            idPostoCombustivelTanque: postoCombustivelTanque && postoCombustivelTanque.value ? postoCombustivelTanque.value : null,
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const getPostosCombustivel = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelList(pesquisa, true, undefined, undefined, undefined);
-        return [...data];
-    }
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate();
+        });
 
-    const getProdutosAbastecimento = async (pesquisa?: string) => {
-        const data = await getProdutoAbastecimentoList(pesquisa, undefined, undefined, undefined, postoCombustivelTanque?.value);
-        return [...data];
-    }
+        return () => subscription.unsubscribe();
+    }, [watch]);
 
-    const getPessoasFornecedor = async (pesquisa?: string) => {
-        const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, true, undefined, undefined, undefined);
-        return [...data];
-    }
-
-    const getTanques = async (pesquisa?: string) => {
-        const data = await getPostoCombustivelTanqueList(pesquisa, postoCombustivel?.value, undefined);
-        return [...data];
-    }
-
-    const updateList = async () => {
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getEntradaCombustivels(postListagem);
+            const filtros: postListagemEntradaCombustivelType = {
+                pageSize: pageSize,
+                currentPage: paginaAtual,
+                dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
+                dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
+                idPessoaFornecedor: getValues("idPessoaFornecedor")?.value || null,
+                idPostoCombustivelTanque: getValues("idPostoCombustivelTanque")?.value || null,
+                idPostoCombustivel: getValues("idPostoCombustivel")?.value || null,
+                idProdutoAbastecimento: getValues("idProdutoAbastecimento")?.value || null,
+            }
+
+            const data = await getEntradaCombustivels(filtros);
             setEntradaCombustivels(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -144,10 +116,6 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -175,7 +143,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             const response = await deleteEntradaCombustivel(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (entradaCombustivels.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (entradaCombustivels.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -190,12 +158,12 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             <PageTitle title="Entradas Combustível" />
 
             <Filters grid={FiltersGrid.sm2_md3}>
-                <AsyncReactSelect name="idPostoCombustivel" title="Posto Combustível" options={[]} value={postoCombustivel} setValue={setPostoCombustivel} asyncFunction={getPostosCombustivel} isClearable />
-                <AsyncReactSelect name="idPostoCombustivelTanque" title="Tanque" options={[]} value={postoCombustivelTanque} setValue={setPostoCombustivelTanque} asyncFunction={getTanques} isClearable />
-                {!idPosto ? <AsyncReactSelect name="idProdutoAbastecimento" title='Produto Abastecimento' options={[]} value={produtoAbastecimento} setValue={setProdutoAbastecimento} asyncFunction={getProdutosAbastecimento} isClearable /> : <></>}
-                <AsyncReactSelect name="idPessoaFornecedor" title="Fornececdor" options={[]} value={pessoaFornecedor} setValue={setPessoaFornecedor} asyncFunction={getPessoasFornecedor} isClearable />
-                <InputDataLabel name="dataInicio" title='Data Início' date={dataInicio} setDate={setDataInicio} />
-                <InputDataLabel name="dataFim" title='Data Fim' date={dataFim} setDate={setDataFim} />
+                {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
+                <SelectPostoCombustivelTanque control={control} ignoreFiltros />
+                {!idPosto ? <SelectProdutoAbastecimento control={control} ignoreFiltros /> : <></>}
+                <SelectFornecedor control={control} />
+                <InputDataControl name="dataInicio" title='Data Início' control={control} />
+                <InputDataControl name="dataFim" title='Data Fim' control={control} />
             </Filters>
 
             {(entradaCombustivels.length > 0) && (
@@ -253,7 +221,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
-                                            {isMobile && "Data Recebimento: "}{formatarData(c.dataRecebimento)}
+                                            {isMobile && "Data Recebimento: "}{formatarData(c.dataRecebimento, "dd/mm/yyyy hh:mm")}
                                         </TableCell>
 
                                         <TableCell className={cellStyle + "sm:text-left"}>
@@ -297,7 +265,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty py='py-20' icon="archive-restore" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

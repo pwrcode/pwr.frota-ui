@@ -11,10 +11,10 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { deletePostoCombustivelTanque, getPostoCombustivelTanques, type postListagemPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
-import { tiposTanque } from '@/services/constants';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import ModalHistorico from './ModalHistorico';
 
 export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, setTanques }: { idPostoCombustivel?: number, tanques: any[], setTanques: any }) {
 
@@ -25,6 +25,7 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
     const [idExcluir, setIdExcluir] = useState<number>(0);
     const [openModalForm, setOpenModalForm] = useState<boolean>(false);
     const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
+    const [openDialogHistorico, setOpenDialogHistorico] = useState<boolean>(false);
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
@@ -102,6 +103,12 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
         setIdExcluir(id);
         setIdEditar(0);
         setOpenDialogExcluir(true);
+    }
+
+    const handleClickHistorico = (id: number) => {
+        setIdExcluir(0);
+        setIdEditar(id);
+        setOpenDialogHistorico(true);
     }
 
     const deletar = async () => {
@@ -187,9 +194,9 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
                                                 id={!idPostoCombustivel ? index : c.id}
                                                 handleClickEditar={handleClickEditar}
                                                 handleClickDeletar={handleClickDeletar}
+                                                handleClickHistoricoCaixa={idPostoCombustivel ? handleClickHistorico : undefined}
                                             />
                                         </TableCell>
-
                                     </TableRow>
                                 )
                             })}
@@ -222,6 +229,8 @@ export default function PostoCombustivelTanque({ idPostoCombustivel, tanques, se
             <Modal open={openModalForm} setOpen={setOpenModalForm} id={idEditar} updateList={updateList} idPostoCombustivel={idPostoCombustivel} tanques={tanques} setTanques={setTanques} />
 
             <AlertExcluir openDialog={openDialogExcluir} setOpenDialog={setOpenDialogExcluir} func={deletar} />
+
+            <ModalHistorico open={openDialogHistorico} setOpen={setOpenDialogHistorico} id={idEditar} />
 
         </div>
     )

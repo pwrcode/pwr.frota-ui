@@ -13,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { errorMsg } from '@/services/api';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { DivCheckBox } from '@/ui/components/forms/DivCheckBox';
 import { CheckBoxLabel } from '@/ui/components/forms/CheckBoxLabel';
 import { InputMaskLabel, Masks } from '@/ui/components/forms/InputMaskLabel';
@@ -29,11 +28,15 @@ import Modal from '../Bairro/Modal';
 import type { optionType } from '@/services/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ChevronUp, Building2, Fuel, ArrowDownCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Building2, Fuel, ArrowDownCircle, History } from 'lucide-react';
 import Abastecimento from '../Abastecimento/Index';
 import EntradaCombustivel from '../EntradaCombustivel';
 import PostoCombustivelTanque from '../PostoCombustivelTanque/Index';
 import type { dadosAddEdicaoPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
+import PostoCombustivelHistorico from '../PostoCombustivelHistorico/Index';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectBairro from '@/ui/selects/BairroSelect';
 
 const schema = z.object({
     cnpj: z.string().optional(),
@@ -87,8 +90,7 @@ export default function PostoCombustivelForm() {
 
     const {
         cep,
-        getUfs, getMunicipios, getBairros, buscarCep, loadingCep,
-        ufs, municipios, bairros,
+        buscarCep, loadingCep,
         setIdUf, setIdMunicipio,
         setValuesUf, setValuesMunicipio, setValuesBairro
     } = useEndereco(formFunctions);
@@ -109,11 +111,6 @@ export default function PostoCombustivelForm() {
     useEffect(() => {
         if (id) setValuesPorId();
     }, [id]);
-
-    useEffect(() => {
-        getUfs();
-    }, [])
-
 
     const setValuesPorId = async () => {
         const process = toast.loading("Buscando item...");
@@ -215,16 +212,13 @@ export default function PostoCombustivelForm() {
 
     const selecionarBairro = (bairro: optionType) => {
         setValue("idBairro", bairro);
-        getBairros();
     }
 
     return (
         <>
             <Modal open={openModalFormBairro} setOpen={setOpenModalFormBairro} id={idBairro ?? 0} selecionarBairro={selecionarBairro} idMunicipio={idMunicipio} />
 
-
             <Tabs defaultValue='postoCombustivel' className='w-full mt-16 flex flex-col gap-2'>
-
                 <TabsList className='w-fit h-min hidden md:flex justify-start gap-1 p-1 bg-muted rounded-lg'>
                     <TabsTrigger
                         value='postoCombustivel'
@@ -243,14 +237,26 @@ export default function PostoCombustivelForm() {
                             <Fuel size={16} />
                             Abastecimentos
                         </TabsTrigger>
-                        <TabsTrigger
-                            value='entrada'
-                            onClick={() => setTabNameMobile("Entradas")}
-                            className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
-                        >
-                            <ArrowDownCircle size={16} />
-                            Entradas
-                        </TabsTrigger>
+                        {watch("isInterno") ? (
+                            <TabsTrigger
+                                value='entrada'
+                                onClick={() => setTabNameMobile("Entradas")}
+                                className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                            >
+                                <ArrowDownCircle size={16} />
+                                Entradas
+                            </TabsTrigger>
+                        ) : <></>}
+                        {watch("isInterno") ? (
+                            <TabsTrigger
+                                value='historico'
+                                onClick={() => setTabNameMobile("Histórico")}
+                                className='cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                            >
+                                <History size={16} />
+                                Histórico
+                            </TabsTrigger>
+                        ) : <></>}
                     </> : <></>}
                 </TabsList>
 
@@ -262,6 +268,7 @@ export default function PostoCombustivelForm() {
                                     {tabNameMobile === "Posto Combustível" && <Building2 size={16} />}
                                     {tabNameMobile === "Abastecimentos" && <Fuel size={16} />}
                                     {tabNameMobile === "Entradas" && <ArrowDownCircle size={16} />}
+                                    {tabNameMobile === "Histórico" && <ArrowDownCircle size={16} />}
                                     {tabNameMobile}
                                 </div>
                                 {id ? <div className='ml-4'>{isDropDownTabsOpen ? <ChevronUp /> : <ChevronDown />}</div> : <></>}
@@ -290,16 +297,32 @@ export default function PostoCombustivelForm() {
                                             Abastecimentos
                                         </TabsTrigger>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem className='p-0'>
-                                        <TabsTrigger
-                                            value='entrada'
-                                            onClick={() => setTabNameMobile("Entradas")}
-                                            className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
-                                        >
-                                            <ArrowDownCircle size={16} />
-                                            Entradas
-                                        </TabsTrigger>
-                                    </DropdownMenuItem>
+
+                                    {watch("isInterno") ? (
+                                        <DropdownMenuItem className='p-0'>
+                                            <TabsTrigger
+                                                value='entrada'
+                                                onClick={() => setTabNameMobile("Entradas")}
+                                                className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                            >
+                                                <ArrowDownCircle size={16} />
+                                                Entradas
+                                            </TabsTrigger>
+                                        </DropdownMenuItem>
+                                    ) : <></>}
+
+                                    {watch("isInterno") ? (
+                                        <DropdownMenuItem className='p-0'>
+                                            <TabsTrigger
+                                                value='historico'
+                                                onClick={() => setTabNameMobile("Histórico")}
+                                                className='w-full justify-start flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200 data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:bg-orange-50 hover:text-orange-600'
+                                            >
+                                                <History size={16} />
+                                                Histórico
+                                            </TabsTrigger>
+                                        </DropdownMenuItem>
+                                    ) : <></>}
                                 </>
                             )}
                         </DropdownMenuContent>
@@ -364,14 +387,13 @@ export default function PostoCombustivelForm() {
                                         <InputMaskLabel name="cep" title="CEP" mask={Masks.cep} register={{ ...register("cep") }} value={cep} setValue={setValue} />
                                         <SearchButton func={buscarCep} disabled={loadingCep} />
                                     </div>
-                                    <AsyncReactSelect name="idUf" title="UF" control={control} options={ufs} asyncFunction={getUfs} size="col-span-1 xl:col-span-2" filter={true} isClearable />
+                                    <SelectUf control={control} size='col-span-1 xl:col-span-2' />
                                     <span className='col-span-1 hidden lg:invisible'></span>
-                                    <AsyncReactSelect name="idMunicipio" title="Município" control={control} options={municipios} asyncFunction={getMunicipios} filter={true} isClearable size="col-span-1 xl:col-span-4" />
+                                    <SelectMunicipio control={control} size='col-span-1 xl:col-span-4' />
                                     <div className='col-span-1 xl:col-span-4 flex justify-between items-end gap-2'>
-                                        <AsyncReactSelect name="idBairro" title="Bairro" control={control} options={bairros} asyncFunction={getBairros} filter={true} isClearable size="w-full" />
+                                        <SelectBairro control={control} size='w-full' />
                                         <PlusButton loading={loading} func={handleClickAdicionarBairro} />
                                     </div>
-                                    {/* Bairro e Add */}
                                     <InputLabel name="logradouro" title="Logradouro" register={{ ...register("logradouro") }} size="xl:col-span-3" />
                                     <InputLabel name="numero" title="Número" register={{ ...register("numero") }} size="xl:col-span-1" />
                                     <InputLabel name="complemento" title="Complemento" register={{ ...register("complemento") }} size="xl:col-span-2" />
@@ -409,6 +431,10 @@ export default function PostoCombustivelForm() {
 
                 <TabsContent value='entrada'>
                     <EntradaCombustivel idPosto={Number(id)} />
+                </TabsContent>
+
+                <TabsContent value='historico'>
+                    <PostoCombustivelHistorico idPostoCombustivel={Number(id)} />
                 </TabsContent>
 
             </Tabs >

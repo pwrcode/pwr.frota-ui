@@ -1,3 +1,5 @@
+import { Contact, IdCard, Menu, UserCog, Users, type LucideIcon } from "lucide-react";
+
 export type modalParamsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -13,7 +15,8 @@ export type listType = {
 
 export type optionType = {
     value: any,
-    label: string
+    label: string,
+    icone?: LucideIcon
 }
 
 export type itemSelectType = {
@@ -26,6 +29,13 @@ export const tiposParada = [
     { value: 2, label: "Não Planejada", valueLabel: "NaoPlanejada"},
     { value: 3, label: "Legal", valueString: "Legal"}
 ]
+
+export const optionsFuncoes = [
+    { value: "isAjudante", label: "Ajudante", icone: Users },
+    { value: "isMotorista", label: "Motorista", icone: Contact },
+    { value: "isOficina", label: "Oficina", icone: UserCog },
+    { value: "isFornecedor", label: "Fornecedor", icone: IdCard },
+];
 
 export const tiposCorVeiculo = [
     { value: "Amarelo", label: "Amarelo" },
@@ -55,9 +65,10 @@ export const selecioneOption = {
     label: "Selecione"
 };
 
-export const todosOption = {
+export const todosOption: optionType = {
     value: undefined,
-    label: "Todos"
+    label: "Todos",
+    icone: Menu
 };
 
 export const ativoOptions = [
@@ -93,6 +104,11 @@ export const categoriasCnh = [
 export const tiposDataVeiculo = [
     { value: "AQUISICAO", label: "Aquisição" },
     { value: "VENDA", label: "Venda" },
+]
+
+export const tiposDataPessoa = [
+    { value: "CNH_VALIDADE", label: "Validade CNH" },
+    { value: "FUNDACAO_NASCIMENTO", label: "Fundação/Nascimento" },
 ]
 
 export const tiposRegime = [

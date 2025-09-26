@@ -11,15 +11,15 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getVeiculoMarcaList, getVeiculoMarcaPorId } from '@/services/veiculoMarca';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
+import { getVeiculoMarcaPorId } from '@/services/veiculoMarca';
 import type { optionType } from '@/services/constants';
+import SelectVeiculoMarca from '@/ui/selects/VeiculoMarcaSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
-    updateList?: (filter: boolean) => void,
+    updateList?: (paginaAtual?: number) => Promise<void>,
     selecionarModelo?: (modelo: optionType) => void,
     idMarca?: number,
 }
@@ -76,11 +76,6 @@ export default function Modal({ open, setOpen, id, updateList, selecionarModelo,
         });
     }, [errors]);
 
-    const getVeiculoMarcas = async (pesquisa?: string) => {
-        const data = await getVeiculoMarcaList(pesquisa);
-        return data;
-    }
-
     const submit = async (dados: dadosAddEdicaoVeiculoModeloType) => {
         if (loading) return
         setLoading(true);
@@ -100,7 +95,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarModelo,
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
                 if(selecionarModelo) selecionarModelo({ value: id, label: dados.descricao.toUpperCase()})
             }
-            if (updateList) updateList(true);
+            if (updateList) updateList();
             reset();
             setOpen(false);
         }
@@ -122,7 +117,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarModelo,
 
                     <ModalFormBody>
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
-                        <AsyncReactSelect name="idVeiculoMarca" title="Veículo Marca" control={control} asyncFunction={getVeiculoMarcas} options={[]} isClearable />
+                        <SelectVeiculoMarca control={control} />
                     </ModalFormBody>
 
                     <ModalFormFooter>
