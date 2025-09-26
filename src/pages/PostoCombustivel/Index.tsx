@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -14,22 +13,56 @@ import { toast } from 'react-toastify';
 import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
-import { SimNaoOptions, type listType, type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import { formatarCelular, formatarCpfCnpj } from '@/services/formatacao';
-import { deletePostoCombustivel, getPostoCombustivels, type postoCombustivelType, type postListagemPostoCombustivelType } from '@/services/postoCombustivel';
-import { getUfList } from '@/services/uf';
-import { getMunicipioList } from '@/services/municipio';
+import { deletePostoCombustivel, getPostoCombustivels, type postListagemPostoCombustivelType, type postoCombustivelType } from '@/services/postoCombustivel';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import { getBairroList } from '@/services/bairro';
 import { BadgeTrueFalse } from '@/ui/components/tables/BadgeAtivo';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Filter, X } from 'lucide-react';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
+import SelectIsInterno from '@/ui/selects/InternoSelect';
+import SelectBairro from '@/ui/selects/BairroSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+
+const schema = z.object({
+  pesquisa: z.string().optional(),
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idMunicipio: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idBairro: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  isInterno: z.object({
+    value: z.boolean().optional(),
+    label: z.string().optional(),
+  }).optional().nullable()
+})
 
 export default function PostoCombustivel() {
+
+  const { getValues, watch, reset, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+      idUf: undefined,
+      idMunicipio: undefined,
+      idBairro: undefined,
+      isInterno: undefined,
+    }
+  });
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,113 +72,38 @@ export default function PostoCombustivel() {
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
 
-  const [municipios, setMunicipios] = useState<listType>([]);
-  const [bairros, setBairros] = useState<listType>([]);
-
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-
-  const [isInterno, setIsInterno] = useState<optionType | null>();
-  const [uf, setUf] = useState<optionType | null>();
-  const [municipio, setMunicipio] = useState<optionType | null>();
-  const [bairro, setBairro] = useState<optionType | null>();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
-
-  const initialPostListagem: postListagemPostoCombustivelType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    idUf: null,
-    idMunicipio: null,
-    idBairro: null,
-    isInterno: null,
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa);
-    return [...data];
-  }
-
-  useEffect(() => {
-    getMunicipios();
-  }, [uf]);
-
-  useEffect(() => {
-    getBairros();
-  }, [municipio]);
-
-  const getMunicipios = async (pesquisa?: string) => {
-    if (!uf) {
-      setMunicipios([]);
-      setMunicipio(null);
-      return [];
-    };
-    const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
-    setMunicipios([...data]);
-    return [...data];
-  }
-
-  const getBairros = async (pesquisa?: string) => {
-    if (!municipio) {
-      setBairros([]);
-      setBairro(null);
-      return [];
-    };
-    const data = await getBairroList(pesquisa, municipio ? municipio.value : undefined);
-    setBairros([...data]);
-    return [...data];
-  }
-
-  useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (pesquisa.length > 0 || filtersOn) changeListFilters(0);
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [isInterno]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [uf]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [municipio]);
-
-  useEffect(() => {
-    changeListFilters(0);
-  }, [bairro]);
-
-  const changeListFilters = (page: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      idUf: uf && uf.value ? uf.value : null,
-      idMunicipio: municipio && municipio.value ? municipio.value : null,
-      idBairro: bairro && bairro.value ? bairro.value : null,
-      isInterno: isInterno ? isInterno.value : null,
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
-  const updateList = async () => {
+  useEffect(() => {
+    const subscription = watch(() => {
+      debounceUpdate();
+      checkActiveFilters();
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getPostoCombustivels(postListagem);
+      const filtros: postListagemPostoCombustivelType = {
+        currentPage: paginaAtual,
+        pageSize: pageSize,
+        isInterno: getValues("isInterno")?.value || null,
+        idUf: getValues("idUf")?.value || null,
+        idMunicipio: getValues("idMunicipio")?.value || null,
+        idBairro: getValues("idBairro")?.value || null,
+        pesquisa: getValues("pesquisa") || ""
+      }
+      const data = await getPostoCombustivels(filtros);
       setPostoCombustivels(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -160,10 +118,6 @@ export default function PostoCombustivel() {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -186,7 +140,7 @@ export default function PostoCombustivel() {
       const response = await deletePostoCombustivel(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (postoCombustivels.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (postoCombustivels.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -197,25 +151,24 @@ export default function PostoCombustivel() {
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
   const clearFilters = () => {
-    setUf(null)
-    setMunicipio(null)
-    setBairro(null)
-    setIsInterno(null)
+    reset({
+      "idBairro": null,
+      "idMunicipio": null,
+      "idUf": null,
+      "pesquisa": "",
+      "isInterno": null,
+    });
   }
 
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
-      uf ||
-      municipio ||
-      bairro ||
-      isInterno
+      getValues("idUf") ||
+      getValues("idMunicipio") ||
+      getValues("idBairro") ||
+      getValues("isInterno")
     );
     setHasActiveFilters(hasFilters);
   }
-
-  useEffect(() => {
-    checkActiveFilters();
-  }, [uf, municipio, bairro, isInterno]);
 
   return (
     <div className="flex flex-col gap-8 mt-16 min-h-[calc(100%-4rem)]">
@@ -225,7 +178,7 @@ export default function PostoCombustivel() {
 
         <div className="flex-1">
           <Filters grid={FiltersGrid.sm1_md1_lg1}>
-            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+            <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
           </Filters>
         </div>
 
@@ -258,10 +211,10 @@ export default function PostoCombustivel() {
 
               <ModalFormBody>
                 <div className="space-y-4">
-                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
-                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
-                  <AsyncReactSelect name="idBairro" title="Bairro" options={bairros} value={bairro} setValue={setBairro} asyncFunction={getBairros} filter isClearable />
-                  <AsyncReactSelect name="isInterno" title="Interno" options={SimNaoOptions} value={isInterno} setValue={setIsInterno} isClearable />
+                  <SelectUf control={control} />
+                  <SelectMunicipio control={control} />
+                  <SelectBairro control={control} />
+                  <SelectIsInterno control={control} />
                 </div>
 
               </ModalFormBody>
@@ -380,7 +333,7 @@ export default function PostoCombustivel() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="fuel" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="fuel" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -13,12 +12,6 @@ import { errorMsg } from '@/services/api';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import { deleteVeiculo, getVeiculos, type postListagemVeiculoType, type veiculoType } from '@/services/veiculo';
-import { ativoOptions, tiposDataVeiculo, type listType, type optionType } from '@/services/constants';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
-import { getVeiculoModeloList } from '@/services/veiculoModelo';
-import { getVeiculoMarcaList } from '@/services/veiculoMarca';
-import { getTipoVeiculoList } from '@/services/tipoVeiculo';
-import InputDataLabel from '@/ui/components/forms/InputDataLabel';
 import { formatarData } from '@/services/date';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -37,193 +30,124 @@ import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
 import { Badge } from '@/components/ui/badge';
 import { capitalizeText } from '@/services/utils';
-import { getTipoMotorList } from '@/services/tipoMotor';
-import { getUfList } from '@/services/uf';
-import { getMunicipioList } from '@/services/municipio';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import SelectTiposVeiculo from '@/ui/selects/TiposVeiculoSelect';
+import SelectTipoMotor from '@/ui/selects/TipoMotorSelect';
+import SelectVeiculoMarca from '@/ui/selects/VeiculoMarcaSelect';
+import SelectVeiculoModelo from '@/ui/selects/VeiculoModeloSelect';
+import SelectStatus from '@/ui/selects/StatusSelect';
+import SelectUf from '@/ui/selects/UfSelect';
+import SelectMunicipio from '@/ui/selects/MunicipioSelect';
+import SelectTipoDataVeiculo from '@/ui/selects/TipoDataVeiculoSelect';
+import InputDataControl from '@/ui/components/forms/InputDataControl';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  pesquisa: z.string().optional(),
+  idTipoVeiculo: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idTipoMotor: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idVeiculoMarca: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idVeiculoModelo: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idUf: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  idMunicipio: z.object({
+    label: z.string().optional(),
+    value: z.number().optional()
+  }).optional().nullable(),
+  tipoData: z.object({
+    label: z.string().optional(),
+    value: z.string().optional()
+  }).optional().nullable(),
+  ativo: z.object({
+    label: z.string().optional(),
+    value: z.boolean().optional()
+  }).optional().nullable(),
+  dataInicio: z.string().optional(),
+  dataFim: z.string().optional(),
+})
 
 export default function Veiculo() {
+
+  const { getValues, watch, reset, control } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      pesquisa: "",
+      idTipoVeiculo: null,
+      idTipoMotor: null,
+      idVeiculoMarca: null,
+      idVeiculoModelo: null,
+      idMunicipio: null,
+      idUf: null,
+      tipoData: null,
+      dataInicio: "",
+      dataFim: "",
+      ativo: null
+    }
+  });
 
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [veiculos, setVeiculos] = useState<veiculoType[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [veiculoModelos, setVeiculoModelos] = useState<listType>([]);
   const [totalRegisters, setTotalRegisters] = useState<number>(0);
   const [excluirId, setExcluirId] = useState<number>(0);
   const [openDialogExcluir, setOpenDialogExcluir] = useState<boolean>(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [hasActiveFilters, setHasActiveFilters] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [pesquisa, setPesquisa] = useState<string>("");
-  const [tipoVeiculo, setTipoVeiculo] = useState<optionType | null>();
-  const [tipoMotor, setTipoMotor] = useState<optionType | null>();
-  const [veiculoMarca, setVeiculoMarca] = useState<optionType | null>();
-  const [veiculoModelo, setVeiculoModelo] = useState<optionType | null>();
-  const [tipoData, setTipoData] = useState<optionType | null>();
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
-  const [status, setStatus] = useState<optionType | null>();
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [hasActiveFilters, setHasActiveFilters] = useState(false);
-  const [uf, setUf] = useState<optionType | null>();
-  const [municipio, setMunicipio] = useState<optionType | null>();
-
-  const initialPostListagem: postListagemVeiculoType = {
-    pageSize: pageSize,
-    currentPage: currentPage,
-    pesquisa: "",
-    tipoData: null,
-    dataInicio: "",
-    dataFim: "",
-    idTipoVeiculo: null,
-    idTipoMotor: null,
-    idVeiculoMarca: null,
-    idVeiculoModelo: null,
-    ativo: null,
-    idUf: null,
-    idMunicipio: null,
-  };
-  const [postListagem, setPostListagem] = useState(initialPostListagem);
-  const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-  const [municipios, setMunicipios] = useState<listType>([]);
-  
-  const getUfs = async (pesquisa?: string) => {
-    const data = await getUfList(pesquisa);
-    // setUfs([...data]);
-    return [...data];
-  }
-
-  useEffect(() => {
-    getMunicipios();
-  }, [uf]);
-
-  useEffect(() => {
-    if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-  }, [currentPage]);
-
-  const getMunicipios = async (pesquisa?: string) => {
-    if (!uf) {
-      setMunicipios([]);
-      setMunicipio(null);
-      return [];
-    };
-    const data = await getMunicipioList(pesquisa, uf ? uf.value : undefined);
-    setMunicipios([...data]);
-    return [...data];
-  }
-
-  useEffect(() => {
-    if (pesquisa.length > 0 || filtersOn) changeListFilters();
-  }, [pesquisa]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [tipoVeiculo]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [tipoMotor]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [uf]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [veiculoMarca]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [veiculoModelo]);
-
-  useEffect(() => {
-    if (!tipoData || !tipoData.value) {
-      setDataInicio("");
-      setDataFim("");
-    }
-    changeListFilters();
-  }, [tipoData]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [dataInicio]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [dataFim]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [status]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [uf]);
-
-  useEffect(() => {
-    changeListFilters();
-  }, [municipio]);
-
-  const changeListFilters = (page?: number) => {
-    setFiltersOn(true);
-    setPostListagem({
-      pageSize: pageSize,
-      currentPage: page ?? 0,
-      pesquisa: pesquisa,
-      tipoData: tipoData && tipoData.value ? tipoData.value : null,
-      dataInicio: dataInicio != "" ? dataInicio.slice(0, 11).concat("00:00:00") : "",
-      dataFim: dataFim != "" ? dataFim.slice(0, 11).concat("23:59:59") : "",
-      idTipoVeiculo: tipoVeiculo && tipoVeiculo.value ? tipoVeiculo.value : null,
-      idTipoMotor: tipoMotor && tipoMotor.value ? tipoMotor.value : null,
-      idVeiculoMarca: veiculoMarca && veiculoMarca.value ? veiculoMarca.value : null,
-      idVeiculoModelo: veiculoModelo && veiculoModelo.value ? veiculoModelo.value : null,
-      ativo: status ? status.value : null,
-      idUf: uf && uf.value ? uf.value : null,
-      idMunicipio: municipio && municipio.value ? municipio.value : null,
-    });
-  }
 
   useEffect(() => {
     updateList();
   }, []);
 
   useEffect(() => {
-    getVeiculosModelo();
-  }, [veiculoMarca]);
+    const subscription = watch(() => {
+      debounceUpdate();
+      checkActiveFilters();
+    });
 
-  const getVeiculosModelo = async (pesquisa?: string) => {
-    if (!veiculoMarca) {
-      setVeiculoModelos([]);
-      setVeiculoModelo(null);
-      return [];
-    };
-    const data = await getVeiculoModeloList(pesquisa, veiculoMarca ? veiculoMarca.value : undefined);
-    setVeiculoModelos([...data]);
-    return [...data];
-  }
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
-  const getTipoVeiculos = async (pesquisa?: string) => {
-    const data = await getTipoVeiculoList(pesquisa, undefined);
-    return [...data];
-  }
-
-  const getTiposMotor = async (pesquisa?: string) => {
-    const data = await getTipoMotorList(pesquisa);
-    return [...data];
-  }
-
-  const getVeiculoMarcas = async (pesquisa?: string) => {
-    const data = await getVeiculoMarcaList(pesquisa);
-    return [...data];
-  }
-
-  const updateList = async () => {
+  const updateList = async (paginaAtual: number = currentPage) => {
     const process = toast.loading("Carregando...");
     setLoading(true);
     try {
-      const data = await getVeiculos(postListagem);
+      const filtros: postListagemVeiculoType = {
+        pageSize: pageSize,
+        currentPage: paginaAtual,
+        pesquisa: getValues("pesquisa") || "",
+        idTipoVeiculo: getValues("idTipoVeiculo")?.value || null,
+        idTipoMotor: getValues("idTipoMotor")?.value || null,
+        idVeiculoMarca: getValues("idVeiculoMarca")?.value || null,
+        idVeiculoModelo: getValues("idVeiculoModelo")?.value || null,
+        idUf: getValues("idUf")?.value || null,
+        idMunicipio: getValues("idMunicipio")?.value || null,
+        tipoData: getValues("tipoData")?.value || null,
+        dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
+        dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
+        ativo: getValues("ativo")?.value || null
+      }
+      const data = await getVeiculos(filtros);
       setVeiculos(data.dados);
       setTotalPages(data.totalPages);
       setPageSize(data.pageSize);
@@ -238,10 +162,6 @@ export default function Veiculo() {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (postListagem !== initialPostListagem) debounceUpdate();
-  }, [postListagem]);
 
   const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -264,7 +184,7 @@ export default function Veiculo() {
       const response = await deleteVeiculo(excluirId);
       setOpenDialogExcluir(false);
       toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-      if (veiculos.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+      if (veiculos.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
       else await updateList();
     }
     catch (error: Error | any) {
@@ -273,37 +193,37 @@ export default function Veiculo() {
   }
 
   const clearFilters = () => {
-    setTipoVeiculo(null);
-    setTipoMotor(null);
-    setVeiculoMarca(null);
-    setVeiculoModelo(null);
-    setTipoData(null);
-    setDataInicio("");
-    setDataFim("");
-    setStatus(null);
-    setUf(null);
-    setMunicipio(null);
+    reset({
+      "tipoData": null,
+      "ativo": null,
+      "dataFim": "",
+      "dataInicio": "",
+      "idTipoMotor": null,
+      "idMunicipio": null,
+      "idUf": null,
+      "pesquisa": "",
+      "idTipoVeiculo": null,
+      "idVeiculoModelo": null,
+      "idVeiculoMarca": null,
+    });
   }
 
   const checkActiveFilters = () => {
     const hasFilters = Boolean(
-      tipoVeiculo ||
-      tipoMotor ||
-      veiculoMarca ||
-      veiculoModelo ||
-      tipoData ||
-      dataInicio ||
-      dataFim ||
-      uf ||
-      municipio ||
-      status
+      getValues("tipoData") ||
+      getValues("ativo") ||
+      getValues("idUf") ||
+      getValues("idMunicipio") ||
+      getValues("idVeiculoModelo") ||
+      getValues("idVeiculoMarca") ||
+      getValues("idTipoVeiculo") ||
+      getValues("idTipoMotor") ||
+      getValues("dataInicio") ||
+      getValues("dataFim") ||
+      getValues("ativo")
     );
     setHasActiveFilters(hasFilters);
   }
-
-  useEffect(() => {
-    checkActiveFilters();
-  }, [tipoVeiculo, tipoMotor, veiculoMarca, veiculoModelo, tipoData, dataInicio, dataFim, status, uf, municipio]);
 
   const { isMobile, rowStyle, cellStyle, hiddenMobile } = useMobile();
 
@@ -323,7 +243,7 @@ export default function Veiculo() {
       <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
         <div className="flex-1">
           <Filters grid={FiltersGrid.sm1_md1_lg1}>
-            <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+            <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
           </Filters>
         </div>
 
@@ -356,56 +276,13 @@ export default function Veiculo() {
 
               <ModalFormBody>
                 <div className="space-y-4">
-                  <AsyncReactSelect
-                    name="tipoVeiculo"
-                    title='Tipo Veículo'
-                    options={[]}
-                    asyncFunction={getTipoVeiculos}
-                    value={tipoVeiculo}
-                    setValue={setTipoVeiculo}
-                    isClearable
-                  />
-                  <AsyncReactSelect
-                    name="tipoMotor"
-                    title='Tipo Motor'
-                    options={[]}
-                    asyncFunction={getTiposMotor}
-                    value={tipoMotor}
-                    setValue={setTipoMotor}
-                    isClearable
-                  />
-
-                  <AsyncReactSelect
-                    name="veiculoMarca"
-                    title='Marca'
-                    options={[]}
-                    asyncFunction={getVeiculoMarcas}
-                    value={veiculoMarca}
-                    setValue={setVeiculoMarca}
-                    isClearable
-                  />
-
-                  <AsyncReactSelect
-                    name="veiculoModelo"
-                    title="Modelo"
-                    options={veiculoModelos}
-                    value={veiculoModelo}
-                    setValue={setVeiculoModelo}
-                    asyncFunction={getVeiculosModelo}
-                    filter
-                    isClearable
-                  />
-
-                  <AsyncReactSelect
-                    name="ativo"
-                    title='Status'
-                    options={ativoOptions}
-                    value={status}
-                    setValue={setStatus}
-                    isClearable
-                  />
-                  <AsyncReactSelect name="idUF" title="UF" options={[]} value={uf} setValue={setUf} asyncFunction={getUfs} isClearable />
-                  <AsyncReactSelect name="idMunicipio" title="Município" options={municipios} value={municipio} setValue={setMunicipio} asyncFunction={getMunicipios} filter isClearable />
+                  <SelectTiposVeiculo control={control} />
+                  <SelectTipoMotor control={control} />
+                  <SelectVeiculoMarca control={control} />
+                  <SelectVeiculoModelo control={control} />
+                  <SelectStatus control={control} />
+                  <SelectUf control={control} />
+                  <SelectMunicipio control={control} />
                 </div>
 
                 <div className="border-t border-border pt-6">
@@ -413,30 +290,11 @@ export default function Veiculo() {
                     Filtros por Data
                   </h4>
                   <div className="space-y-4">
-                    <AsyncReactSelect
-                      name="tipoData"
-                      title='Tipo Data'
-                      options={tiposDataVeiculo}
-                      value={tipoData}
-                      setValue={setTipoData}
-                      isClearable
-                    />
+                    <SelectTipoDataVeiculo control={control} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <InputDataLabel
-                        name="dataInicio"
-                        title='Data Início'
-                        date={dataInicio}
-                        setDate={setDataInicio}
-                        isDisabled={!tipoData || !tipoData.value}
-                      />
-                      <InputDataLabel
-                        name="dataFim"
-                        title='Data Fim'
-                        date={dataFim}
-                        setDate={setDataFim}
-                        isDisabled={!tipoData || !tipoData.value}
-                      />
+                      <InputDataControl name="dataInicio" title='Data Início' control={control} />
+                      <InputDataControl name="dataFim" title='Data Fim' control={control} />
                     </div>
                   </div>
                 </div>
@@ -556,7 +414,7 @@ export default function Veiculo() {
         {loading ? (
           <TableLoading />
         ) : (
-          <TableEmpty  py='py-20' icon="truck" handleClickAdicionar={handleClickAdicionar} />
+          <TableEmpty py='py-20' icon="truck" handleClickAdicionar={handleClickAdicionar} />
         )}
       </>}
 

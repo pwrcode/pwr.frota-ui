@@ -93,8 +93,8 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             const filtros: postListagemEntradaCombustivelType = {
                 pageSize: pageSize,
                 currentPage: paginaAtual,
-                dataInicio: getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "",
-                dataFim: getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "",
+                dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
+                dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
                 idPessoaFornecedor: getValues("idPessoaFornecedor")?.value || null,
                 idPostoCombustivelTanque: getValues("idPostoCombustivelTanque")?.value || null,
                 idPostoCombustivel: getValues("idPostoCombustivel")?.value || null,

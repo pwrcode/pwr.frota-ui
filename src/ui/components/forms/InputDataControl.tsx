@@ -7,7 +7,7 @@ import { formatISO } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { ptBR } from 'date-fns/locale';
 import { formatarData } from '@/services/date';
-import { useController, type Control } from 'react-hook-form';
+import { useController, useWatch, type Control } from 'react-hook-form';
 
 interface InputDataInterface {
   title?: string,
@@ -19,6 +19,11 @@ interface InputDataInterface {
 
 export default function InputDataControl({ title, name, control, size, isDisabled }: InputDataInterface) {
   const {field: {value, onChange}} = useController({control, name});
+
+  const tipoData = useWatch({
+    control: control,
+    name: "tipoData.value"
+  })
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -39,7 +44,7 @@ export default function InputDataControl({ title, name, control, size, isDisable
             name={name}
             className="w-full justify-between font-normal text-foreground col-span-3"
             onClick={() => setIsOpen(!isOpen)}
-            disabled={isDisabled ?? false}
+            disabled={isDisabled ?? (tipoData ? false : true)}
           >
             <div className={value ? "text-foreground" : "text-neutral-400"}>
               {value ? formatarData(value) : "Selecionar data"}

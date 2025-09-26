@@ -27,7 +27,6 @@ export default function PostoCombustivelHistorico({ idPostoCombustivel }: { idPo
         setLoading(true);
         try {
             const data = await getPostoCombustivelHistorico(idPostoCombustivel || 0);
-            console.log(data)
             setListaHistorico(data);
             toast.dismiss(process);
         }

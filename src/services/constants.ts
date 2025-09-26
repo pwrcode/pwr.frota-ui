@@ -21,6 +21,13 @@ export type itemSelectType = {
     descricao: string
 };
 
+export const optionsFuncoes = [
+    { value: "isAjudante", label: "Ajudante" },
+    { value: "isMotorista", label: "Motorista" },
+    { value: "isOficina", label: "Oficina" },
+    { value: "isFornecedor", label: "Fornecedor" },
+];
+
 export const tiposCorVeiculo = [
     { value: "Amarelo", label: "Amarelo" },
     { value: "Azul", label: "Azul" },

@@ -11,7 +11,6 @@ import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { delayDebounce, useDebounce } from '@/hooks/useDebounce';
 import Modal from './Modal';
 import { deletePostoCombustivelTanque, getPostoCombustivelTanques, type postListagemPostoCombustivelTanqueType } from '@/services/postoCombustivelTanque';
-import { tiposTanque } from '@/services/constants';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';

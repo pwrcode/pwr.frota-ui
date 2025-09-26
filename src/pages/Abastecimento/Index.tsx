@@ -93,8 +93,8 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       const filtros: postListagemAbastecimentoType = {
         pageSize: pageSize,
         currentPage: paginaAtual,
-        dataInicio: getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "",
-        dataFim: getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "",
+        dataInicio: getValues("dataInicio") ? getValues("dataInicio")?.slice(0, 11).concat("00:00:00") || "" : "",
+        dataFim: getValues("dataFim") ? getValues("dataFim")?.slice(0, 11).concat("00:00:00") || "" : "",
         idVeiculo: getValues("idVeiculo")?.value || null,
         idMotorista: getValues("idMotorista")?.value || null,
         idPostoCombustivel: getValues("idPostoCombustivel")?.value || null,
@@ -155,7 +155,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
         {!idVeiculo ? <VeiculoSelect control={control} /> : <></>}
         <SelectMotorista control={control} />
         {!idPosto ? <SelectPostoCombustivel control={control} /> : <></>}
-        <SelectProdutoAbastecimento  control={control} />
+        <SelectProdutoAbastecimento control={control} />
         <InputDataControl name="dataInicio" title='Data Início' control={control} />
         <InputDataControl name="dataFim" title='Data Fim' control={control} />
       </Filters>

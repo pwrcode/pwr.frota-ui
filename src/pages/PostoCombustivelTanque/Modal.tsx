@@ -10,11 +10,10 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { tiposTanque, type optionType } from '@/services/constants';
 import InputLabel from '@/ui/components/forms/InputLabel';
-import { getProdutoAbastecimentoList } from '@/services/produtoAbastecimento';
 import SelectProdutoAbastecimento from '@/ui/selects/ProdutoAbastecimentoSelect';
+import { getPostoCombustivelPorId } from '@/services/postoCombustivel';
 
 type modalPropsType = {
     open: boolean,
@@ -52,6 +51,9 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
             if (tanques) setValue("capacidadeLitros", tanques[id].capacidadeLitros.toString());
             if (tanques) setValue("estoqueMinimoLitros", tanques[id].estoqueMinimoLitros.toString());
             return
+        } else {
+            const posto = await getPostoCombustivelPorId(idPostoCombustivel ?? 0);
+            setValue("idPostoCombustivel", { value: idPostoCombustivel, label: posto.razaoSocial })
         }
         const process = toast.loading("Buscando item...");
         try {
@@ -144,7 +146,7 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <SelectProdutoAbastecimento name='idProdutoAbastecimento' control={control} />
+                        <SelectProdutoAbastecimento noFilter name='idProdutoAbastecimento' control={control} />
                         <InputLabel name='capacidadeLitros' title='Capacidade Litros' register={{ ...register("capacidadeLitros") }} type='number' step='0.01' />
                         <InputLabel name='estoqueMinimoLitros' title='Estoque Mínimo Litros' register={{ ...register("estoqueMinimoLitros") }} type='number' step='0.01' />
                     </ModalFormBody>

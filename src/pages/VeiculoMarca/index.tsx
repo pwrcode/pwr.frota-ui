@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMobile } from '@/hooks/useMobile';
 import PageTitle from '@/ui/components/PageTitle';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import InputLabelValue from '@/ui/components/forms/InputLabelValue';
 import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableCardHeader } from '@/ui/components/tables/TableCardHeader';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
@@ -17,8 +16,23 @@ import { deleteVeiculoMarca, getVeiculoMarcas, type veiculoMarcaType, type postL
 import { TableTop } from '@/ui/components/tables/TableTop';
 import { Button } from '@/components/ui/button';
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
+import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+    pesquisa: z.string().optional(),
+})
 
 export default function VeiculoMarca() {
+
+    const { getValues, watch, control } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            pesquisa: "",
+        }
+    });
 
     const [loading, setLoading] = useState<boolean>(false);
     const [veiculoMarcas, setVeiculoMarcas] = useState<veiculoMarcaType[]>([]);
@@ -31,42 +45,29 @@ export default function VeiculoMarca() {
 
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [pesquisa, setPesquisa] = useState<string>("");
-
-    const initialPostListagem: postListagemVeiculoMarcaType = {
-        pageSize: pageSize,
-        currentPage: currentPage,
-        pesquisa: "",
-    };
-    const [postListagem, setPostListagem] = useState(initialPostListagem);
-    const [filtersOn, setFiltersOn] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (currentPage > 0 || filtersOn) changeListFilters(currentPage);
-    }, [currentPage]);
-
-    useEffect(() => {
-        if (pesquisa.length > 0 || filtersOn) changeListFilters();
-    }, [pesquisa]);
-
-    const changeListFilters = (page?: number) => {
-        setFiltersOn(true);
-        setPostListagem({
-            pageSize: pageSize,
-            currentPage: page ?? 0,
-            pesquisa: pesquisa,
-        });
-    }
 
     useEffect(() => {
         updateList();
     }, []);
 
-    const updateList = async () => {
+    useEffect(() => {
+        const subscription = watch(() => {
+            debounceUpdate();
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    const updateList = async (paginaAtual: number = currentPage) => {
         const process = toast.loading("Carregando...");
         setLoading(true);
         try {
-            const data = await getVeiculoMarcas(postListagem);
+          const filtros: postListagemVeiculoMarcaType = {
+            pageSize: pageSize,
+            currentPage: paginaAtual,
+            pesquisa: getValues("pesquisa") || ""
+          }
+            const data = await getVeiculoMarcas(filtros);
             setVeiculoMarcas(data.dados);
             setTotalPages(data.totalPages);
             setPageSize(data.pageSize);
@@ -81,10 +82,6 @@ export default function VeiculoMarca() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        if (postListagem !== initialPostListagem) debounceUpdate();
-    }, [postListagem]);
 
     const debounceUpdate = useDebounce(updateList, delayDebounce);
 
@@ -112,7 +109,7 @@ export default function VeiculoMarca() {
             const response = await deleteVeiculoMarca(idExcluir);
             setOpenDialogExcluir(false);
             toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-            if (veiculoMarcas.length === 1 && currentPage > 0) changeListFilters(currentPage - 1);
+            if (veiculoMarcas.length === 1 && currentPage > 0) debounceUpdate(currentPage - 1);
             else await updateList();
         } catch (error: Error | any) {
             toast.update(process, { render: errorMsg(error, null), type: "error", isLoading: false, autoClose: 2000 });
@@ -127,7 +124,7 @@ export default function VeiculoMarca() {
             <PageTitle title="Veículo Marcas" />
 
             <Filters grid={FiltersGrid.sm2_md3_lg4}>
-                <InputLabelValue name="pesquisa" title="Pesquisar" value={pesquisa} setValue={setPesquisa} />
+                <InputFiltroPesquisa name="pesquisa" title="Pesquisar" control={control} />
             </Filters>
 
             {(veiculoMarcas.length > 0) && (
@@ -194,7 +191,7 @@ export default function VeiculoMarca() {
                 {loading ? (
                     <TableLoading />
                 ) : (
-                    <TableEmpty  py='py-20' icon="car" handleClickAdicionar={handleClickAdicionar} />
+                    <TableEmpty py='py-20' icon="car" handleClickAdicionar={handleClickAdicionar} />
                 )}
             </>}
 

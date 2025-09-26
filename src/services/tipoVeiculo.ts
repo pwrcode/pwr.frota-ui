@@ -19,7 +19,7 @@ export type tipoVeiculoType = {
 export type postListagemTipoVeiculoType = {
   pageSize: number,
   currentPage: number,
-  categoria: string,
+  categoriaHabilitacao: string,
   pesquisa: string,
 }
 
