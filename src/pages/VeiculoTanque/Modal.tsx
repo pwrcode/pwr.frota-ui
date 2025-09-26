@@ -10,9 +10,9 @@ import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import AsyncReactSelect from '@/ui/components/forms/AsyncReactSelect';
 import { tiposTanque, type optionType } from '@/services/constants';
 import InputLabel from '@/ui/components/forms/InputLabel';
+import SelectTipoTanque from '@/ui/selects/TipoTanqueSelect';
 
 type modalPropsType = {
     open: boolean,
@@ -139,7 +139,8 @@ export default function Modal({ open, setOpen, id, updateList, idVeiculo, tanque
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <AsyncReactSelect name="tipoTanque" title="Tipo Tanque" control={control} options={tiposTanque} isClearable />
+                        <SelectTipoTanque control={control} />
+                        {/* <AsyncReactSelect name="tipoTanque" title="Tipo Tanque" control={control} options={tiposTanque} isClearable /> */}
                         <InputLabel name='capacidade' title='Capacidade' register={{...register("capacidade")}}  type='number' step='0.01'/>
                     </ModalFormBody>
 

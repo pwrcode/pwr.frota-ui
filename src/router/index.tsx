@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { Outlet, type RouteObject, Navigate } from "react-router-dom";
 
 const LayoutPage = lazy(() => import("@/ui/components/LayoutPage"));

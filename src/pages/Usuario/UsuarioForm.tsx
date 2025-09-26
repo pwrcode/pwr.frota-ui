@@ -76,7 +76,7 @@ export default function UsuarioForm() {
   }
 
   const getPessoas = async (pesquisa?: string) => {
-    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+    const data = await getPessoaList(pesquisa, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
     return data;
   }
 
