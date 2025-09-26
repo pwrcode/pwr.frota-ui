@@ -63,7 +63,7 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
             }, { keepDefaultValues: true })
             setTimeout(() => {
                 if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
-            }, 500);
+            }, 250);
             toast.dismiss(process);
         }
         catch (error: Error | any) {
