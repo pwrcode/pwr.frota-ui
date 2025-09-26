@@ -1,7 +1,7 @@
 import getAxios from "@/axios/configAxios";
 import { toast } from "react-toastify";
 import { errorMsg } from "./api";
-import { type itemSelectType, type listType, type optionType } from "./constants";
+import { type itemSelectType } from "./constants";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/abastecimento";

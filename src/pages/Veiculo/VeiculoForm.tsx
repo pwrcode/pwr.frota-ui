@@ -3,16 +3,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEndereco } from '@/hooks/useEndereco';
 import { errorMsg } from '@/services/api';
-import { type listType, type optionType } from '@/services/constants';
+import { type optionType } from '@/services/constants';
 import { currency } from '@/services/currency';
 import { dateDiaMesAno, dateHoraMin } from '@/services/date';
 import { formatMaskPlaca } from '@/services/mask';
-import { getTipoMotorList } from '@/services/tipoMotor';
-import { getTipoVeiculoList } from '@/services/tipoVeiculo';
 import { toNumber } from '@/services/utils';
 import { addVeiculo, getVeiculoPorId, updateVeiculo, type dadosAddEdicaoVeiculoType } from '@/services/veiculo';
-import { getVeiculoMarcaList } from '@/services/veiculoMarca';
-import { getVeiculoModeloList } from '@/services/veiculoModelo';
 import type { dadosAddEdicaoVeiculoTanqueType } from '@/services/veiculoTanque';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { PlusButton } from '@/ui/components/buttons/PlusButton';
@@ -98,7 +94,7 @@ export default function VeiculoForm() {
   const formFunctions = useForm({
     resolver: zodResolver(schema)
   });
-  const { register, handleSubmit, reset, setValue, watch, resetField, control, setFocus, formState: { errors } } = formFunctions;
+  const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
 
   const {
     setIdUf, setIdMunicipio,

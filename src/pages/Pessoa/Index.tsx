@@ -23,7 +23,6 @@ import TableLoading from '@/ui/components/tables/TableLoading';
 import { TableRodape } from '@/ui/components/tables/TableRodape';
 import { TableTop } from '@/ui/components/tables/TableTop';
 import SelectBairro from '@/ui/selects/BairroSelect';
-import SelectFuncao from '@/ui/selects/FuncaoSelect';
 import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 import SelectStatus from '@/ui/selects/StatusSelect';
 import SelectTipoDataVeiculo from '@/ui/selects/TipoDataVeiculoSelect';
