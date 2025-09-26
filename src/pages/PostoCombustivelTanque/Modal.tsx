@@ -146,7 +146,7 @@ export default function Modal({ open, setOpen, id, updateList, idPostoCombustive
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <SelectProdutoAbastecimento noFilter name='idProdutoAbastecimento' control={control} />
+                        <SelectProdutoAbastecimento ignoreFiltros name='idProdutoAbastecimento' control={control} />
                         <InputLabel name='capacidadeLitros' title='Capacidade Litros' register={{ ...register("capacidadeLitros") }} type='number' step='0.01' />
                         <InputLabel name='estoqueMinimoLitros' title='Estoque Mínimo Litros' register={{ ...register("estoqueMinimoLitros") }} type='number' step='0.01' />
                     </ModalFormBody>
