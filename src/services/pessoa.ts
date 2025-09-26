@@ -2,6 +2,7 @@ import getAxios from "@/axios/configAxios";
 import { toast } from "react-toastify";
 import { errorMsg } from "./api";
 import { type itemSelectType } from "./constants";
+import type { totalizadorType } from "./dashboard";
 
 // @ts-ignore
 const api = import.meta.env.VITE_API_URL + "/pessoa";
@@ -171,4 +172,11 @@ export const getPessoaList = async (
     toast.error(errorMsg(error, null));
     return [];
   }
+}
+
+export const getPessoaTotalizadores = async () => {
+  const axiosInstance = await getAxios();
+  const response = await axiosInstance.get(`${api}/totalizadores`);
+  if (response.data.sucesso) return response.data.dados as Array<totalizadorType>;
+  throw new Error(response.data.mensagem);
 }
