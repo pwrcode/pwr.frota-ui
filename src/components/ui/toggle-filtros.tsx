@@ -92,7 +92,7 @@ export default function ToggleFiltros({ options, control, name, isDisabled }: Pr
                                 transition-all duration-200 hover:shadow-sm
                                 ${isSelected
                                     ? `${colors.selectedBg} ${colors.selectedText} border-transparent shadow-sm`
-                                    : `bg-white dark:bg-slate-800 ${colors.text} border-gray-300 dark:border-gray-600 hover:border-gray-400`
+                                    : `bg-card dark:bg-card ${colors.text} border-gray-300 dark:border-black-600 hover:border-gray-400`
                                 }
                                 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                             `}

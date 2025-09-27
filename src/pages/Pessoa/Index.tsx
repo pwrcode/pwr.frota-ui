@@ -12,7 +12,6 @@ import { deletePessoa, getPessoas, getPessoaTotalizadores, type pessoaType, type
 import { AlertExcluir } from '@/ui/components/dialogs/Alert';
 import DropDownMenuItem from '@/ui/components/DropDownMenuItem';
 import { Filters, FiltersGrid } from '@/ui/components/Filters';
-import FiltroAbas from '@/ui/components/FiltroAbas';
 import InputDataControl from '@/ui/components/forms/InputDataControl';
 import InputFiltroPesquisa from '@/ui/components/forms/InputFiltroPesquisa';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
