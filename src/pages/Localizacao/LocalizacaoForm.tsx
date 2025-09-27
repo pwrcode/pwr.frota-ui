@@ -49,7 +49,7 @@ export default function LocalizacaoForm() {
       value: z.number().nullish()
     }).nullish().transform(t => t && t.value ? t.value : null),
     descricao: z.string().nullish(),
-    cep: z.string().optional().transform(value => value ? removeNonDigit(value) : ""),
+    cep: z.string().nullish().transform(value => value ? removeNonDigit(value) : ""),
     logradouro: z.string().nullish(),
     complemento: z.string().nullish(),
     numero: z.string().nullish(),

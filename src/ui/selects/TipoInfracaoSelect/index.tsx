@@ -1,4 +1,4 @@
-import { tiposDataVeiculo } from "@/services/constants";
+import { tiposInfração } from "@/services/constants";
 import AsyncReactSelect from "@/ui/components/forms/AsyncReactSelect";
 import { useController, type Control } from "react-hook-form";
 
@@ -8,10 +8,10 @@ type Props = {
     control: Control<any>;
 }
 
-const SelectTipoDataVeiculo = (props: Props) => {
+const SelectTipoInfracao = (props: Props) => {
     const {
-        name = "tipoData",
-        title = "Tipo Data",
+        name = "tipoInfracao",
+        title = "Tipo Infração",
         control
     } = props;
 
@@ -21,7 +21,7 @@ const SelectTipoDataVeiculo = (props: Props) => {
         <AsyncReactSelect
             name={name}
             title={title}
-            options={tiposDataVeiculo}
+            options={tiposInfração}
             value={value}
             setValue={onChange}
             isClearable
@@ -29,4 +29,4 @@ const SelectTipoDataVeiculo = (props: Props) => {
     )
 }
 
-export default SelectTipoDataVeiculo
+export default SelectTipoInfracao

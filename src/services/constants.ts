@@ -24,10 +24,17 @@ export type itemSelectType = {
     descricao: string
 };
 
+export const tiposInfração = [
+    { value: 1, label: "Leve", valueLabel: "Leve" },
+    { value: 2, label: "Média", valueLabel: "Media" },
+    { value: 3, label: "Grave", valueString: "Grave" },
+    { value: 4, label: "Gravíssima", valueString: "Gravissima" }
+]
+
 export const tiposParada = [
-    { value: 1, label: "Planejada", valueLabel: "Planejada"},
-    { value: 2, label: "Não Planejada", valueLabel: "NaoPlanejada"},
-    { value: 3, label: "Legal", valueString: "Legal"}
+    { value: 1, label: "Planejada", valueLabel: "Planejada" },
+    { value: 2, label: "Não Planejada", valueLabel: "NaoPlanejada" },
+    { value: 3, label: "Legal", valueString: "Legal" }
 ]
 
 export const optionsFuncoes = [
@@ -109,6 +116,11 @@ export const tiposDataVeiculo = [
 export const tiposDataPessoa = [
     { value: "CNH_VALIDADE", label: "Validade CNH" },
     { value: "FUNDACAO_NASCIMENTO", label: "Fundação/Nascimento" },
+]
+
+export const tiposDataMulta = [
+    { value: "VENCIMENTO", label: "Vencimento" },
+    { value: "PAGAMENTO", label: "Pagamento" },
 ]
 
 export const tiposRegime = [
