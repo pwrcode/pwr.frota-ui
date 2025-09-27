@@ -185,7 +185,7 @@ export default function VeiculoForm() {
     try {
       if (!id) {
         const post: dadosAddEdicaoVeiculoType = {
-          idFotoVeiculo: idArquivoFotoVeiculo,
+          idFotoVeiculo: idArquivoFotoVeiculo !== 0 ? idArquivoFotoVeiculo : null,
           descricao: data.descricao,
           placa: data.placa?.replace('-', ""),
           renavam: data.renavam,
@@ -217,7 +217,7 @@ export default function VeiculoForm() {
       }
       else {
         const put: dadosAddEdicaoVeiculoType = {
-          idFotoVeiculo: idArquivoFotoVeiculo,
+          idFotoVeiculo: idArquivoFotoVeiculo !== 0 ? idArquivoFotoVeiculo : null,
           descricao: data.descricao,
           placa: data.placa?.replace('-', ""),
           renavam: data.renavam,

@@ -45,7 +45,7 @@ export const tiposCorVeiculo = [
     { value: "Rosa", label: "Rosa" },
     { value: "Roxa", label: "Roxa" },
     { value: "Verde", label: "Verde" },
-    { value: "Vermelha", label: "Vermelha" },
+    { value: "Vermelho", label: "Vermelho" },
     { value: "Fantasia", label: "Fantasia" },
 ]
 
