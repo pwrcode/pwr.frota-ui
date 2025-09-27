@@ -1,6 +1,7 @@
 import { defineConfig  } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
+import tailwindcss from '@tailwindcss/vite'
 
 const injectBuildTimestamp = () => {
   return {
@@ -13,11 +14,10 @@ const injectBuildTimestamp = () => {
 };
 
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), injectBuildTimestamp()],
+  plugins: [react(), injectBuildTimestamp(), tailwindcss()],
   server: {
-    port: 5097, // Define a porta aqui
+    port: 5097,
   },
   resolve: {
     alias: {
