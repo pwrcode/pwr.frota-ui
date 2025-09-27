@@ -56,7 +56,7 @@ export default function EntradaCombustivel({ idPosto }: { idPosto?: number }) {
             dataInicio: "",
             dataFim: "",
             idPessoaFornecedor: undefined,
-            idPostoCombustivel: undefined,
+            idPostoCombustivel: idPosto ? { value: idPosto } : undefined,
             idProdutoAbastecimento: undefined,
             idPostoCombustivelTanque: undefined,
         }

@@ -59,7 +59,7 @@ export default function Abastecimento({ idPosto, idVeiculo }: { idPosto?: number
       dataInicio: "",
       dataFim: "",
       idMotorista: undefined,
-      idPostoCombustivel: undefined,
+      idPostoCombustivel: idPosto ? { value: idPosto } : undefined,
       idProdutoAbastecimento: undefined,
       idVeiculo: undefined,
     }
