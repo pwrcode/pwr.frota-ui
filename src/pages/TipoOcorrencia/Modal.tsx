@@ -25,7 +25,9 @@ const schema = z.object({
     idTipoOcorrenciaCategoria: z.object({
         value: z.number().optional(),
         label: z.string().optional()
-    }, { error: "Selecione a categoria" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { error: "Selecione a categoria" }),
+    }, { error: "Selecione a categoria" })
+        .transform(t => t && t.value ? t.value : undefined)
+        .refine(p => !isNaN(Number(p)), { error: "Selecione a categoria" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
@@ -45,7 +47,7 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
                     value: item.idTipoOcorrenciaCategoria,
                     label: item.descricaoTipoOcorrenciaCategoria
                 }
-            }, {keepDefaultValues: true})
+            }, { keepDefaultValues: true })
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -75,16 +77,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoTipoOcorrenciaType = {
-                descricao: dados.descricao,
-                idTipoOcorrenciaCategoria: dados.idTipoOcorrenciaCategoria ?? null,
-            };
             if (id === 0) {
-                const response = await addTipoOcorrencia(postPut);
+                const response = await addTipoOcorrencia(dados);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const response = await updateTipoOcorrencia(id, postPut);
+                const response = await updateTipoOcorrencia(id, dados);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
             if (updateList) updateList();

@@ -64,15 +64,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoTipoOcorrenciaCategoriaType = {
-                descricao: dados.descricao,
-            };
             if (id === 0) {
-                const response = await addTipoOcorrenciaCategoria(postPut);
+                const response = await addTipoOcorrenciaCategoria(dados);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const response = await updateTipoOcorrenciaCategoria(id, postPut);
+                const response = await updateTipoOcorrenciaCategoria(id, dados);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
             if (updateList) updateList();

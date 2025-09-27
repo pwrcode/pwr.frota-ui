@@ -22,11 +22,11 @@ type modalPropsType = {
 }
 
 const schema = z.object({
-    descricao: z.string().min(1, { message: "Informe a descrição" }),
+    descricao: z.string().min(1, { error: "Informe a descrição" }),
     tipo: z.object({
         value: z.number().optional(),
         label: z.string().optional()
-    }, { error: "Selecione o tipo parada" }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { error: "Selecione o tipo parada" }),
+    }).transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { error: "Selecione o tipo parada" }),
 });
 
 export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
@@ -76,16 +76,12 @@ export default function Modal({ open, setOpen, id, updateList }: modalPropsType)
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoMotivoParadaType = {
-                descricao: dados.descricao,
-                tipo: dados.tipo ?? null
-            };
             if (id === 0) {
-                const response = await addMotivoParada(postPut);
+                const response = await addMotivoParada(dados);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
             }
             else {
-                const response = await updateMotivoParada(id, postPut);
+                const response = await updateMotivoParada(id, dados);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
             }
             if (updateList) updateList();
