@@ -97,7 +97,7 @@ export default function VeiculoForm() {
   const { register, handleSubmit, reset, setValue, watch, control, setFocus, formState: { errors } } = formFunctions;
 
   const {
-    setIdUf, setIdMunicipio,
+    setValuesUf, setValuesMunicipio,
   } = useEndereco(formFunctions);
 
   const { id } = useParams();
@@ -136,13 +136,7 @@ export default function VeiculoForm() {
     try {
       if (!id || isNaN(Number(id))) throw new Error("Não foi possível encontrar o item");
       const item = await getVeiculoPorId(Number(id));
-      if (item.idUf) setIdUf(item.idUf);
-      if (item.idMunicipio) setIdMunicipio(item.idMunicipio);
-      setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
-      if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
-      if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
-      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
-      
+
       reset({
         descricao: item.descricao,
         placa: formatMaskPlaca(item.placa),
@@ -162,14 +156,19 @@ export default function VeiculoForm() {
         valorVenda: String(currency(item.valorVenda)),
         isVendido: item.valorVenda ? true : false,
       })
-      
+      if (item.idUf) setValuesUf(item.idUf);
+      setIdArquivoFotoVeiculo(item.idFotoVeiculo ?? 0)
+      if (item.idTipoVeiculo) setValue("idTipoVeiculo", { value: item.idTipoVeiculo, label: item.descricaoTipoVeiculo });
+      if (item.idVeiculoMarca) setValue("idVeiculoMarca", { value: item.idVeiculoMarca, label: item.descricaoVeiculoMarca });
+      if (item.idTipoMotor) setValue("idTipoMotor", { value: item.idTipoMotor, label: item.descricaoTipoMotor });
       setDataCompra(item.dataAquisicao);
       setDataVenda(item.dataVenda);
       setCadInfo(`${item.usuarioCadastro} ${dateDiaMesAno(item.dataCadastro)} ${dateHoraMin(item.dataCadastro)}`);
       setEdicaoInfo(`${item.usuarioEdicao} ${dateDiaMesAno(item.dataEdicao)} ${dateHoraMin(item.dataEdicao)}`);
       setTimeout(() => {
-        if (item.idVeiculoModelo) setValue("idVeiculoModelo", { value: item.idVeiculoModelo, label: item.descricaoVeiculoModelo });
-      }, 500);
+        if (item.idMunicipio) setValuesMunicipio(item.idMunicipio);
+        setValue("idVeiculoModelo", { value: item.idVeiculoModelo, label: item.descricaoVeiculoModelo });
+      }, 250);
       toast.dismiss(process);
     }
     catch (error: Error | any) {

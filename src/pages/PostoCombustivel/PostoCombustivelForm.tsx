@@ -37,12 +37,16 @@ import PostoCombustivelHistorico from '../PostoCombustivelHistorico/Index';
 import SelectUf from '@/ui/selects/UfSelect';
 import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 import SelectBairro from '@/ui/selects/BairroSelect';
+import SelectBandeira from '@/ui/selects/BandeiraSelect';
 
 const schema = z.object({
     cnpj: z.string().optional(),
     razaoSocial: z.string().min(1, { message: "Informe a Razão Social" }),
     nomeFantasia: z.string().min(1, { message: "Informe o Nome Fantasia" }),
-    bandeira: z.string().optional(),
+    bandeira: z.object({
+        value: z.string().nullish(),
+        label: z.string().nullish()
+    }).nullish().transform( t => t && t.value ? t.value : undefined),
     cep: z.string().optional(),
     idUf: z.object({
         label: z.string().optional(),
@@ -122,7 +126,7 @@ export default function PostoCombustivelForm() {
             setValue("cnpj", formatarCpfCnpj(removeNonDigit(item.cnpj)));
             setValue("razaoSocial", item.razaoSocial);
             setValue("nomeFantasia", item.nomeFantasia);
-            setValue("bandeira", item.bandeira);
+            setValue("bandeira", { value: item.bandeira, label: item.bandeira});
             setValue("cep", formatarCep(item.cep));
             setValue("logradouro", item.logradouro);
             setValue("numero", item.numero);
@@ -343,7 +347,7 @@ export default function PostoCombustivelForm() {
                                     />
                                     <InputLabel name="razaoSocial" title="Razão Social" register={{ ...register("razaoSocial") }} />
                                     <InputLabel name="nomeFantasia" title="Nome Fantasia" register={{ ...register("nomeFantasia") }} />
-                                    <InputLabel name="bandeira" title="Bandeira" register={{ ...register("bandeira") }} />
+                                    <SelectBandeira control={control} />
                                     <div className='lg:col-span-2'>
                                         <TextareaLabel title="Observação" name="observacao" register={{ ...register("observacao") }} />
                                     </div>

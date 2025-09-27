@@ -24,6 +24,15 @@ export type itemSelectType = {
     descricao: string
 };
 
+export const opcoesBandeira = [
+    { value: "Petrobras - BR", label: "Petrobras - BR" },
+    { value: "Shell", label: "Shell" },
+    { value: "Ipiranga", label: "Ipiranga" },
+    { value: "Ale", label: "Ale" },
+    { value: "Bandeira Branca", label: "Bandeira Branca" },
+    { value: "Outros", label: "Outros" },
+]
+
 export const optionsFuncoes = [
     { value: "isAjudante", label: "Ajudante", icone: Users },
     { value: "isMotorista", label: "Motorista", icone: Contact },
