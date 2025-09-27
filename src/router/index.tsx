@@ -30,6 +30,9 @@ const EntradaCombustivel = lazy(() => import("@/pages/EntradaCombustivel/"));
 const MotivoParada = lazy(() => import("@/pages/MotivoParada/"));
 const TipoOcorrenciaCategoria = lazy(() => import("@/pages/TipoOcorrenciaCategoria/"));
 const TipoOcorrencia = lazy(() => import("@/pages/TipoOcorrencia/"));
+const TipoLocalizacao = lazy(() => import("@/pages/TipoLocalizacao/Index"));
+const Localizacao = lazy(() => import("@/pages/Localizacao/"));
+const LocalizacaoForm = lazy(() => import("@/pages/Localizacao/LocalizacaoForm"));
 
 const PublicRoute = () => (
   <Suspense fallback={
@@ -82,6 +85,9 @@ const routeList = [
   { path: "/motivo-parada", element: <MotivoParada/>, label: "Motivo Parada" },
   { path: "/tipo-ocorrencia-categoria", element: <TipoOcorrenciaCategoria/>, label: "Tipo Ocorrência Categoria" },
   { path: "/tipo-ocorrencia", element: <TipoOcorrencia/>, label: "Tipo Ocorrência" },
+  { path: "/tipo-localizacao", element: <TipoLocalizacao/>, label: "Tipo Localização" },
+  { path: "/localizacao", element: <Localizacao/>, label: "Localização" },
+  { path: "/localizacao/form/:id?", element: <LocalizacaoForm/>, label: "invisible" },
 ]
 
 const routeObjects: RouteObject[] = routeList.map(({ label, ...route }) => ({

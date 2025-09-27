@@ -5,65 +5,47 @@ import { Button } from '@/components/ui/button';
 import { errorMsg } from '@/services/api';
 import ModalFormBody from '@/ui/components/forms/ModalFormBody';
 import ModalFormFooter from '@/ui/components/forms/ModalFormFooter';
-import { addBairro, getBairroPorId, updateBairro, type dadosAddEdicaoBairroType } from '@/services/bairro';
+import { addTipoLocalizacao, getTipoLocalizacaoPorId, updateTipoLocalizacao, type dadosAddEdicaoTipoLocalizacaoType } from '@/services/tipoLocalizacao';
 import InputLabel from '@/ui/components/forms/InputLabel';
 import { ButtonSubmit } from '@/ui/components/buttons/FormButtons';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { getMunicipioPorId } from '@/services/municipio';
-import type { optionType } from '@/services/constants';
-import SelectUf from '@/ui/selects/UfSelect';
-import SelectMunicipio from '@/ui/selects/MunicipioSelect';
 
 type modalPropsType = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
     id: number,
     updateList?: (paginaAtual?: number) => Promise<void>,
-    selecionarBairro?: (bairro: optionType) => void,
-    idMunicipio?: number | null,
 }
 
-const schema = z.object({
-    descricao: z.string().min(1, { message: "Informe a descrição" }),
-    idUf: z.object({
-        label: z.string().optional(),
-        value: z.number().optional()
-    }).nullable(),
-    idMunicipio: z.object({
-        label: z.string().optional(),
-        value: z.number().optional()
-    }, { message: "Selecione o munícipio" }).nullable().transform(t => t && t.value ? t.value : undefined).refine(p => !isNaN(Number(p)), { message: "Selecione o munícipio" }),
-});
+export default function Modal({ open, setOpen, id, updateList }: modalPropsType) {
 
-export default function Modal({ open, setOpen, id, updateList, selecionarBairro, idMunicipio }: modalPropsType) {
+    const schema = z.object({
+        descricao: z.string().min(1, { message: "Informe a descrição" }),
+        icone: z.string().optional(),
+        cor: z.string().optional(),
+    });
+
     const formFunctions = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
             descricao: "",
-            idUf: null,
-            idMunicipio: null
         }
     });
-    const { register, handleSubmit, reset, setValue, control, setFocus, formState: { errors } } = formFunctions;
+    const { register, handleSubmit, reset, setFocus, formState: { errors } } = formFunctions;
 
     const [loading, setLoading] = useState(false);
 
     const setValuesPerId = async () => {
         const process = toast.loading("Buscando item...");
         try {
-            const item = await getBairroPorId(Number(id));
+            const item = await getTipoLocalizacaoPorId(Number(id));
             reset({
                 descricao: item.descricao,
-                idUf: {
-                    value: item.idUf,
-                    label: item.siglaUf
-                }
+                icone: item.icone,
+                cor: item.cor
             }, { keepDefaultValues: true })
-            setTimeout(() => {
-                if (item.idMunicipio) setValue("idMunicipio", { value: item.idMunicipio, label: item.descricaoMunicipio });
-            }, 250);
             toast.dismiss(process);
         }
         catch (error: Error | any) {
@@ -75,22 +57,6 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
         reset();
         if (!open) return
         if (id > 0) setValuesPerId();
-        else if (idMunicipio) {
-            const setMunicipio = async () => {
-                const mun = await getMunicipioPorId(idMunicipio);
-                reset({
-                    "idUf": { value: mun.idUf, label: mun.descricaoUf + ` (${mun.siglaUf})` },
-                    "idMunicipio": { value: mun.id, label: mun.descricao }
-                }, { keepDefaultValues: true });
-                setTimeout(() => {
-                    setValue("idMunicipio", {
-                        value: mun.id,
-                        label: mun.descricao
-                    })
-                }, 250);
-            }
-            setMunicipio();
-        }
     }, [id, open]);
 
     useEffect(() => {
@@ -104,24 +70,18 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
         });
     }, [errors]);
 
-    const submit = async (dados: dadosAddEdicaoBairroType) => {
+    const submit = async (dados: dadosAddEdicaoTipoLocalizacaoType) => {
         if (loading) return
         setLoading(true);
         const process = toast.loading("Salvando item...");
         try {
-            const postPut: dadosAddEdicaoBairroType = {
-                descricao: dados.descricao,
-                idMunicipio: dados.idMunicipio ?? null
-            };
             if (id === 0) {
-                const response = await addBairro(postPut);
+                const response = await addTipoLocalizacao(dados);
                 toast.update(process, { render: response.mensagem, type: "success", isLoading: false, autoClose: 2000 });
-                if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: response.id });
             }
             else {
-                const response = await updateBairro(id, postPut);
+                const response = await updateTipoLocalizacao(id, dados);
                 toast.update(process, { render: response, type: "success", isLoading: false, autoClose: 2000 });
-                if (selecionarBairro) selecionarBairro({ label: dados.descricao.toUpperCase(), value: id });
             }
             if (updateList) updateList();
             reset();
@@ -138,15 +98,15 @@ export default function Modal({ open, setOpen, id, updateList, selecionarBairro,
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent className='p-0 gap-0 m-4 h-[96%] rounded-lg border shadow-xl'>
-                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoBairroType))} className='flex flex-col h-full'>
+                <form autoComplete='off' onSubmit={handleSubmit((data) => submit(data as dadosAddEdicaoTipoLocalizacaoType))} className='flex flex-col h-full'>
                     <SheetHeader className='p-6 rounded-t-lg border-b'>
-                        <SheetTitle>{id ? `Editar Bairro #${id}` : "Cadastrar Bairro"}</SheetTitle>
+                        <SheetTitle>{id ? `Editar TipoLocalizacao #${id}` : "Cadastrar TipoLocalizacao"}</SheetTitle>
                     </SheetHeader>
 
                     <ModalFormBody>
-                        <SelectUf control={control} />
-                        <SelectMunicipio control={control} />
                         <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} disabled={loading} />
+                        <InputLabel name="icone" title="icone" register={{ ...register("icone") }} disabled={loading} />
+                        <InputLabel name="cor" title="Cor" register={{ ...register("cor") }} disabled={loading} />
                     </ModalFormBody>
 
                     <ModalFormFooter>

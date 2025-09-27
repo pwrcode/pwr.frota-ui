@@ -18,7 +18,7 @@ export enum Masks {
 interface InputInterface {
   name: string,
   mask: Masks,
-  value?: string | number,
+  value?: string | number | null,
   setValue: any,
   title?: string,
   disabled?: boolean,
