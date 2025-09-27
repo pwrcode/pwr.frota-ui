@@ -194,8 +194,8 @@ export default function LocalizacaoForm() {
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2'>
                 <SelectTiposLocalizacao control={control} />
                 <InputLabel name="descricao" title="Descrição" register={{ ...register("descricao") }} />
-                <InputLabel name="email" title="Email" register={{ ...register("email") }} size='col-span-2' />
                 <InputMaskLabel name='raio' title='Raio' mask={Masks.numerico} setValue={setValue} value={watch("raio")} />
+                <InputLabel name="email" title="Email" register={{ ...register("email") }} size='lg:col-span-2' />
                 <TextareaLabel name='observacao' title='Observação' register={{ ...register("observacao")}} />
               </div>
             </FormContainerBody>
